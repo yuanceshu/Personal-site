@@ -89,7 +89,7 @@ export default function JingmiansenPage() {
 
       <footer className={styles.entranceFooter}>
         <span>静眠森</span>
-        <Link href="/">返回袁策书的个人作品站</Link>
+        <Link href="/">返回个人作品站</Link>
       </footer>
     </div>
   );

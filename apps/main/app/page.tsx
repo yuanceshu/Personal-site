@@ -27,10 +27,10 @@ export default function Home() {
               </span>
             </h1>
             <p className="home-hero__lead home-hero__lead--mobile">
-              我是袁策书，在金融行业做产品与售前。INFJ，喜欢 AI 与心理学，也还在认真生活、工作和学习。
+              我在金融行业做产品与售前。INFJ，喜欢 AI 与心理学，也还在认真生活、工作和学习。
             </p>
             <p className="home-hero__lead home-hero__lead--desktop">
-              我是袁策书，在金融行业做产品与售前。INFJ，喜欢 AI 与心理学，也还在认真生活、工作和学习。
+              我在金融行业做产品与售前。INFJ，喜欢 AI 与心理学，也还在认真生活、工作和学习。
             </p>
             <p className="home-hero__invitation">
               这里记录着我一路工作、学习和试验留下的作品。如果你也在认真走自己的路，愿我们做彼此的学伴——岁岁成长，一路同行。
