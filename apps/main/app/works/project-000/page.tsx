@@ -21,7 +21,7 @@ import {
 export const metadata: Metadata = {
   title: "把一门 AI 培训课，当成产品来设计",
   description:
-    "从近 160 小时研发到四地 339 名学员：一次关于用户问题、范围取舍、体验设计与持续迭代的课程产品化案例。",
+    "从近 160 小时的准备，到四个城市 339 名学员——我把一门 AI 培训课，当成产品来设计了一次。",
 };
 
 const chapters = [
@@ -50,7 +50,7 @@ export default function Project000Page() {
                 <span>当成产品来设计</span>
               </h1>
               <p className="project-hero__question">
-                如何让一群 AI 基础不同的普通员工，在三个半小时后，真的愿意把 AI 用进明天的工作？
+                怎么让一群 AI 基础参差不齐的普通人，听我讲三个半小时，第二天真的愿意打开 AI 干点活？
               </p>
               <div className="project-hero__role" aria-label="我在项目中的角色">
                 <span>我的角色</span>
@@ -78,7 +78,7 @@ export default function Project000Page() {
           </dl>
           <div className="project-hero__actions">
             <a className="primary-link" href="#experience">
-              先体验一个关键差别 <span aria-hidden="true">↓</span>
+              先来体验一个关键差别 <span aria-hidden="true">↓</span>
             </a>
             <span>从一个具体工作场景开始</span>
           </div>
@@ -104,14 +104,14 @@ export default function Project000Page() {
               总得到一堆“正确的废话”？
             </h2>
             <p className="section-intro">
-              很多人不是没用过 AI，而是用过一次以后，发现它说得面面俱到，却没有一句能直接拿去工作。
+              很多人不是没用过 AI。是用过一次之后发现，它说得面面俱到，却没有一句能直接拿去干活。
             </p>
             <PromptExperience />
             <EvidenceDisclosure label="课程来源" title="这个方法原本就出现在课上">
               <div className="evidence-inline">
                 <div>
                   <p>
-                    “需求 + 场景 + 约束”来自最终课程课件第 32 页。这里先用一个固定示例把差别展示出来，再把方法带回真实工作场景。
+                    “需求 + 场景 + 约束”，来自最终课程课件第 32 页。下面先用一个固定的例子，让你亲眼看看差别，再把方法带回真实的工作里。
                   </p>
                 </div>
                 <figure className="evidence-inline__image">
@@ -133,15 +133,15 @@ export default function Project000Page() {
             <div>
               <p className="eyebrow">START WITH THE REAL JOB</p>
               <h2 id="judgment-title" className="section-title">
-                真正难的，不是把 AI 讲完，而是让人明天愿意用一次。
+                把 AI 讲完不难，难的是让人明天愿意用一次。
               </h2>
             </div>
             <div className="prose-large">
               <p>
-                学员来自一线业务、产品、运营和综合管理岗位，AI 基础并不相同。共同的阻力是：AI 很热，却和每天打开的文档、表格、会议与客户问题隔着一层。
+                来上课的，大多是一线业务、产品和运营的同事。他们对 AI 不陌生，可总觉得它和手头的事隔着一层——文档要写、表格要填、会要开、客户问题要回，这些才是每天真正要面对的。
               </p>
               <p>
-                所以课程目标不再是“系统讲完 AI”，而是让每个人看见场景、掌握一种可迁移的方法，并知道哪些信息仍然需要自己判断。
+                所以这门课没打算“系统地把 AI 讲完”。我更想做的，是让每个人看见自己的场景，学到一个能带走的方法，也知道哪些事还得自己拿主意。
               </p>
             </div>
           </div>
@@ -159,8 +159,8 @@ export default function Project000Page() {
           <div className="decision-board">
             <div className="decision-board__intro">
               <p className="eyebrow">THE DECISIONS BEHIND THE EXPERIENCE</p>
-              <h3>课程还没开始，最重要的工作已经发生了。</h3>
-              <p>目标、伙伴和时间，决定了最后课堂里能留下什么。</p>
+              <h3>课还没开始，真正要紧的事其实早就做完了。</h3>
+              <p>目标定成什么样、找谁一起做、给多少时间，最后课堂里能留下什么，基本就定了。</p>
             </div>
             <div className="decision-grid">
               {scopeDecisions.map((decision) => (
@@ -178,7 +178,7 @@ export default function Project000Page() {
               <CourseTimeline />
               <EvidenceDisclosure label="过程记录" title="第一次试讲后，时间被重新分配">
                 <p>
-                  早期大纲把 3.5 小时粗分为讲授与互动。随着试讲和素材到位，最终版重新组织成 10、40、85、25、50 分钟五段，练习和表达被保留在课程里。
+                  最早的大纲，只是把 3.5 小时粗粗地切成“讲授”和“互动”两块。后来试讲、素材一步步到位，我才把它重新排成 10、40、85、25、50 分钟五段，把练习和表达稳稳留在课里。
                 </p>
               </EvidenceDisclosure>
             </div>
@@ -189,7 +189,7 @@ export default function Project000Page() {
                 fill
                 sizes="(max-width: 760px) 100vw, 42vw"
               />
-              <figcaption>每一场开始前，都重新写一张时间节点表。</figcaption>
+              <figcaption>每一场开课前，我都会重新手写一张时间节点表。</figcaption>
             </figure>
           </div>
 
@@ -197,7 +197,7 @@ export default function Project000Page() {
             <div>
               <p className="eyebrow">PEOPLE WITH REAL SCENES</p>
               <h3>我没有一个人把课讲完。</h3>
-              <p>正式开会前，我先逐一沟通，再让每个人把最熟悉的工作带进课堂。</p>
+              <p>正式开会之前，我先挨个找人聊，再让每个人把自己最熟悉的工作带进课堂。</p>
             </div>
             <div className="collaborator-grid">
               {collaborators.map((person) => (
@@ -213,13 +213,13 @@ export default function Project000Page() {
           <div className="delivery-system">
             <div>
               <p className="eyebrow">MY WAY OF DELIVERING</p>
-              <h3>把不擅长临场发挥，变成一套可靠的准备方式。</h3>
+              <h3>我不太会临场发挥，所以反过来，把准备做得很死。</h3>
             </div>
             <ol>
-              <li><span>01</span><p>向有经验的内训师请教互动设计。</p></li>
-              <li><span>02</span><p>用完整录屏试讲，而不是只翻一遍课件。</p></li>
-              <li><span>03</span><p>逐字稿写到语气、停顿和音调，再反复演练。</p></li>
-              <li><span>04</span><p>素材到位后，再集中整合与制作。</p></li>
+              <li><span>01</span><p>先向有经验的内训师请教，互动到底怎么设计。</p></li>
+              <li><span>02</span><p>用录屏把整堂课从头到尾试讲一遍，而不是只翻课件。</p></li>
+              <li><span>03</span><p>逐字稿连语气、停顿、音调都写进去，反复练。</p></li>
+              <li><span>04</span><p>等素材都到位了，再集中整合、制作。</p></li>
             </ol>
           </div>
         </section>
@@ -231,11 +231,11 @@ export default function Project000Page() {
               <div>
                 <p className="eyebrow">DESIGN THE ENERGY, NOT ONLY THE SLIDES</p>
                 <h2 id="design-title" className="section-title">
-                  工具是内容，注意力、情绪和行动才是体验。
+                  工具只是内容。真正让一堂课成立的，是注意力、情绪，还有最后那一下动手。
                 </h2>
               </div>
               <p className="prose-large">
-                三个半小时里，学员不可能一直保持同一种注意力。课程因此有意识地在观看、理解、跟做、讨论和表达之间切换。
+                三个半小时，谁都不可能一直盯着听。所以这门课是有意设计的——在听、看、跟着做、讨论、开口说之间来回切换。
               </p>
             </div>
             <div className="design-cases">
@@ -292,9 +292,9 @@ export default function Project000Page() {
                 <p className="eyebrow">SMALL DETAILS, SAME INTENTION</p>
                 <h3>我也把 AI 用进了课堂的细节里。</h3>
                 <p>
-                  学员共同写提示词生成中场音乐；同一首歌在结尾“音乐传物”中再次出现。加分卡、奖状与感言卡也使用 AI 辅助设计，让课程从内容到道具保持同一种体验语言。
+                  中场那首歌，是学员一起写提示词生成的；到了结尾“音乐传物”，它又出现了一次。加分卡、奖状、感言卡，也都用 AI 帮着设计，让这门课从内容到道具，说同一种话。
                 </p>
-                <p className="evidence-note">这些细节负责恢复精力和建立记忆，但从不抢走学习主线。</p>
+                <p className="evidence-note">这些小东西，负责让人缓口气、留下点记忆，但从来不抢学习的主线。</p>
               </div>
             </div>
           </div>
@@ -306,11 +306,11 @@ export default function Project000Page() {
             <div>
               <p className="eyebrow">SAME COURSE, DIFFERENT ROOM</p>
               <h2 id="releases-title" className="section-title">
-                同一门课，四次都不一样。
+                同一门课，我讲了四次，四次都不一样。
               </h2>
             </div>
             <p className="prose-large">
-              每一场都留下一个观察，再变成下一场能执行的修改：时间、语言、反馈机制、内容新鲜度与讲授状态。
+              每讲完一场，我都记下一个观察，再把它变成下一场能落地的修改——时间、措辞、反馈方式、内容新鲜度，还有我自己的状态。
             </p>
           </div>
           <CityReleaseLog />
@@ -323,12 +323,12 @@ export default function Project000Page() {
               <div>
                 <p className="eyebrow">WHAT STAYED AFTER THE CLASS</p>
                 <h2 id="reflection-title" className="section-title">
-                  课程结束后，真正留下了什么？
+                  四场课讲完，真正留下了什么？
                 </h2>
               </div>
               <div className="prose-large">
                 <p>
-                  四场课能证明有人开始动手、反馈推动了下一场调整；它还不能证明长期效率提升。于是我把具体观察、留下的资产和仍然不够好的地方放在一起。
+                  四场课能证明的，是有人真的开始动手了，是反馈推着下一场在改；但它还没法证明什么长期效率。所以我把具体的观察、留下的东西，还有做得不够好的地方，都摊在这里。
                 </p>
               </div>
             </div>
@@ -337,7 +337,7 @@ export default function Project000Page() {
               <article className="outcome-card outcome-card--quote">
                 <span>课堂里发生的一件小事</span>
                 <blockquote>“我刚才下载试了一下，真被震到了。”</blockquote>
-                <p>山西场，一位学员在介绍语音输入后现场下载并体验。</p>
+                <p>山西那场，一位学员在听完语音输入之后，当场下载、当场试了起来。</p>
               </article>
               <figure className="outcome-card outcome-card--image">
                 <Image
@@ -370,10 +370,10 @@ export default function Project000Page() {
 
             <div className="project-closing narrow-shell">
               <p className="final-reflection">
-                后来我意识到，让我频繁进入心流的，并不只是站在台上讲课。真正让我着迷的，是把一个复杂、模糊的问题，一点点重新设计成别人可以真实经历的东西。
+                后来我才慢慢咂摸过来，让我一直乐在其中的，从来不只是站在台上讲课这回事。真正让我着迷的，是把一个又乱又模糊的问题，一点点拆开，重新设计成别人能亲身经历的东西。
               </p>
               <p className="closing-line">
-                希望 AI 不只是教室里的三个半小时，而是真正住进大家每天打开电脑后的第一个动作里。
+                我希望 AI 不只在教室里待上三个半小时。我更希望，它住进大家每天打开电脑后的第一个动作里。
               </p>
               <PublicAccountCard compact />
               <div className="reflection-actions">

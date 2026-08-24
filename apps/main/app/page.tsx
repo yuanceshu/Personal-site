@@ -73,8 +73,8 @@ export default function Home() {
                 </span>
               </h2>
               <p className="project-feature__question">
-                如何让一群几乎不懂 AI 的普通员工，在 3.5
-                小时后真的愿意开始使用 AI？
+                怎么让一群 AI 基础参差不齐的普通人，听我讲三个半小时，
+                第二天真的愿意打开 AI 干点活？
               </p>
               <dl className="compact-facts">
                 <div>
@@ -87,7 +87,7 @@ export default function Home() {
                 </div>
                 <div>
                   <dt>研发</dt>
-                  <dd>约 160 小时</dd>
+                  <dd>近 160 小时</dd>
                 </div>
               </dl>
               <span className="text-link">

@@ -60,7 +60,7 @@ export function PromptExperience() {
               </p>
             </div>
             <p className="demo-insight">
-              每句话都没错，但你还是不知道它能不能拿去汇报。
+              每句话都挑不出毛病，可你还是不知道，这玩意儿到底能不能拿去汇报。
             </p>
             <button className="primary-button" type="button" onClick={() => setPhase("refine")}>
               补上三个关键信息
@@ -84,7 +84,7 @@ export function PromptExperience() {
             <div className="composed-prompt">
               <p className="demo-label">现在，AI 收到的是</p>
               <p>
-                把这些材料汇总成一页汇报要点，用于给领导做周会汇报，优先突出关键数据、变化和需要决策的问题。
+                把这些材料汇总成一页汇报要点，给领导做周会汇报用，优先突出关键数据、变化，还有需要决策的问题。
               </p>
               <button className="primary-button" type="button" onClick={() => setPhase("compare")}>
                 再回答一次
@@ -119,7 +119,7 @@ export function PromptExperience() {
               </article>
             </div>
             <p className="demo-conclusion">
-              AI 没有突然变聪明。它只是终于知道：你要什么、用在哪、最在意什么。
+              AI 没有突然变聪明。它只是终于知道了——你要什么、用在哪、最在意什么。
             </p>
             <button className="secondary-button" type="button" onClick={reset}>
               再体验一次
