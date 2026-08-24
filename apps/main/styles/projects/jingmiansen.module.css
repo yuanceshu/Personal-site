@@ -1,0 +1,987 @@
+.entrancePage,
+.worldPage {
+  --jm-white: #f4f2ea;
+  --jm-muted: rgba(236, 241, 235, 0.7);
+  --jm-quiet: rgba(236, 241, 235, 0.5);
+  --jm-line: rgba(225, 239, 232, 0.16);
+  --jm-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  min-height: 100svh;
+  color: var(--jm-white);
+  background: #071416;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+  font-optical-sizing: auto;
+}
+
+.entrancePage a,
+.worldPage a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.skipLink {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.65rem 0.9rem;
+  border-radius: 999px;
+  color: #0a1a1d !important;
+  background: #f6f5ef;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  transform: translateY(-180%);
+  transition: transform 160ms ease-out;
+}
+
+.skipLink:focus {
+  transform: translateY(0);
+}
+
+.glassLink,
+.worldBack,
+.primaryAction,
+.workList a,
+.articleOutline a,
+.continueSection nav a {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.glassLink:focus-visible,
+.worldBack:focus-visible,
+.primaryAction:focus-visible,
+.workList a:focus-visible,
+.articleOutline a:focus-visible,
+.continueSection nav a:focus-visible,
+.worldFooter a:focus-visible,
+.entranceFooter a:focus-visible {
+  outline: 0.125rem solid rgba(250, 249, 233, 0.94);
+  outline-offset: 0.25rem;
+}
+
+/* Entrance */
+
+.entranceHero {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+  background: #071416;
+}
+
+.entranceScene,
+.entranceReadability {
+  position: absolute;
+  inset: 0;
+}
+
+.entranceScene {
+  z-index: -3;
+}
+
+.entranceScene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+}
+
+.entranceReadability {
+  z-index: -2;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(2, 12, 15, 0.48) 0%,
+      rgba(2, 12, 15, 0.2) 35%,
+      rgba(2, 12, 15, 0) 62%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(1, 8, 11, 0.17) 0%,
+      rgba(1, 8, 11, 0) 30%,
+      rgba(1, 8, 11, 0) 72%,
+      rgba(1, 8, 11, 0.2) 100%
+    );
+  pointer-events: none;
+}
+
+.entranceHeader {
+  position: absolute;
+  inset: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  padding: 1.75rem clamp(1.75rem, 4.4vw, 4.25rem);
+}
+
+.glassLink {
+  display: inline-flex;
+  min-height: 2.625rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding-inline: 1.125rem;
+  border: 0.0625rem solid rgba(235, 244, 239, 0.2);
+  border-radius: 999px;
+  color: rgba(245, 247, 242, 0.8) !important;
+  background: rgba(227, 241, 237, 0.055);
+  box-shadow: inset 0 0.0625rem 0 rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(0.4375rem);
+  backdrop-filter: blur(0.4375rem);
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  transition:
+    transform 280ms var(--jm-ease),
+    color 280ms var(--jm-ease),
+    border-color 280ms var(--jm-ease),
+    background-color 280ms var(--jm-ease);
+}
+
+.glassLink:hover {
+  border-color: rgba(241, 248, 244, 0.3);
+  color: rgba(255, 255, 252, 0.98) !important;
+  background: rgba(227, 241, 237, 0.09);
+  transform: translateY(-0.0625rem);
+}
+
+.glassLink:active {
+  transform: translateY(0);
+  transition-duration: 80ms;
+}
+
+.entranceContent {
+  width: min(33.75rem, 44vw);
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: clamp(4.5rem, 8.3vw, 7.875rem);
+  padding-block: 6.5rem 4.25rem;
+}
+
+.entranceEyebrow {
+  margin: 0 0 1.125rem;
+  color: rgba(232, 240, 234, 0.58);
+  font-size: 0.75rem;
+  font-weight: 550;
+  letter-spacing: 0.2em;
+}
+
+.entranceContent h1 {
+  margin: 0;
+  color: var(--jm-white);
+  font-family: "Songti SC", STSong, "Noto Serif CJK SC", serif;
+  font-size: clamp(4rem, 6vw, 5.375rem);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: 0.065em;
+  text-shadow: 0 0.125rem 1.25rem rgba(0, 12, 14, 0.18);
+}
+
+.greeting {
+  max-width: 31.25rem;
+  margin-top: 1.875rem;
+  color: var(--jm-muted);
+  font-size: 1rem;
+  line-height: 1.76;
+  letter-spacing: 0.015em;
+  text-shadow: 0 0.0625rem 0.875rem rgba(0, 10, 12, 0.22);
+}
+
+.greeting p {
+  margin: 0 0 0.625rem;
+}
+
+.greeting p:first-child {
+  color: rgba(246, 247, 241, 0.9);
+}
+
+.greeting p:last-child {
+  margin-bottom: 0;
+}
+
+.primaryAction {
+  display: inline-flex;
+  min-height: 3.125rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6875rem;
+  align-self: flex-start;
+  margin-top: 1.875rem;
+  padding-inline: 1.625rem 1.5rem;
+  border: 0.0625rem solid rgba(255, 255, 255, 0.44);
+  border-radius: 999px;
+  color: #102124 !important;
+  background: rgba(246, 246, 239, 0.93);
+  box-shadow:
+    inset 0 0.0625rem 0 rgba(255, 255, 255, 0.78),
+    0 0.5rem 1.75rem rgba(0, 10, 12, 0.12);
+  font-size: 0.9375rem;
+  font-weight: 650;
+  letter-spacing: 0.055em;
+  transition:
+    transform 280ms var(--jm-ease),
+    background-color 280ms var(--jm-ease),
+    box-shadow 280ms var(--jm-ease);
+}
+
+.primaryAction span {
+  opacity: 0.62;
+}
+
+.primaryAction:hover {
+  background: rgba(252, 252, 246, 0.98);
+  box-shadow:
+    inset 0 0.0625rem 0 rgba(255, 255, 255, 0.88),
+    0 0.625rem 1.875rem rgba(0, 10, 12, 0.16);
+  transform: translateY(-0.0625rem);
+}
+
+.primaryAction:active {
+  transform: translateY(0);
+  transition-duration: 80ms;
+}
+
+.worksSection {
+  width: min(calc(100% - 3rem), 76rem);
+  margin-inline: auto;
+  padding-block: clamp(5.5rem, 10vw, 9rem);
+  scroll-margin-top: 1rem;
+}
+
+.worksHeading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.65fr);
+  gap: 4rem;
+  align-items: end;
+  padding-bottom: clamp(3rem, 6vw, 5rem);
+}
+
+.worksHeading > div > p,
+.sectionEyebrow,
+.articleCategory {
+  margin: 0;
+  color: rgba(156, 202, 190, 0.76);
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.worksHeading h2 {
+  margin: 0.875rem 0 0;
+  font-family: "Songti SC", STSong, serif;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 550;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+}
+
+.worksHeading > p {
+  max-width: 30rem;
+  margin: 0;
+  color: var(--jm-muted);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.workList {
+  border-top: 0.0625rem solid var(--jm-line);
+}
+
+.workList a {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr) minmax(10rem, auto) 2rem;
+  gap: clamp(1rem, 3vw, 2.75rem);
+  align-items: center;
+  padding-block: clamp(1.75rem, 4vw, 2.75rem);
+  border-bottom: 0.0625rem solid var(--jm-line);
+  transition:
+    transform 280ms var(--jm-ease),
+    border-color 280ms var(--jm-ease),
+    background-color 280ms var(--jm-ease);
+}
+
+.workList a:hover {
+  border-color: rgba(225, 239, 232, 0.28);
+  background: linear-gradient(90deg, rgba(132, 186, 173, 0.055), transparent 72%);
+  transform: translateY(-0.0625rem);
+}
+
+.workIndex {
+  color: rgba(162, 207, 195, 0.62);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 0.75rem;
+}
+
+.workCopy {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.workCopy > span:first-child,
+.workCue {
+  color: var(--jm-quiet);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+}
+
+.workCopy strong {
+  font-family: "Songti SC", STSong, serif;
+  font-size: clamp(1.75rem, 3vw, 2.75rem);
+  font-weight: 550;
+  line-height: 1.2;
+}
+
+.workCopy > span:last-child {
+  max-width: 39rem;
+  color: var(--jm-muted);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+.workCue {
+  justify-self: end;
+}
+
+.workArrow {
+  justify-self: end;
+  color: rgba(236, 241, 235, 0.6);
+  font-size: 1.1rem;
+  transition: transform 280ms var(--jm-ease);
+}
+
+.workList a:hover .workArrow {
+  transform: translateX(0.25rem);
+}
+
+.entranceFooter,
+.worldFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.75rem clamp(1.5rem, 4vw, 4rem);
+  border-top: 0.0625rem solid var(--jm-line);
+  color: var(--jm-quiet);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+}
+
+.entranceFooter a,
+.worldFooter a {
+  transition: color 180ms ease-out;
+}
+
+.entranceFooter a:hover,
+.worldFooter a:hover {
+  color: var(--jm-white);
+}
+
+/* Shared article shell */
+
+.worldPage {
+  --theme-accent: #9ccabe;
+  --theme-soft: rgba(95, 154, 145, 0.11);
+  --theme-bg: #071416;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 78% 8%, var(--theme-soft), transparent 28rem),
+    var(--theme-bg);
+}
+
+.worldPage::before {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 0;
+  height: 38rem;
+  background: var(--theme-decoration);
+  content: "";
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.mist {
+  --theme-accent: #a9d3cc;
+  --theme-soft: rgba(92, 164, 154, 0.13);
+  --theme-bg: #071416;
+  --theme-decoration:
+    radial-gradient(circle at 72% 18%, rgba(130, 204, 195, 0.1), transparent 19rem),
+    linear-gradient(135deg, transparent 63%, rgba(161, 211, 204, 0.025) 63.2%, transparent 63.4%);
+}
+
+.train {
+  --theme-accent: #b6b9d8;
+  --theme-soft: rgba(112, 118, 175, 0.12);
+  --theme-bg: #0a0d17;
+  --theme-decoration:
+    repeating-linear-gradient(0deg, transparent 0 5.7rem, rgba(180, 184, 218, 0.028) 5.75rem 5.8125rem),
+    linear-gradient(90deg, transparent 56%, rgba(215, 180, 120, 0.055) 73%, transparent 88%);
+}
+
+.rain {
+  --theme-accent: #d2b891;
+  --theme-soft: rgba(175, 121, 73, 0.12);
+  --theme-bg: #111311;
+  --theme-decoration:
+    repeating-linear-gradient(102deg, transparent 0 4.8rem, rgba(220, 230, 222, 0.025) 4.85rem 4.925rem),
+    radial-gradient(circle at 75% 11%, rgba(210, 157, 89, 0.11), transparent 20rem);
+}
+
+.worldHeader {
+  position: relative;
+  z-index: 10;
+  width: min(calc(100% - 3rem), 76rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-inline: auto;
+  padding-block: 1.5rem;
+}
+
+.worldBack {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.75rem;
+  color: rgba(244, 246, 240, 0.84) !important;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  transition: color 180ms ease-out;
+}
+
+.worldBack:hover {
+  color: #fff !important;
+}
+
+.articleHero {
+  position: relative;
+  z-index: 1;
+  padding-block: clamp(5rem, 10vw, 9rem) clamp(4.5rem, 8vw, 7rem);
+}
+
+.articleHeroInner,
+.articleBody,
+.continueSection {
+  width: min(calc(100% - 3rem), 68rem);
+  margin-inline: auto;
+}
+
+.articleCategory,
+.sectionEyebrow {
+  color: var(--theme-accent);
+}
+
+.articleHero h1 {
+  max-width: 56rem;
+  margin: 1.2rem 0 0;
+  font-family: "Songti SC", STSong, serif;
+  font-size: clamp(3.7rem, 8vw, 7.5rem);
+  font-weight: 550;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+
+.articleSubtitle {
+  max-width: 49rem;
+  margin: 1.75rem 0 0;
+  color: rgba(246, 244, 235, 0.86);
+  font-family: "Songti SC", STSong, serif;
+  font-size: clamp(1.35rem, 2.8vw, 2.1rem);
+  line-height: 1.48;
+}
+
+.articleIntroduction {
+  max-width: 47rem;
+  margin: 1.5rem 0 0;
+  color: var(--jm-muted);
+  font-size: clamp(1rem, 1.5vw, 1.125rem);
+  line-height: 1.9;
+}
+
+.articleFacts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: clamp(3rem, 6vw, 4.5rem) 0 0;
+  border-block: 0.0625rem solid var(--jm-line);
+}
+
+.articleFacts div {
+  padding: 1.25rem 1.5rem 1.35rem 0;
+}
+
+.articleFacts div + div {
+  padding-left: 1.5rem;
+  border-left: 0.0625rem solid var(--jm-line);
+}
+
+.articleFacts dt {
+  color: var(--jm-quiet);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.articleFacts dd {
+  margin: 0.5rem 0 0;
+  color: rgba(246, 245, 238, 0.88);
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+
+.articleOutline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.75rem;
+  margin-top: 2rem;
+}
+
+.articleOutline a {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--jm-muted) !important;
+  font-size: 0.8125rem;
+  transition: color 180ms ease-out;
+}
+
+.articleOutline a span {
+  color: var(--theme-accent);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 0.625rem;
+  opacity: 0.72;
+}
+
+.articleOutline a:hover {
+  color: var(--jm-white) !important;
+}
+
+.articleBody {
+  position: relative;
+  z-index: 1;
+  padding-bottom: clamp(4rem, 8vw, 7rem);
+}
+
+.articleSection {
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.7fr) minmax(0, 1.3fr);
+  column-gap: clamp(2.5rem, 7vw, 7rem);
+  padding-block: clamp(4rem, 8vw, 7rem);
+  border-top: 0.0625rem solid var(--jm-line);
+  scroll-margin-top: 1.5rem;
+}
+
+.articleSection > .sectionEyebrow,
+.articleSection > h2 {
+  grid-column: 1;
+}
+
+.articleSection > h2 {
+  align-self: start;
+  margin: 0.9rem 0 0;
+  font-family: "Songti SC", STSong, serif;
+  font-size: clamp(2rem, 4vw, 3.35rem);
+  font-weight: 550;
+  line-height: 1.16;
+  letter-spacing: -0.025em;
+}
+
+.sectionProse,
+.articleSection blockquote,
+.entryList {
+  grid-column: 2;
+}
+
+.sectionProse {
+  grid-row: 1 / span 2;
+}
+
+.sectionProse p {
+  margin: 0;
+  color: rgba(229, 234, 228, 0.75);
+  font-size: clamp(1rem, 1.35vw, 1.075rem);
+  line-height: 2;
+}
+
+.sectionProse p + p {
+  margin-top: 1.25rem;
+}
+
+.articleSection blockquote {
+  margin: 2.5rem 0 0;
+  padding: 1.25rem 0 1.25rem 1.5rem;
+  border-left: 0.125rem solid color-mix(in srgb, var(--theme-accent) 62%, transparent);
+  color: rgba(248, 246, 237, 0.9);
+  font-family: "Songti SC", STSong, serif;
+  font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+  line-height: 1.65;
+}
+
+.entryList {
+  margin-top: 2.75rem;
+  border-top: 0.0625rem solid var(--jm-line);
+}
+
+.entryList section {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.48fr) minmax(0, 1fr);
+  gap: 2rem;
+  padding-block: 1.5rem;
+  border-bottom: 0.0625rem solid var(--jm-line);
+}
+
+.entryList h3 {
+  margin: 0;
+  color: rgba(246, 245, 238, 0.9);
+  font-family: "Songti SC", STSong, serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.entryList p {
+  margin: 0;
+  color: var(--jm-muted);
+  font-size: 0.9375rem;
+  line-height: 1.8;
+}
+
+.disclosure {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.45fr) minmax(0, 1fr);
+  gap: 2rem;
+  margin-top: 1rem;
+  padding: 1.5rem 0;
+  border-block: 0.0625rem solid var(--jm-line);
+}
+
+.disclosure p,
+.disclosure div {
+  margin: 0;
+}
+
+.disclosure p {
+  color: var(--theme-accent);
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+}
+
+.disclosure div {
+  color: var(--jm-muted);
+  font-size: 0.875rem;
+  line-height: 1.8;
+}
+
+.continueSection {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(14rem, 0.7fr) minmax(0, 1.3fr);
+  gap: clamp(2.5rem, 7vw, 7rem);
+  padding-block: clamp(4rem, 8vw, 7rem);
+  border-top: 0.0625rem solid var(--jm-line);
+}
+
+.continueSection h2 {
+  margin: 0.8rem 0 0;
+  font-family: "Songti SC", STSong, serif;
+  font-size: clamp(2rem, 3.8vw, 3.2rem);
+  font-weight: 550;
+}
+
+.continueSection nav {
+  border-top: 0.0625rem solid var(--jm-line);
+}
+
+.continueSection nav a {
+  display: grid;
+  grid-template-columns: minmax(0, 0.6fr) minmax(0, 1fr) auto;
+  gap: 1.5rem;
+  align-items: center;
+  min-height: 5.25rem;
+  border-bottom: 0.0625rem solid var(--jm-line);
+  transition:
+    color 180ms ease-out,
+    transform 280ms var(--jm-ease);
+}
+
+.continueSection nav a:hover {
+  color: #fff;
+  transform: translateY(-0.0625rem);
+}
+
+.continueSection nav a > span:first-child {
+  color: var(--jm-quiet);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+}
+
+.continueSection nav strong {
+  font-family: "Songti SC", STSong, serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.worldFooter {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 760px) {
+  .entranceScene img {
+    object-position: 62% 50%;
+  }
+
+  .entranceReadability {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(2, 11, 14, 0.62) 0%,
+        rgba(2, 11, 14, 0.38) 43%,
+        rgba(2, 11, 14, 0.08) 66%,
+        rgba(2, 11, 14, 0.12) 100%
+      ),
+      linear-gradient(90deg, rgba(2, 11, 14, 0.16), rgba(2, 11, 14, 0) 74%);
+  }
+
+  .entranceHeader {
+    padding: 1.25rem;
+  }
+
+  .glassLink {
+    min-height: 2.375rem;
+    padding-inline: 0.875rem;
+    -webkit-backdrop-filter: blur(0.3125rem);
+    backdrop-filter: blur(0.3125rem);
+    font-size: 0.75rem;
+  }
+
+  .entranceContent {
+    width: auto;
+    min-height: 100svh;
+    justify-content: flex-start;
+    margin-left: 0;
+    padding: 5.125rem 1.5rem 2.625rem;
+  }
+
+  .entranceEyebrow {
+    margin-bottom: 0.8125rem;
+    font-size: 0.625rem;
+    letter-spacing: 0.17em;
+  }
+
+  .entranceContent h1 {
+    font-size: clamp(2.9375rem, 14vw, 3.625rem);
+    letter-spacing: 0.055em;
+  }
+
+  .greeting {
+    max-width: 21.25rem;
+    margin-top: 1.25rem;
+    color: rgba(239, 243, 237, 0.76);
+    font-size: 0.8125rem;
+    line-height: 1.62;
+  }
+
+  .greeting p {
+    margin-bottom: 0.5rem;
+  }
+
+  .primaryAction {
+    min-height: 2.875rem;
+    margin-top: 1.25rem;
+    padding-inline: 1.375rem 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  .worksSection,
+  .articleHeroInner,
+  .articleBody,
+  .continueSection,
+  .worldHeader {
+    width: min(calc(100% - 2.5rem), 68rem);
+  }
+
+  .worksHeading {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .worksHeading > p {
+    max-width: 36rem;
+  }
+
+  .workList a {
+    grid-template-columns: 2rem minmax(0, 1fr) 1.5rem;
+    gap: 0.875rem;
+  }
+
+  .workCue {
+    display: none;
+  }
+
+  .workCopy strong {
+    font-size: clamp(1.55rem, 7.5vw, 2.2rem);
+  }
+
+  .workCopy > span:last-child {
+    font-size: 0.875rem;
+  }
+
+  .entranceFooter,
+  .worldFooter {
+    align-items: flex-start;
+    flex-direction: column;
+    padding-inline: 1.25rem;
+  }
+
+  .worldHeader {
+    padding-block: 1rem;
+  }
+
+  .articleHero {
+    padding-block: 4rem 3.75rem;
+  }
+
+  .articleHero h1 {
+    font-size: clamp(3.4rem, 16vw, 5.2rem);
+  }
+
+  .articleSubtitle {
+    margin-top: 1.35rem;
+    font-size: 1.35rem;
+  }
+
+  .articleIntroduction {
+    line-height: 1.8;
+  }
+
+  .articleFacts {
+    grid-template-columns: 1fr;
+    margin-top: 2.5rem;
+  }
+
+  .articleFacts div,
+  .articleFacts div + div {
+    padding: 1rem 0;
+    border-left: 0;
+  }
+
+  .articleFacts div + div {
+    border-top: 0.0625rem solid var(--jm-line);
+  }
+
+  .articleOutline {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem 1rem;
+  }
+
+  .articleSection,
+  .continueSection {
+    grid-template-columns: 1fr;
+    column-gap: 0;
+  }
+
+  .articleSection > .sectionEyebrow,
+  .articleSection > h2,
+  .sectionProse,
+  .articleSection blockquote,
+  .entryList {
+    grid-column: 1;
+  }
+
+  .articleSection > h2 {
+    margin-bottom: 1.75rem;
+  }
+
+  .sectionProse {
+    grid-row: auto;
+  }
+
+  .articleSection blockquote {
+    margin-top: 2rem;
+  }
+
+  .entryList section,
+  .disclosure {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .continueSection nav {
+    margin-top: 2rem;
+  }
+
+  .continueSection nav a {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+  }
+
+  .continueSection nav a > span:first-child {
+    grid-column: 1 / -1;
+    align-self: end;
+    padding-top: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(html) {
+    scroll-behavior: auto;
+  }
+
+  .glassLink,
+  .primaryAction,
+  .workList a,
+  .workArrow,
+  .continueSection nav a {
+    transition: none;
+  }
+
+  .glassLink:hover,
+  .primaryAction:hover,
+  .workList a:hover,
+  .continueSection nav a:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glassLink {
+    background: rgba(8, 22, 25, 0.94);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .glassLink {
+    border-color: rgba(255, 255, 255, 0.75);
+    background: rgba(5, 17, 20, 0.94);
+  }
+
+  .greeting,
+  .worksHeading > p,
+  .workCopy > span:last-child,
+  .articleIntroduction,
+  .sectionProse p,
+  .entryList p,
+  .disclosure div {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .workList,
+  .workList a,
+  .articleSection,
+  .entryList,
+  .entryList section,
+  .disclosure,
+  .continueSection,
+  .continueSection nav,
+  .continueSection nav a {
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+}

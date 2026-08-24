@@ -20,6 +20,7 @@ export function SiteHeader({ projectLabel }: SiteHeaderProps) {
           ) : (
             <>
               <Link href="#work">作品</Link>
+              <Link href="/works/jingmiansen">静眠森</Link>
               <Link href="#about">认识我</Link>
             </>
           )}

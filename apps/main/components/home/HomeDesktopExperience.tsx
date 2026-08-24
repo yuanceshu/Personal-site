@@ -578,6 +578,7 @@ export function HomeDesktopExperience() {
 
         <nav aria-label="桌面主页导航">
           <Link href="/works/project-000">作品</Link>
+          <Link href="/works/jingmiansen">静眠森</Link>
           <button
             type="button"
             aria-controls="home-info-panel"
