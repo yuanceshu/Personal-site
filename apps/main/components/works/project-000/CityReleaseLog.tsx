@@ -1,10 +1,9 @@
 import Image from "next/image";
 import { cities } from "@/content/projects/project-000";
-import { EvidenceDisclosure } from "./EvidenceDisclosure";
 
 export function CityReleaseLog() {
   return (
-    <ol className="release-log">
+    <ol className="release-log release-log--editorial">
       {cities.map((item, index) => (
         <li className="release-card" key={item.city}>
           <figure className="release-card__media">
@@ -25,9 +24,10 @@ export function CityReleaseLog() {
               <p>{item.date} · {item.people}</p>
             </div>
             <p className="release-card__observation">{item.observation}</p>
-            <EvidenceDisclosure label="这一版改了什么" title="查看迭代记录">
+            <div className="release-card__change">
+              <span>下一场带走的修改</span>
               <p>{item.change}</p>
-            </EvidenceDisclosure>
+            </div>
           </div>
         </li>
       ))}

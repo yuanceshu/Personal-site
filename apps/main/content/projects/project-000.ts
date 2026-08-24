@@ -78,26 +78,26 @@ export const courseTimeline = [
 
 export const scopeDecisions = [
   {
-    label: "削减",
-    title: "尚不成熟的内部工具",
-    reason: "信息新鲜度和稳定性不足，讲得更多反而会降低信任。",
+    label: "先定义目标",
+    title: "从讲完知识，改成明天用一次",
+    reason: "课程面对的是工作中的普通员工，最重要的不是知道更多，而是看见一个可以马上开始的场景。",
   },
   {
-    label: "保护",
-    title: "最贴近日常工作的文字主干",
-    reason: "文档、汇报和信息整理，是最多岗位能立即迁移的共同场景。",
+    label: "重新组队",
+    title: "把真实做过的人放进真实场景",
+    reason: "有人更熟悉内部工具，有人更熟悉文字工作和数据处理；按优势分工，课程才不会只剩一个人的想象。",
   },
   {
-    label: "再削减",
-    title: "已经制作完成的约一半多模态内容",
-    reason: "完整试讲后仍然超时，沉没成本不能成为保留理由。",
+    label: "主动删减",
+    title: "把容易过时的内容先放下",
+    reason: "工具更新太快，讲得越多越容易过时；文字类工作场景反而更接近日常，应该先保住。",
   },
   {
-    label: "最后留下",
+    label: "最后保护",
     title: "练习、互动与表达",
-    reason: "它们承担从理解到行动的转换，不能被更多信息挤走。",
+    reason: "三个半小时里，学员需要一次自己开口、自己动手、自己说出准备怎么用的机会。",
   },
-];
+] as const;
 
 export const designCases = [
   {
@@ -127,9 +127,9 @@ export const cities = [
     people: "111 人",
     image: "/projects/project-000/cities/xiamen.jpg",
     alt: "厦门站课程现场，学员在会场听课",
-    release: "第一次真实上线",
-    observation: "现场互动比预期更自发，课程结束数周后仍有人继续讨论 AI 用法。",
-    change: "收紧每个时间节点，并把逐字稿继续改得口语化。",
+    release: "第一次真实发生",
+    observation: "互动比预期更自发，课后仍有人继续讨论 AI 用法。",
+    change: "下一场把时间节点收得更紧，也把逐字稿从书面表达改得更口语。",
   },
   {
     city: "河南",
@@ -138,7 +138,7 @@ export const cities = [
     image: "/projects/project-000/cities/henan.jpg",
     alt: "河南站课程现场，学员面向讲台就座",
     release: "3 小时压缩版",
-    observation: "作业与分享更深入，学员开始主动梳理工作中的提效环节。",
+    observation: "分享开始从“工具好玩”走向拆解自己的工作流程。",
     change: "在最低时长里保护完整体验，继续减少不必要的内容切换。",
   },
   {
@@ -148,8 +148,8 @@ export const cities = [
     image: "/projects/project-000/cities/shanxi.jpg",
     alt: "山西站课程现场，学员围坐参与互动",
     release: "加入感言卡",
-    observation: "有学员在现场下载语音输入工具并马上体验，安静的书面反馈也开始被看见。",
-    change: "从第三场加入感言卡，补足只靠热烈分享无法看见的感受。",
+    observation: "有学员现场下载语音输入工具并马上体验，安静的书面反馈也开始被看见。",
+    change: "从第三场加入感言卡，让课堂气氛之外的感受也能留下来。",
   },
   {
     city: "广西",
@@ -157,8 +157,8 @@ export const cities = [
     people: "88 人",
     image: "/projects/project-000/cities/guangxi.jpg",
     alt: "广西站课程现场，讲师在学员中进行互动",
-    release: "第四次迭代",
-    observation: "演示出现巧思时，会场会同步发笑；准备充分后，讲授状态也更松弛。",
+    release: "第四次发生",
+    observation: "演示出现巧思时，会场会同步发笑；讲授状态也终于更松弛。",
     change: "删掉热度消退的内容，让案例与点评继续贴近真实工作。",
   },
 ] as const;

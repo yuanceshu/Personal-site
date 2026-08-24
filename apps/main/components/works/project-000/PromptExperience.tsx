@@ -52,7 +52,7 @@ export function PromptExperience() {
           <div className="demo-panel">
             <div className="answer-card answer-card--muted">
               <div className="answer-card__topline">
-                <span>网页预置演示</span>
+                <span>看起来很完整</span>
                 <span>第一次回答</span>
               </div>
               <p>

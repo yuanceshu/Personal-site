@@ -1,22 +1,35 @@
 import Image from "next/image";
 import Link from "next/link";
+import { HomeDesktopExperience } from "@/components/home/HomeDesktopExperience";
 import { PublicAccountCard } from "@/components/PublicAccountCard";
 import { SiteHeader } from "@/components/SiteHeader";
+import "../styles/home-experiment.css";
 
 export default function Home() {
   return (
-    <>
+    <div className="home-page">
+      <HomeDesktopExperience />
       <SiteHeader />
-      <main>
+      <main className="home-main">
         <section className="home-hero page-shell" aria-labelledby="home-title">
           <div className="home-hero__copy">
             <p className="eyebrow">你好，很高兴你来到这里。</p>
             <h1 id="home-title" className="display-title">
-              很多事需要一点运气。
-              <br />
-              好在，努力会让好运更容易发生。
+              <span className="home-title__mobile">
+                很多事需要一点运气。
+                <br />
+                好在，努力会让好运更容易发生。
+              </span>
+              <span className="home-title__desktop">
+                <span>很多事需要一点运气。</span>
+                <span>好在，努力会让</span>
+                <span>好运更容易发生。</span>
+              </span>
             </h1>
-            <p className="home-hero__lead">
+            <p className="home-hero__lead home-hero__lead--mobile">
+              我是袁策书，在金融行业做产品与售前。INFJ，喜欢 AI 与心理学，也还在认真生活、工作和学习。
+            </p>
+            <p className="home-hero__lead home-hero__lead--desktop">
               我是袁策书，在金融行业做产品与售前。INFJ，喜欢 AI 与心理学，也还在认真生活、工作和学习。
             </p>
             <p className="home-hero__invitation">
@@ -52,7 +65,13 @@ export default function Home() {
 
             <div className="project-feature__body">
               <p className="eyebrow">PROJECT 000 · AI TRAINING AS A PRODUCT</p>
-              <h2 id="work-title">把一门 AI 培训课，当成产品来设计</h2>
+              <h2 id="work-title">
+                <span className="project-title__mobile">把一门 AI 培训课，当成产品来设计</span>
+                <span className="project-title__desktop" aria-hidden="true">
+                  <span>把一门 AI 培训课，</span>
+                  <span>当成产品来设计</span>
+                </span>
+              </h2>
               <p className="project-feature__question">
                 如何让一群几乎不懂 AI 的普通员工，在 3.5
                 小时后真的愿意开始使用 AI？
@@ -72,7 +91,9 @@ export default function Home() {
                 </div>
               </dl>
               <span className="text-link">
-                查看完整项目 <span aria-hidden="true">→</span>
+                <span className="text-link__mobile">查看完整项目</span>
+                <span className="text-link__desktop">进入作品</span>
+                <span aria-hidden="true">→</span>
               </span>
             </div>
           </Link>
@@ -109,6 +130,6 @@ export default function Home() {
         <span>袁策书</span>
         <span>持续学习，也持续留下作品。</span>
       </footer>
-    </>
+    </div>
   );
 }
