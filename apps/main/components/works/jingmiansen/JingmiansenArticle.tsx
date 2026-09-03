@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { JingmiansenArticle as JingmiansenArticleData } from "@/content/projects/jingmiansen";
 import { jingmiansenWorks } from "@/content/projects/jingmiansen";
@@ -38,6 +39,28 @@ export function JingmiansenArticle({
 
       <main id="article-content">
         <section className={styles.articleHero} aria-labelledby="article-title">
+          <picture className={styles.articleHeroScene}>
+            <source srcSet={article.scene.avif} type="image/avif" />
+            <img
+              src={article.scene.webp}
+              alt=""
+              style={{ objectPosition: article.scene.position }}
+            />
+          </picture>
+          <div className={styles.articleHeroShade} aria-hidden="true" />
+
+          {article.portrait ? (
+            <Image
+              className={styles.articlePortrait}
+              src={article.portrait.src}
+              alt={article.portrait.alt}
+              width={article.portrait.width}
+              height={article.portrait.height}
+              sizes="(max-width: 760px) 54vw, 34vw"
+              priority
+            />
+          ) : null}
+
           <div className={styles.articleHeroInner}>
             <p className={styles.articleCategory}>{article.category}</p>
             <h1 id="article-title">{article.title}</h1>

@@ -1,5 +1,19 @@
 export type JingmiansenTheme = "mist" | "train" | "rain";
 
+export type JingmiansenVisual = {
+  avif: string;
+  webp: string;
+  alt: string;
+  position?: string;
+};
+
+export type JingmiansenPortrait = {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+};
+
 export type JingmiansenEntry = {
   title: string;
   description: string;
@@ -15,6 +29,8 @@ export type JingmiansenSection = {
 
 export type JingmiansenArticle = {
   theme: JingmiansenTheme;
+  scene: JingmiansenVisual;
+  portrait?: JingmiansenPortrait;
   category: string;
   title: string;
   subtitle: string;
@@ -30,6 +46,7 @@ export type JingmiansenArticle = {
 export const jingmiansenWorks = [
   {
     index: "01",
+    theme: "mist",
     category: "人物与世界",
     title: "灵眠",
     href: "/works/jingmiansen/lingmian",
@@ -39,6 +56,7 @@ export const jingmiansenWorks = [
   },
   {
     index: "02",
+    theme: "train",
     category: "角色与列车",
     title: "菲莉卡与魔女列车",
     href: "/works/jingmiansen/witch-train",
@@ -48,6 +66,7 @@ export const jingmiansenWorks = [
   },
   {
     index: "03",
+    theme: "rain",
     category: "场所与群像",
     title: "雨夜啡庭",
     href: "/works/jingmiansen/rainy-night-cafe",
@@ -59,6 +78,18 @@ export const jingmiansenWorks = [
 
 export const lingmianArticle: JingmiansenArticle = {
   theme: "mist",
+  scene: {
+    avif: "/projects/jingmiansen/forest-entrance.avif",
+    webp: "/projects/jingmiansen/forest-entrance.webp",
+    alt: "幽蓝森林深处透出晨光，水面与薄雾延伸至林间",
+    position: "54% 50%",
+  },
+  portrait: {
+    src: "/projects/jingmiansen/characters/lingmian.webp",
+    alt: "身着深色林地旅装的灵眠",
+    width: 900,
+    height: 1350,
+  },
   category: "人物与世界",
   title: "灵眠",
   subtitle: "他先学会的不是如何听得更多，而是如何选择不听。",
@@ -116,6 +147,18 @@ export const lingmianArticle: JingmiansenArticle = {
 
 export const witchTrainArticle: JingmiansenArticle = {
   theme: "train",
+  scene: {
+    avif: "/projects/jingmiansen/scenes/witch-train.avif",
+    webp: "/projects/jingmiansen/scenes/witch-train.webp",
+    alt: "深夜列车打开车门，外侧无名站台隐入蓝色雾气",
+    position: "58% 50%",
+  },
+  portrait: {
+    src: "/projects/jingmiansen/characters/felica.webp",
+    alt: "金色双辫、绿色眼睛的菲莉卡",
+    width: 900,
+    height: 1091,
+  },
   category: "角色与列车",
   title: "菲莉卡与魔女列车",
   subtitle: "她一直相信，下一站或许就能找到回森林的路。",
@@ -191,6 +234,12 @@ export const witchTrainArticle: JingmiansenArticle = {
 
 export const rainyNightCafeArticle: JingmiansenArticle = {
   theme: "rain",
+  scene: {
+    avif: "/projects/jingmiansen/scenes/rainy-night-cafe.avif",
+    webp: "/projects/jingmiansen/scenes/rainy-night-cafe.webp",
+    alt: "雨夜石巷尽头，一间木质咖啡馆透出暖光",
+    position: "58% 50%",
+  },
   category: "场所与群像",
   title: "雨夜啡庭",
   subtitle: "从归心亭到永恒邀约",
