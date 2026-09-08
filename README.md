@@ -1,60 +1,81 @@
 # 袁策书的个人产品实验室
 
-本目录是个人作品站的代码仓库与开发文档入口。明亮入口站与 Project 000 正式 V1 已完成实现，当前等待真实设备体验与正式域名发布验收。
+个人作品站代码仓库，采用单仓库、多应用和多 Vercel Project。主站、静眠森 Web 与静眠森角色服务拥有独立运行和部署边界。
 
-## 当前目标
-
-当前已经完成一套可对外展示的基础站点：
-
-- 一个只呈现创作者身份、核心能力与精选作品入口的明亮首页；
-- 一个可独立分享、具有完整证据链的 Project 000 作品详情页；
-- 一个不接真实大模型、约 60 秒完成的“正确的废话”互动；
-- 完整的移动端阅读与交互体验。
-
-当前明确不建设博客系统、CMS、数据库、用户账号、作品管理后台和通用 AI 工具。
-
-## 计划中的应用
+## 部署单元
 
 ```text
-apps/
-└── main/    # 首页与普通作品详情；首版唯一应用
+apps/main                    # 个人主站与 Project 000
+apps/jingmiansen             # 静眠森独立 Next.js App
+services/jingmiansen-agents  # 静眠森 Agno AgentOS / FastAPI
 ```
 
-只有当新的内容达到“独立世界”的标准时，才增加新的 App。不会仅因为页面很长或视觉不同就拆分应用。
+| 单元 | Vercel Root Directory | 当前状态 |
+|---|---|---|
+| 主站 | `apps/main` | 本地构建通过；待最后发布入口和旧址重定向 |
+| 静眠森 Web | `apps/jingmiansen` | 独立 App 与短路由完成；待 Vercel Preview/Production |
+| 静眠森 Agent | `services/jingmiansen-agents` | Vercel、Postgres、鉴权和清理代码完成；待 Neon 与 Vercel |
 
-## 文档
+静眠森在内容上仍是个人作品体系中的二级创作世界，但技术上已经独立。主站只提供单向入口和旧路径 308；静眠森不提供返回主站的链接。这个边界降低普通访客反向发现主站的概率，但不是匿名或访问控制保证。
 
-- `docs/00_架构说明.md`：首版应用边界、路由、数据和部署原则。
-- `docs/01_开发路线图.md`：阶段、非目标与验收条件。
-- `docs/02_代码决策记录.md`：仓库级技术决定。
-- `docs/03_首版网站设计任务书_v0.2.md`：首版体验、页面结构与视觉规范。
-- `docs/04_Apple设计与交互实施规范.md`：Apple 设计原则在本 MVP 中的具体落地方式。
-- `docs/05_第二版网站优化说明.md`：第二版首页问候、公众号出口与互动优化决定。
-- `docs/projects/000_课程作为产品案例.md`：Project 000 的实现范围与来源边界。
-- `docs/projects/000_发布资产清单.md`：已进入网页的素材来源与隐私处理记录。
+## 本地启动
 
-## 本地运行
+先启动角色服务：
+
+```bash
+cd services/jingmiansen-agents
+cp .env.example .env
+# 在 .env 中填写 MINIMAX_API_KEY；本地默认使用 SQLite
+uv sync --dev
+uv run python -m jingmiansen_agents.app
+```
+
+再分别启动两个 Web App：
+
+```bash
+cd apps/jingmiansen
+npm install
+npm run dev  # http://localhost:3001
+
+cd ../main
+npm install
+npm run dev  # http://localhost:3000
+```
+
+本地环境变量入口：
+
+- `apps/main/.env.local`：参考 `apps/main/.env.example`，配置 `JINGMIANSEN_SITE_URL`；
+- `apps/jingmiansen/.env.local`：参考 `apps/jingmiansen/.env.example`，配置 Agent 地址和共享 Token；
+- `services/jingmiansen-agents/.env`：参考服务目录 `.env.example`，保存 MiniMax Key、数据库和服务端 Secret。
+
+`.env` 与 `.env.local` 均不提交。Vercel 中继续使用本地现有 `MINIMAX_API_KEY` 的同一值，但只录入 Agent Project 的加密环境变量。
+
+## 检查命令
 
 ```bash
 cd apps/main
-npm run dev
-```
-
-生产构建：
-
-```bash
-cd apps/main
+npm run lint
+npx next typegen
+npm run typecheck
 npm run build
+
+cd ../jingmiansen
+npm run lint
+npm run typecheck
+npm run build
+
+cd ../../services/jingmiansen-agents
+uv run pytest
+uv lock --check
 ```
 
-## 权威来源
+## 文档入口
 
-本仓库的设计与实现受以下资料约束：
+- `docs/00_架构说明.md`：应用边界、路由、数据流、部署与环境变量；
+- `docs/01_开发路线图.md`：当前发布阶段、验收条件与域名后续；
+- `docs/02_代码决策记录.md`：仓库级技术决定及其历史；
+- `apps/jingmiansen/README.md`：独立站职责、短路由和检查方式；
+- `services/jingmiansen-agents/README.md`：AgentOS 本地与 Vercel 运行说明；
+- `../../01_资料库/资料_静眠森/`：静眠森内容、人物、语言与安全规范。
 
-- `../../AGENTS.md`
-- `../../00_项目总说明/00_个人作品站技术实施手册 TECHNICAL_PLAYBOOK.md`
-- `../../01_资料库/资料_AI课程设计展示/`
-
-事实、人物设定与 Project 000 内容仍在各自资料库维护；本目录只记录设计和代码如何实现这些决定。
-
-静眠森资料独立维护在 `../../01_资料库/资料_静眠森/`。它是主站中的二级创作世界，通过首页右上角“静眠森”入口和 `/works/jingmiansen` 稳定访问；它不改变主站的全站叙事层，内部作品继续在静眠森自己的页面与导航中展开。
+当前不建设博客、CMS、全站数据库、账号体系、跨设备同步、长期角色记忆或通用 AI 网关。

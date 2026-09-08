@@ -6,6 +6,7 @@
 
 # Local environment and secrets
 .env*
+!.env.example
 *.pem
 
 # TypeScript and tooling caches

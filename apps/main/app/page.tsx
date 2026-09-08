@@ -6,9 +6,13 @@ import { SiteHeader } from "@/components/SiteHeader";
 import "../styles/home-experiment.css";
 
 export default function Home() {
+  const jingmiansenUrl =
+    process.env.JINGMIANSEN_SITE_URL?.replace(/\/$/, "") ??
+    "http://localhost:3001";
+
   return (
     <div className="home-page">
-      <HomeDesktopExperience />
+      <HomeDesktopExperience jingmiansenUrl={jingmiansenUrl} />
       <SiteHeader />
       <main className="home-main">
         <section className="home-hero page-shell" aria-labelledby="home-title">
@@ -67,7 +71,7 @@ export default function Home() {
               <p className="eyebrow">PROJECT 000 · AI TRAINING AS A PRODUCT</p>
               <h2 id="work-title">
                 <span className="project-title__mobile">把一门 AI 培训课，当成产品来设计</span>
-                <span className="project-title__desktop" aria-hidden="true">
+                <span className="project-title__desktop">
                   <span>把一门 AI 培训课，</span>
                   <span>当成产品来设计</span>
                 </span>

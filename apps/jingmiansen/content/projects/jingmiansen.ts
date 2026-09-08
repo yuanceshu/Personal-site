@@ -1,0 +1,285 @@
+export type JingmiansenTheme = "mist" | "xingyue" | "train" | "rain";
+
+export type JingmiansenVisual = {
+  avif: string;
+  webp: string;
+  alt: string;
+  position?: string;
+};
+
+export type JingmiansenPortrait = {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+};
+
+export type JingmiansenEntry = {
+  title: string;
+  description: string;
+};
+
+export type JingmiansenSection = {
+  eyebrow: string;
+  title: string;
+  paragraphs: readonly string[];
+  quote?: string;
+  entries?: readonly JingmiansenEntry[];
+};
+
+export type JingmiansenArticle = {
+  theme: JingmiansenTheme;
+  scene: JingmiansenVisual;
+  portrait?: JingmiansenPortrait;
+  category: string;
+  title: string;
+  subtitle: string;
+  introduction: string;
+  facts: readonly { label: string; value: string }[];
+  sections: readonly JingmiansenSection[];
+  featuredStory?: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    meta: string;
+    href: string;
+    cover: JingmiansenVisual;
+  };
+  disclosure?: {
+    label: string;
+    text: string;
+  };
+};
+
+export const jingmiansenWorks = [
+  {
+    index: "01",
+    theme: "xingyue",
+    category: "沉浸式图文故事",
+    title: "星月相护",
+    href: "/xing-yue-xiang-hu",
+    description:
+      "一束不敢再次亮起的星辉，与一颗用温柔包住黑暗的星穗，在雨夜学会彼此守护。",
+    cue: "三章 · 约 35 分钟",
+    cover: {
+      avif:
+        "/projects/jingmiansen/stories/xing-yue-xiang-hu/ch2-04-desktop.avif",
+      webp:
+        "/projects/jingmiansen/stories/xing-yue-xiang-hu/ch2-04-desktop.webp",
+      alt: "真理奈与希斯达娅在散落的星尾草间抬头对视",
+      position: "50% 50%",
+    },
+  },
+  {
+    index: "02",
+    theme: "rain",
+    category: "场所与群像",
+    title: "雨夜啡庭",
+    href: "/rainy-night-cafe",
+    description:
+      "白银乡雨巷里的一间咖啡馆，也是一群漂泊者彼此接住的地方。",
+    cue: "雨幕、暖灯与归处",
+    cover: {
+      avif: "/projects/jingmiansen/scenes/rainy-night-cafe.avif",
+      webp: "/projects/jingmiansen/scenes/rainy-night-cafe.webp",
+      alt: "雨夜石巷尽头，一间木质咖啡馆透出暖光",
+      position: "58% 50%",
+    },
+  },
+  {
+    index: "03",
+    theme: "train",
+    category: "角色与列车",
+    title: "菲莉卡与魔女列车",
+    href: "/witch-train",
+    description:
+      "一个被猫灵养大的女孩误入列车，并在混沌中重新确认自己的名字与归途。",
+    cue: "夜行、以太与身份",
+    cover: {
+      avif: "/projects/jingmiansen/scenes/witch-train.avif",
+      webp: "/projects/jingmiansen/scenes/witch-train.webp",
+      alt: "深夜列车打开车门，外侧无名站台隐入蓝色雾气",
+      position: "58% 50%",
+    },
+  },
+] as const;
+
+export const witchTrainArticle: JingmiansenArticle = {
+  theme: "train",
+  scene: {
+    avif: "/projects/jingmiansen/scenes/witch-train.avif",
+    webp: "/projects/jingmiansen/scenes/witch-train.webp",
+    alt: "深夜列车打开车门，外侧无名站台隐入蓝色雾气",
+    position: "58% 50%",
+  },
+  portrait: {
+    src: "/projects/jingmiansen/characters/felica.webp",
+    alt: "金色双辫、绿色眼睛的菲莉卡",
+    width: 900,
+    height: 1091,
+  },
+  category: "角色与列车",
+  title: "菲莉卡与魔女列车",
+  subtitle: "她一直相信，下一站或许就能找到回森林的路。",
+  introduction:
+    "有一列火车，只在夜里停靠，从不在任何一张地图上留下站名。它穿行于时空的罅隙，收留迷路的旅人，也替魔女们保留那些来不及带走的记忆。菲莉卡误入其中的时候，只是想追回一只幼年的猫灵——她并不知道，这列车上等着她的，不只是回家的路，还有一个她迟迟不肯承认的名字。",
+  facts: [
+    { label: "菲莉卡", value: "人类血统与猫灵共生体" },
+    { label: "进入列车", value: "误触森林深处的祭坛传送阵" },
+    { label: "此页范围", value: "公开设定与人物经历，不含核心真相" },
+  ],
+  sections: [
+    {
+      eyebrow: "01 · 夜行列车",
+      title: "只在夜里停靠的火车",
+      paragraphs: [
+        "魔女列车既是交通工具，也是一处收留旅人和魔女的临时居所。它沿着以太的道路，穿行于不同的地点与世界之间；车厢并不只是排列整齐的房间，更像一组由记忆、愿望与情绪慢慢长出来的空间。推开某一扇门，你也许会走进某位魔女再不愿提起的过去，也许会撞见一群人共同守着的春天。",
+        "这里允许各式来客出入，也聚集着性格、目的和力量截然不同的人。表面的和气并不等于安全——菲莉卡正是在这种难以一眼看清的秩序里，慢慢学会了分辨恶意，学会了珍惜同伴，也终于明白，回家不是一句轻飘飘的愿望，而是要在漫长的路上一站一站去认领的事。",
+      ],
+    },
+    {
+      eyebrow: "02 · 误入",
+      title: "为了护住一只幼年猫灵",
+      paragraphs: [
+        "菲莉卡是在迷雾之森里长大的。她没有在人类的怀抱里睡熟过几个夜晚，是猫灵族群用温热的身体和粗糙的舌头，一点一点把她带大。她能听见动物灵没说出口的情绪，夜视与平衡感好得像与生俱来；她也学了些依赖情绪的小法术，紧张的时候，尾巴会无意识地绷紧，像在替她守住最后一点镇定。",
+        "那一天，为了一只被魔法蝴蝶诱向陷阱的幼年猫灵，她一路追进森林深处，踏上一座废弃已久的祭坛。传送阵突然亮起，把她卷进了魔女列车。阵法的来历与触发，至今无人说得清。此后的日子，她一边帮车上的乘客照看魔宠、调解纠纷，一边向占卜师与书灵打听，哪一站，才能把她带回森林。",
+      ],
+    },
+    {
+      eyebrow: "03 · 名字",
+      title: "菲莉卡，与灵萤",
+      paragraphs: [
+        "“菲莉卡”是母亲千鹤留给她的名字。母亲是东洋的诗人，一生只给她留下了这一件，像一截没有写完的诗，缀着她的来处与血统。而森林里的猫灵，从不这样叫她——它们给过她另一个名字：“灵萤”。灵，是她与猫灵共生的那一半；萤，是她指尖亮起的那一点，像夏夜里将熄未熄的萤火。",
+        "很长一段时间里，她只肯承认“菲莉卡”。她怕一旦应下“灵萤”，就是承认自己不再是母亲的女儿，怕那一截没写完的诗，会就此散在风里。可列车是一段很长很长的路，长到足够让她把两个名字都仔仔细细看一遍。她慢慢发现，承认另一个名字，并不意味着忘记母亲——就像萤火从不代替月光，只是并排亮在夜里。",
+        "终于有一天，她不再躲闪。她把两个名字放在一起，像把母亲的温柔和猫灵的坚韧，一并收进怀里。“菲莉卡·灵萤”——这是她走了那么远的路，才敢认领的、完整的自己。",
+      ],
+      quote: "承认另一个名字，并不意味着忘记母亲——就像萤火从不代替月光，只是并排亮在夜里。",
+    },
+    {
+      eyebrow: "04 · 车厢选录",
+      title: "每一节车厢，都是一个人留下的形状",
+      paragraphs: [
+        "列车中的车厢并不遵循普通建筑的逻辑。它们可能来自某位魔女的记忆，也可能承载一群人共同的愿望；空间在这里不是背景，而是人物内心留下的形状。",
+      ],
+      entries: [
+        {
+          title: "密林魔女的密室",
+          description:
+            "一段被森林放大的记忆。魔镜以色彩和形状反映情绪，魔泉则保存着未被列车吸收的以太残留。",
+        },
+        {
+          title: "群星魔女的房间",
+          description:
+            "某位魔女在星空下的幻想，被定格在她想象自己飞上云端的那一刻。",
+        },
+        {
+          title: "无限春日列车",
+          description:
+            "承载众人对美好生活的希望与祝福，永远在温暖春日里前行。",
+        },
+        {
+          title: "地下室",
+          description:
+            "列车的心脏。迷宫、书房、角落花园与禁闭室，分别映照难以袒露的心思、求知欲、复杂感情与自我审视。",
+        },
+      ],
+    },
+  ],
+  disclosure: {
+    label: "创作来源",
+    text: "魔女列车世界设定由创作者的一位朋友提供；菲莉卡·灵萤及相关人物经历由本人创作。本页只展示已获允许公开的表层设定，不披露列车的核心真相。",
+  },
+};
+
+export const rainyNightCafeArticle: JingmiansenArticle = {
+  theme: "rain",
+  scene: {
+    avif: "/projects/jingmiansen/scenes/rainy-night-cafe.avif",
+    webp: "/projects/jingmiansen/scenes/rainy-night-cafe.webp",
+    alt: "雨夜石巷尽头，一间木质咖啡馆透出暖光",
+    position: "58% 50%",
+  },
+  category: "场所与群像",
+  title: "雨夜啡庭",
+  subtitle: "从归心亭到永恒邀约",
+  introduction:
+    "白银乡的雨雾总是绵长。雨夜里有一间名为“雨夜·Le Pluvinuit”的小店，最先抓住人的不是暖得恰到好处的灯光，也不是淡得刚好的咖啡香，而是一种近乎安稳的宿命感——像走了很远的路，终于在雨雾里撞见一处本就该等在那里的地方。",
+  facts: [
+    { label: "前身", value: "第七灵灾后的临时医疗棚" },
+    { label: "旧名", value: "归心亭" },
+    { label: "核心", value: "雨声、咖啡与自愿留下的人" },
+  ],
+  sections: [
+    {
+      eyebrow: "01 · 粗陶碗",
+      title: "粗陶碗的温度",
+      paragraphs: [
+        "月泉宗第一次踏入白银乡时，这里还弥漫着第七灵灾之后的创痛。他不是茶匠，而是一位曾穿梭于东西方之间的商人，脚步踏遍艾欧泽亚的城邦与远东的街巷，见惯了不同土地的烟火与风霜。",
+        "在利姆萨·罗敏萨的港口，他第一次被咖啡的醇香捕获，那浓郁又带着层次的滋味，像一束光，照亮了他常年奔波的疲惫。可战火终究碾过了故乡，多玛沦陷，他沦为颠沛流离的遗民，最终被安置在这处由废弃仓库仓促改建的医疗棚里。",
+        "那是一个雨水冰冷的夜晚，棚屋里灯火通明，却掩不住空气中草药与潮湿绷带的气味。一位面容疲惫的医师递来一只粗陶碗，盛着滚烫而苦涩的草药汤。就是这只简陋容器里不掺任何修饰的温度，顺着指尖一路蔓延至心底。他双手捧着碗，指腹摩挲着粗糙的碗壁，忽然生出一个念头，轻而坚定，像雨夜里的一盏灯——他要把这份在绝望中接到的温暖，变成一处能让所有漂泊者停靠的港湾。",
+        "这份庇护不必华丽，也不必昂贵，就像那碗草药汤，只需有温度、有善意。而他要用来传递它的，便是咖啡——磨豆的轻响、萃取的绵密、入口的温润，一杯下去，能让人把浮躁的心事，轻轻放在杯沿。",
+      ],
+    },
+    {
+      eyebrow: "02 · 归心亭",
+      title: "木纹里的咖啡香",
+      paragraphs: [
+        "战争落幕，喧嚣散去，唯有月泉宗留了下来。他没有试图抹去过往的痕迹，而是选择与这段伤痛对话，将它酿成温柔的底色。他保留仓库原有的结构轮廓，用源自多玛、混着香草纤维的改良夯土重新加固——墙面触感温润，带着细密的纹理，仿佛能呼吸，默默承载着每一位来客的疲惫与心事。",
+        "支撑起这间小店的，是一位精灵族好友送来的“静语古木”。这种树生长极慢，木质紧密坚硬，自带一种超然的安宁气息。月泉宗没有过度打磨，只轻轻清理表面，让那些天然的曲线、深浅不一的纹路，甚至被风雨侵蚀的浅痕，都原原本本地保留下来，化作立柱、吧台、桌椅与置物架。吧台的木纹渐渐浸满咖啡的醇香，与温润的夯土墙静静相对，像一场东西方材质的温柔对话。",
+        "他还把多玛庭院“移步换景”的巧思，悄悄融进这方不大的空间：入口处，圆润的卵石与细碎的苔藓铺出小巧的枯山水，一只浅蓝绿的琉璃水钵盛着半钵清水，映着头顶暖灯的光晕；穿过低矮的原木门廊，是暖灯包裹的主厅，没有浮华的装饰，只留恰到好处的留白。",
+        "窗外的雨雾弥漫、寒意袭人，窗内却暖光融融、咖啡香绵长。他给这里取名“归心亭”，盼着它成为所有漂泊者的锚点，让每一颗浮躁的心，都能在此归位、安顿。",
+      ],
+    },
+    {
+      eyebrow: "03 · 雨夜",
+      title: "雨夜里的新名字",
+      paragraphs: [
+        "“归心亭”默默运转了数年，没有张扬，却凭着一份独特的安宁，渐渐被白银乡的人熟知。直到一个深秋的雨天，萨雷安学者艾莉亚循着这份奇特的安宁感踏入这里。她研究以太环境心理学与古代建筑共鸣，静坐之后发现，土地上祈愿愈合的以太残响、静语古木、还有来客寻求安宁的思绪，早已共同凝成一道自然结界——它不粗暴隔绝世界，只把喧嚣滤远，把暴雨柔化成雨纱，把雷鸣留下安稳的低沉余韵。",
+        "艾莉亚提议将它更名为“雨夜·Le Pluvinuit”。归心，是月泉宗对漂泊者的期许；雨夜，则让这份期许有了一个可以停靠的地方。旧木匾被移到店内深处，新名字挂上门外。",
+        "月泉宗后来悄然离开，只留下洗净的咖啡杯，和一句话：“此庭赠需者，亦赠予者。”从此这里没有店长、没有排班表，也没有薪水，只有一群自愿留下的“归人”。他们曾在这里接过温暖，于是也愿意把它，再递出去一点。",
+      ],
+      quote: "维系这一切的，从不是规则与利益，只是每个人都在这里接过一份暖。",
+    },
+    {
+      eyebrow: "04 · 里·茶庭",
+      title: "向下生长的庭院",
+      paragraphs: [
+        "主厅后方有一道不起眼的木梯，通向“里·茶庭”。它原本只是存放咖啡豆与器具的地窖，后来却向下生长，长成一座没有人知道尽头的寂静庭院。空间大得惊人，像一座垂直的庭院，每个人都找得到属于自己的角落——起居或独处，都不会被打扰；即便不断有新人加入，也永远不会拥挤。",
+        "每个小间都随着居住者的需要与心境变化：疲惫的人会遇见能听见地下流水声的卧榻，想独处阅读的人会找到满墙的书架，喜欢草木的人会走进种满咖啡香草的温室。这里的空间从不炫耀奇迹，只是用自己的方式，接住每一个需要庇护的人。",
+      ],
+    },
+    {
+      eyebrow: "05 · 留下来的人",
+      title: "接住与被接住",
+      paragraphs: [
+        "有人只是短暂停靠，也有人最终成为雨夜的一部分。她们抵达这里的原因并不相同，却都在一杯咖啡、一盏暖灯和不被追问的沉默里，重新找到与他人相处的方式。",
+      ],
+      entries: [
+        {
+          title: "菲莉卡·灵萤",
+          description:
+            "离开魔女列车后继续寻找归途。她原以为雨夜异常的以太可能藏着时空间隙，却先在这里遇见一种不要求她立刻出发的安稳。",
+        },
+        {
+          title: "桃乐丝",
+          description:
+            "活过漫长岁月、几乎拥有一切的魔女，最终在最普通的人间烟火里找到自己始终缺少的陪伴。",
+        },
+        {
+          title: "明月真理奈",
+          description:
+            "曾经耀眼的星辉魔女在背叛与牢狱后不敢再次发光。雨夜没有追问她的过往，只让星辉慢慢变成不会灼伤他人的微光。",
+        },
+        {
+          title: "希斯达娅",
+          description:
+            "看似冒失柔软，却走过与黑暗共生的漫长道路。她把治愈香草、暖金星穗与保护他人的认真带进雨夜。",
+        },
+      ],
+    },
+  ],
+  disclosure: {
+    label: "二次创作说明",
+    text: "本作品使用《最终幻想 XIV》的世界、地点与种族元素，是非官方二次创作。雨夜啡庭的店铺构想、原创角色与相关剧情由本人创作；本页仅整理现有原稿中的店铺起源与群像概览。",
+  },
+};

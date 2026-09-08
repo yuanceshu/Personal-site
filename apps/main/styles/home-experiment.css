@@ -146,10 +146,17 @@
 
   .home-portal-brand {
     display: inline-flex;
-    gap: 0.75rem;
-    align-items: baseline;
+    gap: 0.65rem;
+    align-items: center;
     color: var(--home-portal-ink);
     text-decoration: none;
+  }
+
+  .home-portal-brand__mark {
+    width: 1.125rem;
+    height: 1.75rem;
+    flex: 0 0 auto;
+    color: var(--brand-light);
   }
 
   .home-portal-brand > span {
@@ -159,6 +166,7 @@
   }
 
   .home-portal-brand > small {
+    margin-left: 0.1rem;
     color: var(--home-portal-tertiary);
     font-size: 0.6875rem;
     font-weight: 600;
@@ -374,14 +382,14 @@
     position: relative;
     z-index: 2;
     display: grid;
-    grid-template-columns: minmax(18rem, 31rem) minmax(28rem, 32rem);
-    gap: clamp(2rem, 4.5vw, 5rem);
+    grid-template-columns: minmax(16rem, 31rem) minmax(24rem, 36rem);
+    column-gap: clamp(2rem, 6vw, 6rem);
     align-items: center;
-    justify-content: start;
-    width: min(calc(100% - 4rem), 82rem);
+    justify-content: space-between;
+    width: min(calc(100% - 4rem), 80rem);
     min-height: max(100svh, 44rem);
     margin-inline: auto;
-    padding: 6.25rem 0 2.75rem;
+    padding: 6.25rem 0 3rem;
   }
 
   .home-page .home-hero,
@@ -462,7 +470,7 @@
   }
 
   .home-page .selected-work {
-    max-width: 32rem;
+    max-width: 36rem;
     width: 100%;
     justify-self: stretch;
     animation: home-portal-enter 760ms var(--home-portal-ease-out) 170ms both;
@@ -515,61 +523,78 @@
   .home-page .project-feature__body {
     position: relative;
     display: block;
-    margin-top: 0.5rem;
-    padding: 0.3rem 0.75rem 0;
+    margin-top: 0.75rem;
+    padding: 0.9rem 1rem 0.75rem;
     border-top: 0.0625rem solid var(--home-portal-line-strong);
     background: linear-gradient(90deg, rgba(7, 11, 15, 0.5), rgba(7, 11, 15, 0.05) 82%, transparent);
   }
 
   .home-page .project-feature__body > .eyebrow {
     color: var(--home-portal-cool);
-    font-size: 0.5625rem;
-    letter-spacing: 0.12em;
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    letter-spacing: 0.1em;
   }
 
   .home-page .project-feature__body h2 {
-    max-width: 29rem;
-    margin-top: 0.25rem;
+    max-width: none;
+    margin-top: 0.5rem;
     color: var(--home-portal-ink);
-    font-size: clamp(1.6rem, 2.1vw, 1.875rem);
+    font-size: clamp(1.7rem, 2.1vw, 2rem);
     font-weight: 600;
-    line-height: 1.16;
+    line-height: 1.15;
     letter-spacing: -0.02em;
     text-wrap: balance;
   }
 
   .home-page .project-feature__question {
-    max-width: 29rem;
-    margin: 0.2rem 0;
+    max-width: none;
+    margin: 0.75rem 0 1rem;
     color: var(--home-portal-secondary);
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     line-height: 1.65;
   }
 
   .home-page .compact-facts {
-    max-width: 29rem;
-    padding-block: 0;
+    max-width: none;
+    column-gap: 1rem;
+    padding-block: 0.75rem;
     border-color: var(--home-portal-line);
   }
 
   .home-page .compact-facts dt {
     color: var(--home-portal-tertiary);
-    font-size: 0.625rem;
-    line-height: 1.25;
+    font-size: 0.6875rem;
+    line-height: 1.35;
   }
 
   .home-page .compact-facts dd {
-    margin-top: 0.1rem;
+    margin-top: 0.25rem;
     color: var(--home-portal-ink);
-    font-size: 0.875rem;
-    line-height: 1.2;
+    font-size: 0.9375rem;
+    line-height: 1.25;
   }
 
   .home-page .text-link {
     gap: 0.55rem;
-    margin-top: 0;
+    min-height: 2rem;
+    margin-top: 0.75rem;
     color: var(--home-portal-warm);
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
+    line-height: 2rem;
+  }
+
+  .project-title__mobile {
+    display: none;
+  }
+
+  .project-title__desktop {
+    display: block;
+  }
+
+  .project-title__desktop > span {
+    display: block;
+    white-space: nowrap;
   }
 
   .text-link__mobile {
@@ -593,28 +618,16 @@
   }
 
   .home-main {
-    grid-template-columns: minmax(14rem, 0.82fr) minmax(24rem, 1.18fr);
-    gap: clamp(1rem, 3vw, 2rem);
+    column-gap: clamp(2rem, 4vw, 3rem);
   }
 
   .home-page .display-title {
-    font-size: clamp(2rem, 4.6vw, 2.85rem);
-  }
-
-  .home-page .project-feature__body h2 {
-    font-size: clamp(1.45rem, 2.8vw, 1.8rem);
+    font-size: clamp(1.9rem, 4.1vw, 2.65rem);
   }
 }
 
 @media (min-width: 1181px) {
-  .home-main {
-    grid-template-columns: minmax(14rem, 1fr) minmax(24rem, 1fr);
-    column-gap: clamp(6rem, 20vw, 18rem);
-    justify-content: start;
-  }
-
   .home-page .selected-work {
-    max-width: 31rem;
     justify-self: stretch;
     position: relative;
     top: 1.25rem;
@@ -623,35 +636,15 @@
   .home-page .display-title {
     font-size: clamp(3rem, 3.5vw, 3.375rem);
   }
-
-  .project-title__mobile {
-    display: none;
-  }
-
-  .project-title__desktop {
-    display: block;
-  }
-
-  .project-title__desktop > span {
-    display: block;
-    white-space: nowrap;
-  }
 }
 
 @media (min-width: 1360px) {
   .home-portal-header,
   .home-main {
-    width: min(calc(100% - 4rem), 75rem);
-  }
-
-  .home-main {
-    grid-template-columns: 30rem 35rem;
-    column-gap: 10rem;
-    justify-content: start;
+    width: min(calc(100% - 4rem), 80rem);
   }
 
   .home-page .selected-work {
-    max-width: 35rem;
     top: 1.375rem;
   }
 

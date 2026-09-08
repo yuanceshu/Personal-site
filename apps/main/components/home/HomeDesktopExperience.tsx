@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { SiteMark } from "@/components/brand/SiteMark";
 
 type PanelName = "about" | "contact";
 
@@ -486,7 +487,11 @@ function createHomePortalField(canvas: HTMLCanvasElement) {
   };
 }
 
-export function HomeDesktopExperience() {
+export function HomeDesktopExperience({
+  jingmiansenUrl,
+}: {
+  jingmiansenUrl: string;
+}) {
   const [activePanel, setActivePanel] = useState<PanelName | null>(null);
   const [renderedPanel, setRenderedPanel] = useState<PanelName | null>(null);
   const backgroundRef = useRef<HTMLDivElement>(null);
@@ -572,13 +577,16 @@ export function HomeDesktopExperience() {
 
       <header className="home-portal-header">
         <Link className="home-portal-brand" href="/" aria-label="袁策书的个人作品首页">
+          <SiteMark className="home-portal-brand__mark" tone="light" />
           <span>袁策书</span>
           <small>作品与实验</small>
         </Link>
 
         <nav aria-label="桌面主页导航">
           <Link href="/works/project-000">作品</Link>
-          <Link href="/works/jingmiansen">静眠森</Link>
+          <a href={jingmiansenUrl} referrerPolicy="no-referrer">
+            静眠森
+          </a>
           <button
             type="button"
             aria-controls="home-info-panel"
