@@ -37,7 +37,7 @@ JINGMIANSEN_AGENT_URL=http://127.0.0.1:7777
 JINGMIANSEN_AGENT_TOKEN=
 ```
 
-本地服务未设置 Token 时两侧可留空；Vercel Preview 与 Production 必须使用相同的随机 `JINGMIANSEN_AGENT_TOKEN`。浏览器只调用本 App 的 API，不直接访问 AgentOS 或 MiniMax。
+本地服务未设置 Token 时两侧可留空；Vercel 的每个环境都必须让 Web 与 Agent 使用同一随机 `JINGMIANSEN_AGENT_TOKEN`，Production 与 Preview 可以使用不同 Token。浏览器只调用本 App 的 API，不直接访问 AgentOS 或 MiniMax。
 
 ## 质量检查
 

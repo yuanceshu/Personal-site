@@ -503,9 +503,11 @@
 }
 
 .dialoguePanel[data-presentation="entrance"] .dialogueStageVisual {
-  background:
-    radial-gradient(circle at 42% 26%, rgba(var(--dialogue-accent), 0.13), transparent 32%),
-    linear-gradient(145deg, rgba(var(--dialogue-surface), 0.5), rgba(var(--dialogue-deep), 0.94));
+  width: calc(100% + 1.5rem);
+  margin-bottom: -3rem;
+  overflow: visible;
+  background: transparent;
+  mask-image: linear-gradient(90deg, #000 86%, transparent 100%);
 }
 
 .dialogueStageScene {
@@ -525,9 +527,7 @@
 }
 
 .dialoguePanel[data-presentation="entrance"] .dialogueStageShade {
-  background:
-    linear-gradient(90deg, transparent 54%, rgba(var(--dialogue-deep), 0.42) 100%),
-    linear-gradient(0deg, rgba(var(--dialogue-deep), 0.74), transparent 45%);
+  background: radial-gradient(ellipse at 45% 35%, rgba(var(--dialogue-accent), 0.08), transparent 68%);
 }
 
 .dialogueStagePortrait {
@@ -552,6 +552,7 @@
   bottom: -3%;
   width: min(112%, 29rem);
   height: 104%;
+  mask-image: linear-gradient(#000 72%, transparent 100%);
 }
 
 .dialoguePanel[data-character="felica"] .dialogueStagePortrait {
@@ -571,10 +572,13 @@
 }
 
 .dialoguePanel[data-presentation="entrance"] .dialogueStageCopy {
+  position: relative;
+  z-index: 3;
   justify-content: center;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 4.25rem clamp(1.35rem, 2.4vw, 1.85rem) 1rem;
+  background: transparent;
 }
 
 .dialogueStageIdentity p,
@@ -643,6 +647,23 @@
 .dialogueStarters button:disabled {
   cursor: wait;
   opacity: 0.5;
+}
+
+.dialoguePanel[data-presentation="entrance"] .dialogueStarters {
+  gap: 0.25rem;
+}
+
+.dialoguePanel[data-presentation="entrance"] .dialogueStarters button {
+  min-height: 2.75rem;
+  padding: 0.5rem 0.65rem;
+  border-color: transparent;
+  border-radius: 0.5rem;
+  background: rgba(var(--dialogue-accent), 0.025);
+}
+
+.dialoguePanel[data-presentation="entrance"] .dialogueStarters button:is(:hover, :focus-visible):not(:disabled) {
+  border-color: rgba(var(--dialogue-accent), 0.24);
+  background: rgba(var(--dialogue-accent), 0.07);
 }
 
 .dialogueConversation {
@@ -892,6 +913,17 @@
 
 .liveDialogueForm textarea::placeholder {
   color: rgba(218, 233, 226, 0.42);
+}
+
+.dialoguePanel[data-presentation="entrance"] .liveDialogueForm textarea {
+  display: block;
+  background: rgba(239, 244, 241, 0.04);
+  box-shadow: none;
+}
+
+.dialoguePanel[data-presentation="entrance"] .liveDialogueForm textarea:focus-visible {
+  outline: 0.0625rem solid rgba(218, 233, 226, 0.8);
+  outline-offset: -0.0625rem;
 }
 
 .liveDialogueForm button {
@@ -2510,13 +2542,20 @@
 }
 
 @media (max-width: 760px) {
+  .dialoguePanel[data-presentation="entrance"] .dialogueStageVisual {
+    width: 100%;
+    margin-bottom: 0;
+    overflow: hidden;
+    mask-image: linear-gradient(#000 70%, transparent 100%);
+  }
+
   .dialoguePanel[data-presentation="entrance"] .dialogueStage {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(10rem, 38%) minmax(0, 62%);
   }
 
   .dialoguePanel[data-presentation="entrance"][data-character="lingmian"] .dialogueStagePortrait {
-    right: 21%;
+    right: 35%;
     bottom: -42%;
     width: min(58vw, 15.5rem);
     height: 145%;
@@ -2640,6 +2679,10 @@
 }
 
 @media (prefers-reduced-transparency: reduce) {
+  .dialoguePanel[data-presentation="entrance"] .liveDialogueForm textarea {
+    background: rgb(8, 22, 25);
+  }
+
   .glassLink,
   .dialogueTrigger,
   .dialoguePanel,
@@ -2658,6 +2701,10 @@
 }
 
 @media (prefers-contrast: more) {
+  .dialoguePanel[data-presentation="entrance"] .dialogueStarters button {
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
   .glassLink {
     border-color: rgba(255, 255, 255, 0.75);
     background: rgba(5, 17, 20, 0.94);

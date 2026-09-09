@@ -116,6 +116,14 @@ function readStreamEvent(block: string): StreamEvent | null {
   }
 }
 
+function readContentDelta(eventData: StreamEvent) {
+  // Agno sends incremental text in RunContent and the final aggregate in RunCompleted.
+  if (eventData.event !== "RunContent") return null;
+  return typeof eventData.content === "string" && eventData.content
+    ? eventData.content
+    : null;
+}
+
 export function LiveCharacterDialogue({
   character,
   panelId,
@@ -317,8 +325,9 @@ export function LiveCharacterDialogue({
             throw new Error("角色暂时没有回应，请稍后再试。");
           }
 
-          if (typeof eventData.content === "string" && eventData.content) {
-            appendAssistantContent(assistantMessageId, eventData.content);
+          const contentDelta = readContentDelta(eventData);
+          if (contentDelta) {
+            appendAssistantContent(assistantMessageId, contentDelta);
             receivedContent = true;
           }
         }
@@ -328,8 +337,9 @@ export function LiveCharacterDialogue({
 
       if (buffer.trim()) {
         const eventData = readStreamEvent(buffer);
-        if (typeof eventData?.content === "string" && eventData.content) {
-          appendAssistantContent(assistantMessageId, eventData.content);
+        const contentDelta = eventData ? readContentDelta(eventData) : null;
+        if (contentDelta) {
+          appendAssistantContent(assistantMessageId, contentDelta);
           receivedContent = true;
         }
       }
