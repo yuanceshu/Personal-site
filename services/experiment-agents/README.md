@@ -26,6 +26,29 @@ uv run uvicorn experiment_agents.app:app --host 127.0.0.1 --port 8002 --no-acces
 
 当前本机已配置 MiniMax-M3 用于真实联调；没有配置模型时，自定义需求返回服务不可用。三个前端预设案例无需启动本服务即可体验；预设案例修改正文或理解字段后走真实接口，不能当作实时模型效果。
 
+## Vercel Preview
+
+Vercel Project 的 Root Directory 设为 `services/experiment-agents`。根 `app.py` 是 FastAPI 入口，`vercel.json` 固定 Singapore 区域和 75 秒 Function 上限；本服务没有数据库、Cron 或自定义域名。
+
+首次只为 `feat/ai-solution-lab` 配置 Preview，不向 Production 注入变量：
+
+```text
+EXPERIMENT_AGENT_TOKEN=与主站 Preview 完全一致的独立凭据
+LLM_BASE_URL=https://api.minimaxi.com/v1
+LLM_API_KEY=服务端模型密钥
+LLM_MODEL=MiniMax-M3
+LLM_TIMEOUT_SECONDS=45
+```
+
+实验服务 Preview 部署完成后，在 Root Directory 为 `apps/main` 的主站 Project 中为同一分支配置：
+
+```text
+EXPERIMENT_AGENT_URL=实验服务的稳定 Preview URL
+EXPERIMENT_AGENT_TOKEN=与实验服务 Preview 完全一致的凭据
+```
+
+环境变量新增或修改后必须重新部署对应 Preview 才会生效。浏览器不得获得上述 Token 或模型密钥；主站只通过服务端 API 代理调用实验服务。当前公开 Preview 没有分布式限流，URL 泄露可能产生真实模型费用，不代表已具备 Production 公网发布条件。
+
 ## 接口与职责
 
 - `GET /healthz`：公开、仅返回状态。
