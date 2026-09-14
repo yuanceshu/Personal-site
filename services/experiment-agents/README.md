@@ -30,7 +30,7 @@ uv run uvicorn experiment_agents.app:app --host 127.0.0.1 --port 8002 --no-acces
 
 Vercel Project 的 Root Directory 设为 `services/experiment-agents`。根 `app.py` 是 FastAPI 入口，`vercel.json` 固定 Singapore 区域和 75 秒 Function 上限；本服务没有数据库、Cron 或自定义域名。
 
-首次只为 `feat/ai-solution-lab` 配置 Preview，不向 Production 注入变量：
+当前已在 `main` 对应的 Production 和 Preview 配置；下次新项目仍建议先部署 Preview，再决定是否发布 Production：
 
 ```text
 EXPERIMENT_AGENT_TOKEN=与主站 Preview 完全一致的独立凭据
@@ -40,14 +40,14 @@ LLM_MODEL=MiniMax-M3
 LLM_TIMEOUT_SECONDS=45
 ```
 
-实验服务 Preview 部署完成后，在 Root Directory 为 `apps/main` 的主站 Project 中为同一分支配置：
+实验服务部署完成后，在 Root Directory 为 `apps/main` 的主站 Project 中为同一环境配置：
 
 ```text
 EXPERIMENT_AGENT_URL=实验服务的稳定 Preview URL
 EXPERIMENT_AGENT_TOKEN=与实验服务 Preview 完全一致的凭据
 ```
 
-环境变量新增或修改后必须重新部署对应 Preview 才会生效。浏览器不得获得上述 Token 或模型密钥；主站只通过服务端 API 代理调用实验服务。当前公开 Preview 没有分布式限流，URL 泄露可能产生真实模型费用，不代表已具备 Production 公网发布条件。
+环境变量新增或修改后必须重新部署对应环境才会生效。浏览器不得获得上述 Token 或模型密钥；主站只通过服务端 API 代理调用实验服务。当前公开 Preview/Production 没有分布式限流，URL 泄露或公开页面使用可能产生真实模型费用。实际部署步骤和验收结果见[部署操作记录](../../docs/部署记录/AI场景诊断工作台部署与上线操作记录_2026-09-14.md)。
 
 ## 接口与职责
 

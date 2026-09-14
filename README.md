@@ -8,6 +8,7 @@
 apps/main                    # 个人主站与 Project 000
 apps/jingmiansen             # 静眠森独立 Next.js App
 services/jingmiansen-agents  # 静眠森 Agno AgentOS / FastAPI
+services/experiment-agents   # AI 场景诊断工作台 FastAPI 服务
 ```
 
 | 单元 | Vercel Root Directory | 当前状态 |
@@ -15,12 +16,13 @@ services/jingmiansen-agents  # 静眠森 Agno AgentOS / FastAPI
 | 主站 | `apps/main` | Production 已部署（以 2026-09-08 操作记录为准）；入口和旧址仍需在主站域名上复核 |
 | 静眠森 Web | `apps/jingmiansen` | Production 已部署并绑定 `shinminforest.work`；Preview Agent 链路待补齐 |
 | 静眠森 Agent | `services/jingmiansen-agents` | Production 已部署；健康检查和鉴权已核验，Cron/WAF/Preview 待验收 |
+| AI 场景诊断实验服务 | `services/experiment-agents` | Production 已部署；健康检查、鉴权、主站联动和真实链路已核验 |
 
 静眠森在内容上仍是个人作品体系中的二级创作世界，但技术上已经独立。主站只提供单向入口和旧路径 308；静眠森不提供返回主站的链接。这个边界降低普通访客反向发现主站的概率，但不是匿名或访问控制保证。
 
 ## 本地启动
 
-行业 AI 产品实验室与其他实验工具的目录和共用实验服务规则见[实验作品组织与接入规划](docs/06_实验作品组织与接入规划.md)。工作台已开始开发；实验服务实际完成与部署状态以作品实现文档和部署记录为准，上面的清单不包含尚未核验的部署。
+行业 AI 产品实验室与其他实验工具的目录和共用实验服务规则见[实验作品组织与接入规划](docs/06_实验作品组织与接入规划.md)。工作台已完成首版 Production 部署；具体配置与验收以[部署操作记录](docs/部署记录/AI场景诊断工作台部署与上线操作记录_2026-09-14.md)为准。
 
 主站及内容页面静态优先，动态工具可继续使用 Next.js；已有合适的 Vite H5 可保持独立前端。实验后端按作品组织显式模型流程、可选 Agno 和确定性业务逻辑，存储与部署按恢复、一致性和运行特征选择。海汽外部 Demo 仅处于候选接入评估，未迁入本仓库。
 
@@ -88,7 +90,7 @@ uv lock --check
 
 ## AI 场景诊断工作台（首版本地可运行）
 
-新增同级工具路由 `/works/ai-solution-lab`，前端仍在 apps/main。三个示例可以离线体验；自定义需求需配置实验服务。计划与验收见 [实现文档](docs/projects/ai-solution-lab.md)，启动及环境变量见 [实验服务说明](services/experiment-agents/README.md)。真实模型和公网部署尚未验收。
+新增同级工具路由 `/works/ai-solution-lab`，前端仍在 apps/main。三个示例可以离线体验；自定义需求通过实验服务调用真实模型。计划与验收见 [实现文档](docs/projects/ai-solution-lab.md)，启动及环境变量见 [实验服务说明](services/experiment-agents/README.md)，部署过程见[部署操作记录](docs/部署记录/AI场景诊断工作台部署与上线操作记录_2026-09-14.md)。
 
 ## 2026-09-09｜工作台后端路径确认
 
