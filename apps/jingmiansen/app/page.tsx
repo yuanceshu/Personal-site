@@ -46,10 +46,11 @@ export default function JingmiansenPage() {
       <footer className={styles.entranceFooter}>
         <Image
           className={styles.entranceBrand}
-          src="/projects/jingmiansen/brand/jingmiansen-lockup-light.png"
+          src="/projects/jingmiansen/brand/jingmiansen-lockup-light.png?v=20260913"
           alt="静眠森 JINGMIANSEN"
-          width={102}
-          height={123}
+          width={266}
+          height={365}
+          unoptimized
         />
       </footer>
     </div>

@@ -715,3 +715,11 @@
     border-color: rgba(255, 255, 255, 0.52);
   }
 }
+
+/* New peer work: no changes to the existing course or forest experiences. */
+.home-lab-entry { display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.3rem;margin-top:1.5rem;border:1px solid var(--line);border-radius:.75rem;background:var(--paper);color:var(--ink);text-decoration:none; }
+.home-lab-entry h2 { font-size:1.05rem;line-height:1.5;margin:.45rem 0;font-weight:600; }
+.home-lab-entry p { font-size:.8rem;line-height:1.7;margin:0;color:var(--secondary); }
+.home-lab-entry div>span { font-size:.65rem;color:var(--secondary); }
+@media(min-width:721px) { .home-lab-entry { border-color:var(--home-portal-line-strong);background:rgba(15,24,29,.7);color:var(--home-portal-ink); } .home-lab-entry p,.home-lab-entry div>span { color:var(--home-portal-secondary); } }
+@media(min-width:721px) and (max-width:900px) { .home-portal-header nav { gap:.9rem; } .home-portal-brand>small { display:none; } }

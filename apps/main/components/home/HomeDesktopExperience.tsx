@@ -584,6 +584,7 @@ export function HomeDesktopExperience({
 
         <nav aria-label="桌面主页导航">
           <Link href="/works/project-000">作品</Link>
+          <Link href="/works/ai-solution-lab">AI 工作台</Link>
           <a href={jingmiansenUrl} referrerPolicy="no-referrer">
             静眠森
           </a>

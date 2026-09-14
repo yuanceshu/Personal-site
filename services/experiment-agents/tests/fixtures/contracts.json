@@ -1,0 +1,2221 @@
+[
+  {
+    "name": "analytics",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "analytics",
+        "industry": "healthcare",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "医院经营分析工作台",
+        "users": "医院管理人员",
+        "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+        "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+        "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+        "assumptions": [
+          "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "monitoring_dashboard",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_analysis",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_query",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "医院经营分析工作台",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "analytics_workspace",
+            "sections": [
+              {
+                "slot": "overview",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-metrics",
+                    "type": "Metrics",
+                    "title": "关键指标",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "main",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-trend",
+                    "type": "Trend",
+                    "title": "指标趋势",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "monitoring-dashboard-records",
+                    "type": "Records",
+                    "title": "每日明细",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-analysis-trend",
+                    "type": "Trend",
+                    "title": "变化观察",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "assistance",
+                "components": [
+                  {
+                    "id": "data-analysis-insight",
+                    "type": "Insight",
+                    "title": "异常观察与解释",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-query-query",
+                    "type": "Query",
+                    "title": "问一问数据",
+                    "capability": "data_query",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "analytics brief",
+    "kind": "brief",
+    "value": {
+      "scenario": "analytics",
+      "industry": "healthcare",
+      "aiPreference": "allowed",
+      "clarifications": [],
+      "title": "医院经营分析工作台",
+      "users": "医院管理人员",
+      "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+      "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+      "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+      "assumptions": [
+        "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+      ],
+      "questions": [],
+      "limitation": ""
+    },
+    "valid": true
+  },
+  {
+    "name": "analytics request",
+    "kind": "request",
+    "value": {
+      "stage": "diagnose",
+      "brief": {
+        "scenario": "analytics",
+        "industry": "healthcare",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "医院经营分析工作台",
+        "users": "医院管理人员",
+        "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+        "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+        "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+        "assumptions": [
+          "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "selectedCapabilities": []
+    },
+    "valid": true
+  },
+  {
+    "name": "retail",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "retail",
+        "industry": "retail",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "商场购物向导",
+        "users": "到店购物的消费者",
+        "problem": "顾客不熟悉商品和店铺，需要反复查找。",
+        "goal": "按偏好和预算找商品，并查看对应店铺。",
+        "conditions": "已有商品目录、价格与店铺楼层；不做实时库存和支付。",
+        "assumptions": [
+          "目录内容需要由商场维护，原型只使用虚构示例店铺。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "recommendation",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "guided_service",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "商场购物向导",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "guided_service",
+            "sections": [
+              {
+                "slot": "main",
+                "components": [
+                  {
+                    "id": "recommendation-recommendations",
+                    "type": "Recommendations",
+                    "title": "偏好筛选与推荐",
+                    "capability": "recommendation",
+                    "dataRef": "retail_catalog"
+                  },
+                  {
+                    "id": "guided-service-recommendations",
+                    "type": "Recommendations",
+                    "title": "店铺信息与到店指引",
+                    "capability": "guided_service",
+                    "dataRef": "retail_catalog"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "retail brief",
+    "kind": "brief",
+    "value": {
+      "scenario": "retail",
+      "industry": "retail",
+      "aiPreference": "allowed",
+      "clarifications": [],
+      "title": "商场购物向导",
+      "users": "到店购物的消费者",
+      "problem": "顾客不熟悉商品和店铺，需要反复查找。",
+      "goal": "按偏好和预算找商品，并查看对应店铺。",
+      "conditions": "已有商品目录、价格与店铺楼层；不做实时库存和支付。",
+      "assumptions": [
+        "目录内容需要由商场维护，原型只使用虚构示例店铺。"
+      ],
+      "questions": [],
+      "limitation": ""
+    },
+    "valid": true
+  },
+  {
+    "name": "retail request",
+    "kind": "request",
+    "value": {
+      "stage": "diagnose",
+      "brief": {
+        "scenario": "retail",
+        "industry": "retail",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "商场购物向导",
+        "users": "到店购物的消费者",
+        "problem": "顾客不熟悉商品和店铺，需要反复查找。",
+        "goal": "按偏好和预算找商品，并查看对应店铺。",
+        "conditions": "已有商品目录、价格与店铺楼层；不做实时库存和支付。",
+        "assumptions": [
+          "目录内容需要由商场维护，原型只使用虚构示例店铺。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "selectedCapabilities": []
+    },
+    "valid": true
+  },
+  {
+    "name": "marketing",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "marketing",
+        "industry": "general",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "营销活动共创台",
+        "users": "营销运营人员",
+        "problem": "整理历史材料、编写下一期方案耗费时间。",
+        "goal": "根据材料与目标生成可修改的活动草稿，交由人员审核。",
+        "conditions": "已有活动复盘摘要；人工审核后执行；不连接广告平台。",
+        "assumptions": [
+          "历史复盘仅作为参考，不能据此承诺下一期效果。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "content_generation",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "营销活动共创台",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "ai_workspace",
+            "sections": [
+              {
+                "slot": "input",
+                "components": [
+                  {
+                    "id": "content-generation-briefform",
+                    "type": "BriefForm",
+                    "title": "活动输入",
+                    "capability": "content_generation",
+                    "dataRef": "campaign_samples"
+                  }
+                ]
+              },
+              {
+                "slot": "output",
+                "components": [
+                  {
+                    "id": "content-generation-document",
+                    "type": "Document",
+                    "title": "方案草稿",
+                    "capability": "content_generation",
+                    "dataRef": "campaign_samples"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "marketing brief",
+    "kind": "brief",
+    "value": {
+      "scenario": "marketing",
+      "industry": "general",
+      "aiPreference": "allowed",
+      "clarifications": [],
+      "title": "营销活动共创台",
+      "users": "营销运营人员",
+      "problem": "整理历史材料、编写下一期方案耗费时间。",
+      "goal": "根据材料与目标生成可修改的活动草稿，交由人员审核。",
+      "conditions": "已有活动复盘摘要；人工审核后执行；不连接广告平台。",
+      "assumptions": [
+        "历史复盘仅作为参考，不能据此承诺下一期效果。"
+      ],
+      "questions": [],
+      "limitation": ""
+    },
+    "valid": true
+  },
+  {
+    "name": "marketing request",
+    "kind": "request",
+    "value": {
+      "stage": "diagnose",
+      "brief": {
+        "scenario": "marketing",
+        "industry": "general",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "营销活动共创台",
+        "users": "营销运营人员",
+        "problem": "整理历史材料、编写下一期方案耗费时间。",
+        "goal": "根据材料与目标生成可修改的活动草稿，交由人员审核。",
+        "conditions": "已有活动复盘摘要；人工审核后执行；不连接广告平台。",
+        "assumptions": [
+          "历史复盘仅作为参考，不能据此承诺下一期效果。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "selectedCapabilities": []
+    },
+    "valid": true
+  },
+  {
+    "name": "retail analytics",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "analytics",
+        "industry": "retail",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "医院经营分析工作台",
+        "users": "医院管理人员",
+        "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+        "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+        "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+        "assumptions": [
+          "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "monitoring_dashboard",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_analysis",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_query",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "医院经营分析工作台",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "analytics_workspace",
+            "sections": [
+              {
+                "slot": "overview",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-metrics",
+                    "type": "Metrics",
+                    "title": "关键指标",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "retail_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "main",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-trend",
+                    "type": "Trend",
+                    "title": "指标趋势",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "retail_metrics"
+                  },
+                  {
+                    "id": "monitoring-dashboard-records",
+                    "type": "Records",
+                    "title": "每日明细",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "retail_metrics"
+                  },
+                  {
+                    "id": "data-analysis-trend",
+                    "type": "Trend",
+                    "title": "变化观察",
+                    "capability": "data_analysis",
+                    "dataRef": "retail_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "assistance",
+                "components": [
+                  {
+                    "id": "data-analysis-insight",
+                    "type": "Insight",
+                    "title": "异常观察与解释",
+                    "capability": "data_analysis",
+                    "dataRef": "retail_metrics"
+                  },
+                  {
+                    "id": "data-query-query",
+                    "type": "Query",
+                    "title": "问一问数据",
+                    "capability": "data_query",
+                    "dataRef": "retail_metrics"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "general analytics",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "analytics",
+        "industry": "general",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "医院经营分析工作台",
+        "users": "医院管理人员",
+        "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+        "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+        "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+        "assumptions": [
+          "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "monitoring_dashboard",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_analysis",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_query",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "医院经营分析工作台",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "analytics_workspace",
+            "sections": [
+              {
+                "slot": "overview",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-metrics",
+                    "type": "Metrics",
+                    "title": "关键指标",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "generic_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "main",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-trend",
+                    "type": "Trend",
+                    "title": "指标趋势",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "generic_metrics"
+                  },
+                  {
+                    "id": "monitoring-dashboard-records",
+                    "type": "Records",
+                    "title": "每日明细",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "generic_metrics"
+                  },
+                  {
+                    "id": "data-analysis-trend",
+                    "type": "Trend",
+                    "title": "变化观察",
+                    "capability": "data_analysis",
+                    "dataRef": "generic_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "assistance",
+                "components": [
+                  {
+                    "id": "data-analysis-insight",
+                    "type": "Insight",
+                    "title": "异常观察与解释",
+                    "capability": "data_analysis",
+                    "dataRef": "generic_metrics"
+                  },
+                  {
+                    "id": "data-query-query",
+                    "type": "Query",
+                    "title": "问一问数据",
+                    "capability": "data_query",
+                    "dataRef": "generic_metrics"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "no AI",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "analytics",
+        "industry": "healthcare",
+        "aiPreference": "none",
+        "clarifications": [],
+        "title": "医院经营分析工作台",
+        "users": "医院管理人员",
+        "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+        "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+        "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+        "assumptions": [
+          "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "monitoring_dashboard",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_analysis",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "医院经营分析工作台",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "analytics_workspace",
+            "sections": [
+              {
+                "slot": "overview",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-metrics",
+                    "type": "Metrics",
+                    "title": "关键指标",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "main",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-trend",
+                    "type": "Trend",
+                    "title": "指标趋势",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "monitoring-dashboard-records",
+                    "type": "Records",
+                    "title": "每日明细",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-analysis-trend",
+                    "type": "Trend",
+                    "title": "变化观察",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "multi page",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "analytics",
+        "industry": "healthcare",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "医院经营分析工作台",
+        "users": "医院管理人员",
+        "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+        "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+        "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+        "assumptions": [
+          "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "monitoring_dashboard",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_analysis",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_query",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "医院经营分析工作台",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "analytics_workspace",
+            "sections": [
+              {
+                "slot": "overview",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-metrics",
+                    "type": "Metrics",
+                    "title": "关键指标",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "main",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-trend",
+                    "type": "Trend",
+                    "title": "指标趋势",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "monitoring-dashboard-records",
+                    "type": "Records",
+                    "title": "每日明细",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-analysis-trend",
+                    "type": "Trend",
+                    "title": "变化观察",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "assistance",
+            "title": "深入分析",
+            "template": "analytics_workspace",
+            "sections": [
+              {
+                "slot": "assistance",
+                "components": [
+                  {
+                    "id": "data-analysis-insight",
+                    "type": "Insight",
+                    "title": "异常观察与解释",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-query-query",
+                    "type": "Query",
+                    "title": "问一问数据",
+                    "capability": "data_query",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "unknown component",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "analytics",
+        "industry": "healthcare",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "医院经营分析工作台",
+        "users": "医院管理人员",
+        "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+        "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+        "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+        "assumptions": [
+          "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "monitoring_dashboard",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_analysis",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_query",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "医院经营分析工作台",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "analytics_workspace",
+            "sections": [
+              {
+                "slot": "overview",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-metrics",
+                    "type": "RawHTML",
+                    "title": "关键指标",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "main",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-trend",
+                    "type": "Trend",
+                    "title": "指标趋势",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "monitoring-dashboard-records",
+                    "type": "Records",
+                    "title": "每日明细",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-analysis-trend",
+                    "type": "Trend",
+                    "title": "变化观察",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "assistance",
+                "components": [
+                  {
+                    "id": "data-analysis-insight",
+                    "type": "Insight",
+                    "title": "异常观察与解释",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-query-query",
+                    "type": "Query",
+                    "title": "问一问数据",
+                    "capability": "data_query",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "unknown dataset",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "analytics",
+        "industry": "healthcare",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "医院经营分析工作台",
+        "users": "医院管理人员",
+        "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+        "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+        "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+        "assumptions": [
+          "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "monitoring_dashboard",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_analysis",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_query",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "医院经营分析工作台",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "analytics_workspace",
+            "sections": [
+              {
+                "slot": "overview",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-metrics",
+                    "type": "Metrics",
+                    "title": "关键指标",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "private-db"
+                  }
+                ]
+              },
+              {
+                "slot": "main",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-trend",
+                    "type": "Trend",
+                    "title": "指标趋势",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "monitoring-dashboard-records",
+                    "type": "Records",
+                    "title": "每日明细",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-analysis-trend",
+                    "type": "Trend",
+                    "title": "变化观察",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "assistance",
+                "components": [
+                  {
+                    "id": "data-analysis-insight",
+                    "type": "Insight",
+                    "title": "异常观察与解释",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-query-query",
+                    "type": "Query",
+                    "title": "问一问数据",
+                    "capability": "data_query",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "cross industry",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "analytics",
+        "industry": "healthcare",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "医院经营分析工作台",
+        "users": "医院管理人员",
+        "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+        "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+        "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+        "assumptions": [
+          "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "monitoring_dashboard",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_analysis",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_query",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "医院经营分析工作台",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "analytics_workspace",
+            "sections": [
+              {
+                "slot": "overview",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-metrics",
+                    "type": "Metrics",
+                    "title": "关键指标",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "retail_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "main",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-trend",
+                    "type": "Trend",
+                    "title": "指标趋势",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "monitoring-dashboard-records",
+                    "type": "Records",
+                    "title": "每日明细",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-analysis-trend",
+                    "type": "Trend",
+                    "title": "变化观察",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "assistance",
+                "components": [
+                  {
+                    "id": "data-analysis-insight",
+                    "type": "Insight",
+                    "title": "异常观察与解释",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-query-query",
+                    "type": "Query",
+                    "title": "问一问数据",
+                    "capability": "data_query",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "wrong slot",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "analytics",
+        "industry": "healthcare",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "医院经营分析工作台",
+        "users": "医院管理人员",
+        "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+        "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+        "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+        "assumptions": [
+          "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "monitoring_dashboard",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_analysis",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_query",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "医院经营分析工作台",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "analytics_workspace",
+            "sections": [
+              {
+                "slot": "input",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-metrics",
+                    "type": "Metrics",
+                    "title": "关键指标",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "main",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-trend",
+                    "type": "Trend",
+                    "title": "指标趋势",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "monitoring-dashboard-records",
+                    "type": "Records",
+                    "title": "每日明细",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-analysis-trend",
+                    "type": "Trend",
+                    "title": "变化观察",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "assistance",
+                "components": [
+                  {
+                    "id": "data-analysis-insight",
+                    "type": "Insight",
+                    "title": "异常观察与解释",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-query-query",
+                    "type": "Query",
+                    "title": "问一问数据",
+                    "capability": "data_query",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "repeated id",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "analytics",
+        "industry": "healthcare",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "医院经营分析工作台",
+        "users": "医院管理人员",
+        "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+        "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+        "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+        "assumptions": [
+          "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "monitoring_dashboard",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_analysis",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_query",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "医院经营分析工作台",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "analytics_workspace",
+            "sections": [
+              {
+                "slot": "overview",
+                "components": [
+                  {
+                    "id": "overview",
+                    "type": "Metrics",
+                    "title": "关键指标",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "main",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-trend",
+                    "type": "Trend",
+                    "title": "指标趋势",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "monitoring-dashboard-records",
+                    "type": "Records",
+                    "title": "每日明细",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-analysis-trend",
+                    "type": "Trend",
+                    "title": "变化观察",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "assistance",
+                "components": [
+                  {
+                    "id": "data-analysis-insight",
+                    "type": "Insight",
+                    "title": "异常观察与解释",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-query-query",
+                    "type": "Query",
+                    "title": "问一问数据",
+                    "capability": "data_query",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "wrong capability",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "analytics",
+        "industry": "healthcare",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "医院经营分析工作台",
+        "users": "医院管理人员",
+        "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+        "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+        "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+        "assumptions": [
+          "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "monitoring_dashboard",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_analysis",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_query",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "医院经营分析工作台",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "analytics_workspace",
+            "sections": [
+              {
+                "slot": "overview",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-metrics",
+                    "type": "Metrics",
+                    "title": "关键指标",
+                    "capability": "content_generation",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "main",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-trend",
+                    "type": "Trend",
+                    "title": "指标趋势",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "monitoring-dashboard-records",
+                    "type": "Records",
+                    "title": "每日明细",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-analysis-trend",
+                    "type": "Trend",
+                    "title": "变化观察",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "assistance",
+                "components": [
+                  {
+                    "id": "data-analysis-insight",
+                    "type": "Insight",
+                    "title": "异常观察与解释",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-query-query",
+                    "type": "Query",
+                    "title": "问一问数据",
+                    "capability": "data_query",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "missing coverage",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "analytics",
+        "industry": "healthcare",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "医院经营分析工作台",
+        "users": "医院管理人员",
+        "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+        "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+        "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+        "assumptions": [
+          "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "monitoring_dashboard",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_analysis",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_query",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "医院经营分析工作台",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "analytics_workspace",
+            "sections": [
+              {
+                "slot": "overview",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-metrics",
+                    "type": "Metrics",
+                    "title": "关键指标",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "unapproved AI",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "analytics",
+        "industry": "healthcare",
+        "aiPreference": "none",
+        "clarifications": [],
+        "title": "医院经营分析工作台",
+        "users": "医院管理人员",
+        "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+        "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+        "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+        "assumptions": [
+          "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "monitoring_dashboard",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_analysis",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_query",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "医院经营分析工作台",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "analytics_workspace",
+            "sections": [
+              {
+                "slot": "overview",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-metrics",
+                    "type": "Metrics",
+                    "title": "关键指标",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "main",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-trend",
+                    "type": "Trend",
+                    "title": "指标趋势",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "monitoring-dashboard-records",
+                    "type": "Records",
+                    "title": "每日明细",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-analysis-trend",
+                    "type": "Trend",
+                    "title": "变化观察",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "assistance",
+                "components": [
+                  {
+                    "id": "data-analysis-insight",
+                    "type": "Insight",
+                    "title": "异常观察与解释",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-query-query",
+                    "type": "Query",
+                    "title": "问一问数据",
+                    "capability": "data_query",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "repeated capability",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "analytics",
+        "industry": "healthcare",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "医院经营分析工作台",
+        "users": "医院管理人员",
+        "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+        "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+        "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+        "assumptions": [
+          "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "monitoring_dashboard",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_analysis",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_query",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "monitoring_dashboard",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "医院经营分析工作台",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "analytics_workspace",
+            "sections": [
+              {
+                "slot": "overview",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-metrics",
+                    "type": "Metrics",
+                    "title": "关键指标",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "main",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-trend",
+                    "type": "Trend",
+                    "title": "指标趋势",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "monitoring-dashboard-records",
+                    "type": "Records",
+                    "title": "每日明细",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-analysis-trend",
+                    "type": "Trend",
+                    "title": "变化观察",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "assistance",
+                "components": [
+                  {
+                    "id": "data-analysis-insight",
+                    "type": "Insight",
+                    "title": "异常观察与解释",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-query-query",
+                    "type": "Query",
+                    "title": "问一问数据",
+                    "capability": "data_query",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "extra props",
+    "kind": "prototype",
+    "value": {
+      "brief": {
+        "scenario": "analytics",
+        "industry": "healthcare",
+        "aiPreference": "allowed",
+        "clarifications": [],
+        "title": "医院经营分析工作台",
+        "users": "医院管理人员",
+        "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+        "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+        "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+        "assumptions": [
+          "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+        ],
+        "questions": [],
+        "limitation": ""
+      },
+      "diagnosis": {
+        "summary": "帮助目标用户完成最小业务流程。",
+        "capabilities": [
+          {
+            "id": "monitoring_dashboard",
+            "approach": "software",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_analysis",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          },
+          {
+            "id": "data_query",
+            "approach": "hybrid",
+            "reason": "示例判断，需要业务核验。",
+            "prerequisite": "先核对数据和范围。"
+          }
+        ],
+        "risks": [
+          "演示数据，效果待验证。"
+        ]
+      },
+      "prototype": {
+        "appTitle": "医院经营分析工作台",
+        "pages": [
+          {
+            "id": "overview",
+            "title": "产品草稿",
+            "template": "analytics_workspace",
+            "sections": [
+              {
+                "slot": "overview",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-metrics",
+                    "type": "Metrics",
+                    "title": "关键指标",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics",
+                    "html": "<script/>"
+                  }
+                ]
+              },
+              {
+                "slot": "main",
+                "components": [
+                  {
+                    "id": "monitoring-dashboard-trend",
+                    "type": "Trend",
+                    "title": "指标趋势",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "monitoring-dashboard-records",
+                    "type": "Records",
+                    "title": "每日明细",
+                    "capability": "monitoring_dashboard",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-analysis-trend",
+                    "type": "Trend",
+                    "title": "变化观察",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              },
+              {
+                "slot": "assistance",
+                "components": [
+                  {
+                    "id": "data-analysis-insight",
+                    "type": "Insight",
+                    "title": "异常观察与解释",
+                    "capability": "data_analysis",
+                    "dataRef": "healthcare_metrics"
+                  },
+                  {
+                    "id": "data-query-query",
+                    "type": "Query",
+                    "title": "问一问数据",
+                    "capability": "data_query",
+                    "dataRef": "healthcare_metrics"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "missing field",
+    "kind": "brief",
+    "value": {
+      "scenario": "analytics",
+      "aiPreference": "allowed",
+      "clarifications": [],
+      "title": "医院经营分析工作台",
+      "users": "医院管理人员",
+      "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+      "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+      "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+      "assumptions": [
+        "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+      ],
+      "questions": [],
+      "limitation": ""
+    },
+    "valid": false
+  },
+  {
+    "name": "too many questions",
+    "kind": "brief",
+    "value": {
+      "scenario": "analytics",
+      "industry": "healthcare",
+      "aiPreference": "allowed",
+      "clarifications": [],
+      "title": "医院经营分析工作台",
+      "users": "医院管理人员",
+      "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+      "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+      "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+      "assumptions": [
+        "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+      ],
+      "questions": [
+        "a",
+        "b",
+        "c"
+      ],
+      "limitation": ""
+    },
+    "valid": false
+  },
+  {
+    "name": "invalid enum",
+    "kind": "brief",
+    "value": {
+      "scenario": "analytics",
+      "industry": "healthcare",
+      "aiPreference": "yes",
+      "clarifications": [],
+      "title": "医院经营分析工作台",
+      "users": "医院管理人员",
+      "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+      "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+      "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+      "assumptions": [
+        "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+      ],
+      "questions": [],
+      "limitation": ""
+    },
+    "valid": false
+  },
+  {
+    "name": "empty title",
+    "kind": "brief",
+    "value": {
+      "scenario": "analytics",
+      "industry": "healthcare",
+      "aiPreference": "allowed",
+      "clarifications": [],
+      "title": " ",
+      "users": "医院管理人员",
+      "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+      "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+      "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+      "assumptions": [
+        "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+      ],
+      "questions": [],
+      "limitation": ""
+    },
+    "valid": false
+  },
+  {
+    "name": "long title",
+    "kind": "brief",
+    "value": {
+      "scenario": "analytics",
+      "industry": "healthcare",
+      "aiPreference": "allowed",
+      "clarifications": [],
+      "title": "名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名",
+      "users": "医院管理人员",
+      "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+      "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+      "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+      "assumptions": [
+        "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+      ],
+      "questions": [],
+      "limitation": ""
+    },
+    "valid": false
+  },
+  {
+    "name": "extra field",
+    "kind": "brief",
+    "value": {
+      "scenario": "analytics",
+      "industry": "healthcare",
+      "aiPreference": "allowed",
+      "clarifications": [],
+      "title": "医院经营分析工作台",
+      "users": "医院管理人员",
+      "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+      "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+      "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+      "assumptions": [
+        "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+      ],
+      "questions": [],
+      "limitation": "",
+      "secret": "hidden"
+    },
+    "valid": false
+  },
+  {
+    "name": "nonstring field",
+    "kind": "brief",
+    "value": {
+      "scenario": "analytics",
+      "industry": "healthcare",
+      "aiPreference": "allowed",
+      "clarifications": [],
+      "title": "医院经营分析工作台",
+      "users": 123,
+      "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+      "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+      "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+      "assumptions": [
+        "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+      ],
+      "questions": [],
+      "limitation": ""
+    },
+    "valid": false
+  },
+  {
+    "name": "short input",
+    "kind": "request",
+    "value": {
+      "stage": "analyze",
+      "input": "a"
+    },
+    "valid": false
+  },
+  {
+    "name": "long input",
+    "kind": "request",
+    "value": {
+      "stage": "analyze",
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "valid": false
+  },
+  {
+    "name": "unknown stage",
+    "kind": "request",
+    "value": {
+      "stage": "execute",
+      "input": "任意业务场景输入"
+    },
+    "valid": false
+  },
+  {
+    "name": "Unicode title boundary",
+    "kind": "brief",
+    "valid": true,
+    "value": {
+      "scenario": "analytics",
+      "industry": "healthcare",
+      "aiPreference": "allowed",
+      "clarifications": [],
+      "title": "🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱",
+      "users": "医院管理人员",
+      "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+      "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+      "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+      "assumptions": [
+        "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+      ],
+      "questions": [],
+      "limitation": ""
+    }
+  },
+  {
+    "name": "Unicode title exceeds limit",
+    "kind": "brief",
+    "valid": false,
+    "value": {
+      "scenario": "analytics",
+      "industry": "healthcare",
+      "aiPreference": "allowed",
+      "clarifications": [],
+      "title": "🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱",
+      "users": "医院管理人员",
+      "problem": "经营数据分散，需要手工汇总后才能发现变化。",
+      "goal": "按周查看经营趋势、识别异常，并用自然语言查询。",
+      "conditions": "已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。",
+      "assumptions": [
+        "暂按各系统指标口径可统一设计，实际落地前仍需核对。"
+      ],
+      "questions": [],
+      "limitation": ""
+    }
+  }
+]

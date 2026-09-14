@@ -101,6 +101,10 @@ export default function Home() {
               </span>
             </div>
           </Link>
+          <Link className="home-lab-entry" href="/works/ai-solution-lab">
+            <div><span>可交互工具 · AI Solution Lab</span><h2>把业务想法，变成产品草稿</h2><p>理清需求、判断 AI 适用范围，体验可以继续修改的方案。</p></div>
+            <span aria-hidden="true">↗</span>
+          </Link>
         </section>
 
         <section className="about-strip page-shell" id="about" aria-labelledby="about-title">
