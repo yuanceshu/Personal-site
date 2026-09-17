@@ -8,7 +8,7 @@
 apps/main                    # 个人主站与 Project 000
 apps/jingmiansen             # 静眠森独立 Next.js App
 services/jingmiansen-agents  # 静眠森 Agno AgentOS / FastAPI
-services/experiment-agents   # AI 场景诊断工作台 FastAPI 服务
+services/experiment-agents   # 工作台与岛见共用 FastAPI 服务
 ```
 
 | 单元 | Vercel Root Directory | 当前状态 |
@@ -24,7 +24,7 @@ services/experiment-agents   # AI 场景诊断工作台 FastAPI 服务
 
 行业 AI 产品实验室与其他实验工具的目录和共用实验服务规则见[实验作品组织与接入规划](docs/06_实验作品组织与接入规划.md)。工作台已完成首版 Production 部署；具体配置与验收以[部署操作记录](docs/部署记录/AI场景诊断工作台部署与上线操作记录_2026-09-14.md)为准。
 
-主站及内容页面静态优先，动态工具可继续使用 Next.js；已有合适的 Vite H5 可保持独立前端。实验后端按作品组织显式模型流程、可选 Agno 和确定性业务逻辑，存储与部署按恢复、一致性和运行特征选择。海汽外部 Demo 仅处于候选接入评估，未迁入本仓库。
+主站及内容页面静态优先，动态工具可继续使用 Next.js；已有合适的 Vite H5 可保持独立前端。实验后端按作品组织显式模型流程、可选 Agno 和确定性业务逻辑，存储与部署按恢复、一致性和运行特征选择。海汽原工程未迁入；公开版「岛见」已按体验范围重新实现，尚未部署。
 
 先启动角色服务：
 
@@ -77,6 +77,7 @@ uv lock --check
 
 ## 文档入口
 
+- [UI 实验室](docs/projects/ui-lab.md)：主站一级作品，3组10个冻结交互版本；2026-09-16本地验收完成，未部署，归档无需后端；
 - `docs/00_架构说明.md`：应用边界、路由、数据流、部署与环境变量；
 - `docs/01_开发路线图.md`：当前发布阶段、验收条件与域名后续；
 - `docs/02_代码决策记录.md`：仓库级技术决定及其历史；
@@ -95,3 +96,9 @@ uv lock --check
 ## 2026-09-09｜工作台后端路径确认
 
 本工具首版采用 FastAPI/Pydantic 与显式模型客户端，暂不使用 Agno。实验服务保存提示词、校验、修复和规则兜底；Next.js 负责请求边界及代理。此决定替代本工具早先 Agno 计划，其他实验作品仍可按需使用 Agno。契约来源及阶段验收见工作台实现计划。
+
+## 行业 Demo 集与岛见（2026-09-14 本地交付）
+
+主站入口 `/works/demos`，首个子作品 `/works/demos/island-travel`。真实 AI 理解行程；班次、乘客、订单及支付由浏览器确定性模拟，刷新清空，支持主动进入无模型演示模式。没有新增 App、依赖或业务数据库。
+
+本地同时启动主站与[实验服务](services/experiment-agents/README.md)。验证运行 `npm run test:travel`、`npm run test:travel:browser`。公网默认需要主站配置 `ISLAND_RATE_REDIS_URL`、`ISLAND_RATE_REDIS_TOKEN`、`ISLAND_RATE_SALT`，缺配置关闭真实调用；资源配置与公网第11次429仍待部署验收。范围和结果见[岛见实现记录](docs/projects/island-travel.md)。

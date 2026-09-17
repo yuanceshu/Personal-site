@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><link rel="icon" href="data:,"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'"><script>/* Frozen demonstration boundary. Kept local to every immutable snapshot. */
+(() => {
+  const NativeDate = Date;
+  const epoch = NativeDate.parse('2026-09-15T02:00:00Z');
+  function FrozenDate(...args) {
+    if (!new.target) return new NativeDate(epoch).toString();
+    return Reflect.construct(NativeDate, args.length ? args : [epoch], new.target);
+  }
+  Object.setPrototypeOf(FrozenDate, NativeDate);
+  FrozenDate.prototype = NativeDate.prototype;
+  FrozenDate.now = () => epoch;
+  window.Date = FrozenDate;
+  let seed = 915;
+  Math.random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+  let failed = false;
+  window.addEventListener('error', () => { failed = true; }, true);
+  window.addEventListener('unhandledrejection', () => { failed = true; });
+  const base = new URL('.', location.href);
+  const notify = (type) => {
+    if (window.parent !== window) window.parent.postMessage({ type, path: location.pathname }, '*');
+  };
+  window.addEventListener('load', () => {
+    const label = document.createElement('div');
+    label.id = 'ui-lab-freeze-notice';
+    label.textContent = '冻结交互快照 · 全部为演示数据 · 不代表当前正式产品';
+    label.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;padding:5px 10px;background:#202020;color:#fff;font:11px/1.5 system-ui;text-align:center;pointer-events:none';
+    document.body.append(label);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const imagesOK = [...document.images].every(img => !img.src || (img.complete && img.naturalWidth > 0));
+      notify(failed || !imagesOK ? 'ui-lab:error' : 'ui-lab:ready');
+    }));
+  });
+  document.addEventListener('submit', event => event.preventDefault());
+  // Sandbox blocks native form submission before submit handlers can run.
+  // Dispatch only local events, retaining native constraint validation.
+  function submitDemo(form, submitter) {
+    if (!form.reportValidity()) return;
+    form.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true, submitter }));
+  }
+  document.addEventListener('click', event => {
+    const button = event.target.closest?.('button, input[type="submit"]');
+    if (button?.form && button.type === 'submit') {
+      event.preventDefault();
+      submitDemo(button.form, button);
+    }
+  }, true);
+  document.addEventListener('click', event => {
+    const link = event.target.closest?.('a[href]');
+    if (!link) return;
+    const dest = new URL(link.getAttribute('href'), location.href);
+    if (dest.origin !== base.origin || !dest.pathname.startsWith(base.pathname) || link.target || link.hasAttribute('download')) {
+      event.preventDefault();
+      const label = document.getElementById('ui-lab-freeze-notice');
+      if (label) label.textContent = '冻结快照仅保留版本内页面，请使用外层查看器返回。';
+    }
+  }, true);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') notify('ui-lab:exit');
+    if (event.key === 'Enter' && !event.isComposing && event.target.matches?.('input:not([type="checkbox"]):not([type="radio"])') && event.target.form) {
+      event.preventDefault();
+      submitDemo(event.target.form, null);
+    }
+  });
+})();
+</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI Solution Lab 静态对照稿：消费者导购方案">
+  <title>03B 消费者导购｜AI Solution Lab</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <header class="site-header">
+    <a class="brand" href="index.html"><span class="brand-mark">策</span><span>AI Solution Lab</span></a>
+    <span class="edition">PRODUCT BLUEPRINT · 03B</span>
+    <nav class="header-nav" aria-label="页面导航"><a href="03-result-analytics.html">上一方案</a><a href="05-result-marketing.html">下一方案 ↗</a></nav>
+  </header>
+
+  <main id="main" class="page-shell page-shell--wide">
+    <nav class="process-rail" aria-label="设计进度">
+      <span class="process-step is-complete"><b>01</b>描述问题</span>
+      <span class="process-step is-complete"><b>02</b>确认理解</span>
+      <span class="process-step is-current" aria-current="step"><b>03</b>方案与原型</span>
+    </nav>
+
+    <section class="result-header reveal" aria-labelledby="result-title">
+      <div>
+        <p class="eyebrow">Blueprint 03B / Guided shopping</p>
+        <h1 id="result-title">商场购物向导</h1>
+        <div class="meta-row"><span class="tag tag--demo">预设示例</span><span class="tag">版本 01</span><span class="tag">零售服务</span><span class="tag">商品目录</span></div>
+      </div>
+      <div class="result-tools"><a class="button-secondary" href="01-input.html">开始新需求</a><a class="button" href="02-confirm.html">调整需求与能力 <span aria-hidden="true">↗</span></a></div>
+    </section>
+
+    <nav class="result-jump" aria-label="结果内容"><button type="button" data-scroll-target="#plan">查看方案</button><button type="button" data-scroll-target="#prototype">查看原型</button></nav>
+
+    <div class="result-grid reveal">
+      <aside id="plan" class="diagnosis-sheet sheet" aria-labelledby="plan-title">
+        <div class="sheet-label"><span>产品判断</span><span>Decision sheet</span></div>
+        <div class="diagnosis-body">
+          <div>
+            <p class="eyebrow">方案摘要</p>
+            <h2 id="plan-title">先理解偏好，再指向真实店铺。</h2>
+            <p>帮助到店顾客按预算和购物偏好缩小选择，并获得可核对的店铺位置。</p>
+            <dl class="summary-pairs"><div><dt>服务于</dt><dd>到店购物的消费者</dd></div><div><dt>暂不包含</dt><dd>实时库存、支付和地图导航</dd></div></dl>
+          </div>
+          <div class="decision-list" aria-label="关键能力">
+            <button class="decision" type="button" aria-pressed="false" data-module-target="#preference"><span>01 · AI + 商品筛选</span><strong>偏好理解与推荐</strong><small>推荐对象来自商场目录</small></button>
+            <button class="decision" type="button" aria-pressed="false" data-module-target="#products"><span>02 · 确定性程序</span><strong>商品范围与价格</strong><small>不让模型编造商品信息</small></button>
+            <button class="decision" type="button" aria-pressed="false" data-module-target="#route"><span>03 · 确定性程序</span><strong>到店信息</strong><small>楼层与路线来自店铺目录</small></button>
+          </div>
+          <details class="technical"><summary>实现建议与待确认事项</summary><p>模型可以理解“送礼、自然、预算有限”等表达；实际商品、价格和店铺位置仍由结构化目录提供。</p></details>
+        </div>
+      </aside>
+
+      <section id="prototype" class="prototype-frame" aria-labelledby="prototype-title">
+        <div class="frame-bar"><span class="frame-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Product prototype / Interaction preview</span><span>演示目录</span></div>
+        <div class="prototype-app">
+          <div class="prototype-topline">
+            <div><p class="eyebrow">Find something considered</p><h2 id="prototype-title">今天想找什么？</h2><p>按偏好筛选示例商品，再查看对应店铺。价格与店铺均为虚构演示。</p></div>
+            <span class="tag">3 件匹配</span>
+          </div>
+
+          <div class="retail-brief">
+            <section id="preference" class="preference-editor module" aria-labelledby="preference-title">
+              <div class="module-title"><h3 id="preference-title">购物偏好</h3><span>可多选</span></div>
+              <div class="chip-row" data-exclusive data-value-target="#preference-output">
+                <button class="chip" type="button" aria-pressed="true" data-value="送一份有自然感的礼物">送礼</button>
+                <button class="chip" type="button" aria-pressed="false" data-value="找一件让家里更舒服的物品">居家</button>
+                <button class="chip" type="button" aria-pressed="false" data-value="找一件适合日常通勤的物品">通勤</button>
+              </div>
+              <p id="preference-output">送一份有自然感的礼物</p>
+            </section>
+            <section class="budget-card module" aria-labelledby="budget-title">
+              <div class="module-title"><h3 id="budget-title">预算上限</h3><span>演示筛选</span></div>
+              <strong data-budget-value>¥ 300</strong>
+              <input data-budget type="range" min="100" max="500" step="50" value="300" aria-label="预算上限">
+            </section>
+          </div>
+
+          <section id="products" class="module" aria-labelledby="products-title">
+            <div class="module-title"><h3 id="products-title">为你缩小到这三件</h3><span>目录内商品</span></div>
+            <div class="product-board">
+              <article class="product-card"><div class="product-visual" aria-hidden="true"><i class="product-shape"></i></div><small>礼物 · 茶饮</small><h3>山间茶礼</h3><p>包装克制，适合偏好茶饮的收礼人。</p><footer><strong>¥168</strong><button class="text-action" type="button" data-store="茶间" data-floor="2F · 东侧连廊" data-detail="从东侧扶梯到 2 楼，沿连廊查看店铺标识。">查看店铺 ↗</button></footer></article>
+              <article class="product-card"><div class="product-visual" aria-hidden="true"><i class="product-shape"></i></div><small>生活 · 阅读</small><h3>暖光阅读灯</h3><p>柔和暖光，适合阅读与居家场景。</p><footer><strong>¥249</strong><button class="text-action" type="button" data-store="日常好物" data-floor="3F · 中庭旁" data-detail="乘中庭扶梯到 3 楼，店铺位于服务台对面。">查看店铺 ↗</button></footer></article>
+              <article class="product-card"><div class="product-visual" aria-hidden="true"><i class="product-shape"></i></div><small>礼物 · 香氛</small><h3>木质香氛</h3><p>气味沉稳，适合喜欢木质香调的人。</p><footer><strong>¥299</strong><button class="text-action" type="button" data-store="气味手记" data-floor="1F · 西侧入口" data-detail="从西侧入口进入 1 楼，沿店铺标识前往。">查看店铺 ↗</button></footer></article>
+            </div>
+          </section>
+
+          <section id="route" class="store-route module" data-store-route aria-labelledby="route-title">
+            <div class="module-title"><h3 id="route-title">到店信息</h3><span>店铺目录</span></div>
+            <dl><div><dt>店铺</dt><dd data-route-store>茶间</dd></div><div><dt>位置</dt><dd data-route-floor>2F · 东侧连廊</dd></div><div><dt>怎么走</dt><dd data-route-detail>从东侧扶梯到 2 楼，沿连廊查看店铺标识。</dd></div></dl>
+          </section>
+        </div>
+      </section>
+    </div>
+
+    <footer class="site-footer"><span>静态视觉实验 · 结果 03B</span><span>商品、价格和店铺均为虚构演示，不代表实时库存</span></footer>
+  </main>
+</body>
+</html>

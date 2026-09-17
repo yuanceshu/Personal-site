@@ -1,0 +1,8 @@
+{
+  "tool": "esbuild",
+  "version": "0.28.2",
+  "react": "19.2.8",
+  "reactDom": "19.2.8",
+  "zod": "4.5.4",
+  "source": "archived-source-only"
+}

@@ -105,6 +105,14 @@ export default function Home() {
             <div><span>可交互工具 · AI Solution Lab</span><h2>把业务想法，变成产品草稿</h2><p>理清需求、判断 AI 适用范围，体验可以继续修改的方案。</p></div>
             <span aria-hidden="true">↗</span>
           </Link>
+          <Link className="home-lab-entry" href="/works/ui-lab">
+            <div><span>界面实验档案 · UI LAB</span><h2>UI 实验室</h2><p>同一个产品命题，交给不同模型与设计方法，会得到怎样不同的答案？</p></div>
+            <span aria-hidden="true">↗</span>
+          </Link>
+          <Link className="home-lab-entry" href="/works/demos">
+            <div><span>可交互作品集 · Industry Demos</span><h2>把想法放进场景，让产品自己说话</h2><p>从岛见智能出行开始，体验一段完整的行业 AI 产品旅程。</p></div>
+            <span aria-hidden="true">↗</span>
+          </Link>
         </section>
 
         <section className="about-strip page-shell" id="about" aria-labelledby="about-title">

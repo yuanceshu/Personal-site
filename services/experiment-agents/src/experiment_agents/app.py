@@ -7,6 +7,8 @@ from fastapi.exceptions import RequestValidationError
 from .config import Settings
 from .works.ai_solution_lab.schemas import LabRequest, LabResponse
 from .works.ai_solution_lab.workflow import WorkflowError, run_stage
+from .works.island_travel.schemas import ChatRequest, ChatResponse
+from .works.island_travel.workflow import TravelError, interpret
 
 
 async def until_disconnect(request: Request):
@@ -52,7 +54,7 @@ class RequestBoundary:
                 headers={"Cache-Control": "no-store"},
             )(scope, receive, send)
 
-        if scope["path"] != "/works/ai-solution-lab/generate":
+        if scope["path"] not in {"/works/ai-solution-lab/generate", "/works/island-travel/chat"}:
             return await reject(404, "not_found")
         headers = dict(scope["headers"])
         if not self.token or not secrets.compare_digest(
@@ -89,7 +91,7 @@ class RequestBoundary:
         await self.app(scope, replay, no_cache)
 
 
-def create_app(settings: Settings | None = None, runner=run_stage):
+def create_app(settings: Settings | None = None, runner=run_stage, travel_runner=interpret):
     settings = settings or Settings.from_env()
     app = FastAPI(title="实验作品接口", docs_url=None, redoc_url=None, openapi_url=None)
 
@@ -114,6 +116,18 @@ def create_app(settings: Settings | None = None, runner=run_stage):
             return JSONResponse({"error": error.code}, status_code=error.status)
         except Exception:
             return JSONResponse({"error": "generation_failed"}, status_code=502)
+
+    @app.post("/works/island-travel/chat", response_model=ChatResponse)
+    async def travel_chat(payload: ChatRequest, request: Request):
+        try:
+            async with asyncio.timeout(48):
+                return await run_connected(request, travel_runner(payload, settings))
+        except TimeoutError:
+            return JSONResponse({"error": "timeout"}, status_code=504)
+        except (TravelError, WorkflowError) as error:
+            return JSONResponse({"error": error.code}, status_code=error.status)
+        except Exception:
+            return JSONResponse({"error": "interpretation_failed"}, status_code=502)
 
     return app
 

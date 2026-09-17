@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><link rel="icon" href="data:,"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'"><script>/* Frozen demonstration boundary. Kept local to every immutable snapshot. */
+(() => {
+  const NativeDate = Date;
+  const epoch = NativeDate.parse('2026-09-15T02:00:00Z');
+  function FrozenDate(...args) {
+    if (!new.target) return new NativeDate(epoch).toString();
+    return Reflect.construct(NativeDate, args.length ? args : [epoch], new.target);
+  }
+  Object.setPrototypeOf(FrozenDate, NativeDate);
+  FrozenDate.prototype = NativeDate.prototype;
+  FrozenDate.now = () => epoch;
+  window.Date = FrozenDate;
+  let seed = 915;
+  Math.random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+  let failed = false;
+  window.addEventListener('error', () => { failed = true; }, true);
+  window.addEventListener('unhandledrejection', () => { failed = true; });
+  const base = new URL('.', location.href);
+  const notify = (type) => {
+    if (window.parent !== window) window.parent.postMessage({ type, path: location.pathname }, '*');
+  };
+  window.addEventListener('load', () => {
+    const label = document.createElement('div');
+    label.id = 'ui-lab-freeze-notice';
+    label.textContent = '冻结交互快照 · 全部为演示数据 · 不代表当前正式产品';
+    label.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;padding:5px 10px;background:#202020;color:#fff;font:11px/1.5 system-ui;text-align:center;pointer-events:none';
+    document.body.append(label);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const imagesOK = [...document.images].every(img => !img.src || (img.complete && img.naturalWidth > 0));
+      notify(failed || !imagesOK ? 'ui-lab:error' : 'ui-lab:ready');
+    }));
+  });
+  document.addEventListener('submit', event => event.preventDefault());
+  // Sandbox blocks native form submission before submit handlers can run.
+  // Dispatch only local events, retaining native constraint validation.
+  function submitDemo(form, submitter) {
+    if (!form.reportValidity()) return;
+    form.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true, submitter }));
+  }
+  document.addEventListener('click', event => {
+    const button = event.target.closest?.('button, input[type="submit"]');
+    if (button?.form && button.type === 'submit') {
+      event.preventDefault();
+      submitDemo(button.form, button);
+    }
+  }, true);
+  document.addEventListener('click', event => {
+    const link = event.target.closest?.('a[href]');
+    if (!link) return;
+    const dest = new URL(link.getAttribute('href'), location.href);
+    if (dest.origin !== base.origin || !dest.pathname.startsWith(base.pathname) || link.target || link.hasAttribute('download')) {
+      event.preventDefault();
+      const label = document.getElementById('ui-lab-freeze-notice');
+      if (label) label.textContent = '冻结快照仅保留版本内页面，请使用外层查看器返回。';
+    }
+  }, true);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') notify('ui-lab:exit');
+    if (event.key === 'Enter' && !event.isComposing && event.target.matches?.('input:not([type="checkbox"]):not([type="radio"])') && event.target.form) {
+      event.preventDefault();
+      submitDemo(event.target.form, null);
+    }
+  });
+})();
+</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI Solution Lab 静态对照稿：营销策划方案">
+  <title>03C 营销策划｜AI Solution Lab</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <header class="site-header">
+    <a class="brand" href="index.html"><span class="brand-mark">策</span><span>AI Solution Lab</span></a>
+    <span class="edition">PRODUCT BLUEPRINT · 03C</span>
+    <nav class="header-nav" aria-label="页面导航"><a href="04-result-retail.html">上一方案</a><a href="index.html">返回总览 ↗</a></nav>
+  </header>
+
+  <main id="main" class="page-shell page-shell--wide">
+    <nav class="process-rail" aria-label="设计进度">
+      <span class="process-step is-complete"><b>01</b>描述问题</span>
+      <span class="process-step is-complete"><b>02</b>确认理解</span>
+      <span class="process-step is-current" aria-current="step"><b>03</b>方案与原型</span>
+    </nav>
+
+    <section class="result-header reveal" aria-labelledby="result-title">
+      <div>
+        <p class="eyebrow">Blueprint 03C / Campaign co-writing</p>
+        <h1 id="result-title">营销活动共创台</h1>
+        <div class="meta-row"><span class="tag tag--demo">预设示例</span><span class="tag">版本 01</span><span class="tag">营销运营</span><span class="tag">人工审核后执行</span></div>
+      </div>
+      <div class="result-tools"><a class="button-secondary" href="01-input.html">开始新需求</a><a class="button" href="02-confirm.html">调整需求与能力 <span aria-hidden="true">↗</span></a></div>
+    </section>
+
+    <nav class="result-jump" aria-label="结果内容"><button type="button" data-scroll-target="#plan">查看方案</button><button type="button" data-scroll-target="#prototype">查看原型</button></nav>
+
+    <div class="result-grid reveal">
+      <aside id="plan" class="diagnosis-sheet sheet" aria-labelledby="plan-title">
+        <div class="sheet-label"><span>产品判断</span><span>Decision sheet</span></div>
+        <div class="diagnosis-body">
+          <div>
+            <p class="eyebrow">方案摘要</p>
+            <h2 id="plan-title">让模型整理草稿，让人决定承诺。</h2>
+            <p>根据已有复盘摘要、活动目标和预算形成可修改草稿，由营销人员核对权益、数字与发布内容。</p>
+            <dl class="summary-pairs"><div><dt>服务于</dt><dd>营销运营人员</dd></div><div><dt>成功标准</dt><dd>更快形成可讨论的第一版</dd></div></dl>
+          </div>
+          <div class="decision-list" aria-label="关键能力">
+            <button class="decision" type="button" aria-pressed="false" data-module-target="#campaign-input"><span>01 · 确定性输入</span><strong>目标与材料</strong><small>明确模型允许使用的上下文</small></button>
+            <button class="decision" type="button" aria-pressed="false" data-module-target="#draft"><span>02 · AI + 人工审核</span><strong>营销活动草稿</strong><small>不承诺未经验证的效果</small></button>
+          </div>
+          <details class="technical"><summary>实现建议与待确认事项</summary><p>模型按既有材料组织方案；预算计算、权益校验、审批和正式发布仍由确定性流程与人员完成。</p></details>
+        </div>
+      </aside>
+
+      <section id="prototype" class="prototype-frame" aria-labelledby="prototype-title">
+        <div class="frame-bar"><span class="frame-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Product prototype / Interaction preview</span><span>演示材料</span></div>
+        <div class="prototype-app">
+          <div class="prototype-topline">
+            <div><p class="eyebrow">Campaign workshop</p><h2 id="prototype-title">下一期活动草案</h2><p>使用虚构复盘摘要生成 · 所有预算、权益和发布文字都需要人员核对</p></div>
+            <span class="tag">未提交审核</span>
+          </div>
+
+          <div class="campaign-workspace">
+            <section id="campaign-input" class="campaign-input module" aria-labelledby="input-title">
+              <div class="module-title"><h3 id="input-title">活动输入</h3><span>Brief</span></div>
+              <p class="eyebrow">本期目标</p>
+              <div class="goal-list" data-exclusive data-value-target="#draft-goal">
+                <button class="goal-option" type="button" aria-pressed="true" data-value="提升老顾客回店意愿"><span>1</span>提升老顾客回店意愿</button>
+                <button class="goal-option" type="button" aria-pressed="false" data-value="带动周中到店"><span>2</span>带动周中到店</button>
+                <button class="goal-option" type="button" aria-pressed="false" data-value="推广秋季新品"><span>3</span>推广秋季新品</button>
+              </div>
+              <label class="field" style="padding-left:0;padding-right:0"><span>预算上限</span><input value="50,000 元" aria-label="预算上限"></label>
+              <p class="eyebrow" style="margin-top:28px">参考材料</p>
+              <ul class="material-list"><li><span>夏日会员活动复盘</span><b>摘要</b></li><li><span>顾客到店时段观察</span><b>数据</b></li><li><span>本期可用权益清单</span><b>规则</b></li></ul>
+              <button class="button" type="button" style="width:100%;margin-top:26px" onclick="document.querySelector('#draft').classList.add('is-highlighted');setTimeout(()=>document.querySelector('#draft').classList.remove('is-highlighted'),1800)">重新组织草稿 <span aria-hidden="true">↗</span></button>
+            </section>
+
+            <article id="draft" class="draft-paper module" aria-labelledby="draft-title">
+              <span class="draft-kicker">Campaign draft / V.01</span>
+              <h2 id="draft-title">秋日老友回店计划</h2>
+              <p>活动目标：<strong id="draft-goal">提升老顾客回店意愿</strong>。以既有会员权益为基础，先形成一份可核对、可删改的执行草案。</p>
+              <section class="draft-section"><h3>01 · 活动主张</h3><p>用“回来坐坐”的轻邀请代替强促销表达，围绕老顾客熟悉的体验组织内容。</p></section>
+              <section class="draft-section"><h3>02 · 建议动作</h3><ul><li>筛选近 90 天未到店会员，先确认可触达范围。</li><li>周二至周四设置限定到店权益，具体额度由运营核对。</li><li>准备两版消息文案，小范围发送后再决定是否扩大。</li></ul></section>
+              <section class="draft-section"><h3>03 · 人工审核清单</h3><ul><li>权益是否在 50,000 元预算内</li><li>会员触达是否符合现有授权</li><li>活动时间、门店范围与库存是否准确</li></ul></section>
+              <div class="approval-stamp">等待<br>人工审核</div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="site-footer"><span>静态视觉实验 · 结果 03C</span><span>活动方案为虚构草稿，不承诺转化效果</span></footer>
+  </main>
+</body>
+</html>

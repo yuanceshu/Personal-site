@@ -9,7 +9,11 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test:lab": "tsx --test tests/ai-solution-lab/*.test.ts",
-    "test:lab:browser": "playwright test --config=tests/ai-solution-lab/playwright.config.ts"
+    "test:lab:browser": "playwright test --config=tests/ai-solution-lab/playwright.config.ts",
+    "test:travel": "tsx --test tests/island-travel/*.test.ts",
+    "test:travel:browser": "playwright test --config=tests/island-travel/playwright.config.ts",
+    "test:ui-lab": "tsx --test tests/ui-lab/*.test.ts",
+    "test:ui-lab:browser": "playwright test --config=tests/ui-lab/playwright.config.ts"
   },
   "dependencies": {
     "next": "16.3.1",

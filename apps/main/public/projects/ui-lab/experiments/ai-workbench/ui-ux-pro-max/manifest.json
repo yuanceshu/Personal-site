@@ -1,0 +1,43 @@
+{
+  "id": "ai-workbench/ui-ux-pro-max",
+  "title": "UI UX Pro Max",
+  "model": "Sol",
+  "modelVersion": null,
+  "reasoningEffort": null,
+  "skillMode": "skill",
+  "skillName": "UI UX Pro Max",
+  "skillVersion": null,
+  "createdAt": null,
+  "frozenAt": "2026-09-15",
+  "sealedAt": "2026-09-16T01:26:47.520Z",
+  "comparisonLevel": "showcase",
+  "sourceType": "frozen-static-snapshot",
+  "sourceEvidence": "用户确认模型与版本归属；本机实际源码已核对。原始 Prompt 未公开。",
+  "entry": "index.html",
+  "promptSummary": "从业务需求出发，呈现理解、能力判断与可操作原型；各版覆盖的流程阶段不同。",
+  "additionalConstraints": [],
+  "references": {
+    "value": "unknown",
+    "note": "未记录"
+  },
+  "imageGeneration": {
+    "value": "unknown",
+    "note": "未记录"
+  },
+  "archiveChanges": [
+    "复制必要文件，固定演示时间与随机序列",
+    "添加离线隔离、冻结标识和就绪通知",
+    "表单动作仅触发本地演示事件，不提交网络表单"
+  ],
+  "limitations": [
+    "历史页面的字号、对比度与交互缺陷保留，不作为实验室外壳质量标准。"
+  ],
+  "files": {
+    "index.html": "7d76125cc579f621b3648457259278a1ddfce290e629b955b3df20431c8fb617"
+  },
+  "previews": {
+    "projects/ui-lab/previews/ai-workbench/ui-ux-pro-max/desktop.webp": "8c6c7e0d56244f2726d0d5c834de42079cb294d6b30d462de8cc6d0854162e14",
+    "projects/ui-lab/previews/ai-workbench/ui-ux-pro-max/mobile.webp": "82e0f95225f4f7f38debce19cb5eb20230f9bb217f493cf00f8118e9a8937151",
+    "projects/ui-lab/previews/ai-workbench/ui-ux-pro-max/thumbnail.webp": "6184a2cbe7b33355e9dda7f8dc3df128a9b2525f9323fcbba8e9e912a6572bf3"
+  }
+}

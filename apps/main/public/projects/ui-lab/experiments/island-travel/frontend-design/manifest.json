@@ -1,0 +1,48 @@
+{
+  "id": "island-travel/frontend-design",
+  "title": "Frontend Design",
+  "model": "Astra 6",
+  "modelVersion": null,
+  "reasoningEffort": null,
+  "skillMode": "skill",
+  "skillName": "Frontend Design",
+  "skillVersion": null,
+  "createdAt": null,
+  "frozenAt": "2026-09-15",
+  "sealedAt": "2026-09-16T01:26:47.523Z",
+  "comparisonLevel": "showcase",
+  "sourceType": "frozen-static-snapshot",
+  "sourceEvidence": "用户确认模型与版本归属；本机实际源码已核对。原始 Prompt 未公开。",
+  "entry": "index.html",
+  "promptSummary": "以虚构的岛见品牌组织海南出行，从出行意向到班次选择与行程确认。",
+  "additionalConstraints": [],
+  "references": {
+    "value": "unknown",
+    "note": "未记录"
+  },
+  "imageGeneration": {
+    "value": "yes",
+    "note": "海岸创作图，非真实线路；项目设计记录可核验。"
+  },
+  "archiveChanges": [
+    "复制当前React、领域逻辑、数据、CSS和图片",
+    "固定规则演示，移除真实AI请求及模式选项",
+    "本地图片与链接适配；固定演示日期与订单标识",
+    "添加离线隔离、冻结标识与就绪通知"
+  ],
+  "limitations": [
+    "历史页面的字号、对比度与交互缺陷保留，不作为实验室外壳质量标准。"
+  ],
+  "files": {
+    "assets/coast-editorial.webp": "beb73bb5f8ab864f9fbabd46f22861a12247e881c62590d4cc3e1e47d13a8156",
+    "build-info.json": "e70c3b307bd4421daaf52b622013c454b1c94b36667b11356c79c08999874761",
+    "index.html": "dd10f3924541b35e14f7abe545c919607485162bb8da29cf8af7601b4e8c0442",
+    "snapshot.css": "1336977ffd1a90e6304ae6548f09d1619196d821c953b9e50a44ff1fa839415a",
+    "snapshot.js": "9aa6c9084118ab3c835d6aef6edef8018e385fe6e9b6849a6e7ffae86d03c64d"
+  },
+  "previews": {
+    "projects/ui-lab/previews/island-travel/frontend-design/desktop.webp": "3751d3d96cfcbce4a8bac9b5844b4377641d8dcc6aac091f134177392e2c9c8a",
+    "projects/ui-lab/previews/island-travel/frontend-design/mobile.webp": "155967cb05e1a84330dea33a52f0891d5a80aac0678c9ef2c65da8cca92d0fe8",
+    "projects/ui-lab/previews/island-travel/frontend-design/thumbnail.webp": "ff8cc476c4f3d7e8fc3b61c1ac728a477854231f81b30ab4373592fa1ae8e50d"
+  }
+}

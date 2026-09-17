@@ -1,0 +1,46 @@
+{
+  "id": "dashboards/bare",
+  "title": "裸跑",
+  "model": "Luna",
+  "modelVersion": null,
+  "reasoningEffort": null,
+  "skillMode": "bare",
+  "skillName": null,
+  "skillVersion": null,
+  "createdAt": null,
+  "frozenAt": "2026-09-15",
+  "sealedAt": "2026-09-16T01:26:47.511Z",
+  "comparisonLevel": "showcase",
+  "sourceType": "frozen-static-snapshot",
+  "sourceEvidence": "用户确认模型与版本归属；本机实际源码已核对。原始 Prompt 未公开。",
+  "entry": "index.html",
+  "promptSummary": "为城市通集团组织运营总览，呈现交通客流、消费与助老服务等演示指标，提供筛选与排行查看。",
+  "additionalConstraints": [],
+  "references": {
+    "value": "unknown",
+    "note": "未记录"
+  },
+  "imageGeneration": {
+    "value": "unknown",
+    "note": "未记录"
+  },
+  "archiveChanges": [
+    "复制必要文件，固定演示时间与随机序列",
+    "添加离线隔离、冻结标识和就绪通知",
+    "表单动作仅触发本地演示事件，不提交网络表单"
+  ],
+  "limitations": [
+    "原版在375px存在横向溢出，手机图只记录视口可见宽度；未修补布局。",
+    "页面含内部滚动区域；全页图不展开其折叠或滚动外内容，请进入体验查看。",
+    "历史页面的字号、对比度与交互缺陷保留，不作为实验室外壳质量标准。",
+    "原件在全年口径下部分交易指标显示0、排行出现NaN；原版与归档一致。筛选与排行交互可用，但不能据此作业务数据判断。"
+  ],
+  "files": {
+    "index.html": "e6f549a703ec90a3fc16a7a31322d01cf26217182798c8d9ceaea118ec4c7586"
+  },
+  "previews": {
+    "projects/ui-lab/previews/dashboards/bare/desktop.webp": "8fcf9b2ea8414d2ccc73434681607937b1d5957111af1ba19970a90db4f40a6d",
+    "projects/ui-lab/previews/dashboards/bare/mobile.webp": "7e8577711c3858585ed221c1e672ab842bd784747b801f0a8e4cd9c395eb3a3e",
+    "projects/ui-lab/previews/dashboards/bare/thumbnail.webp": "0900a9413c47c110268397c9a1e881e0fa214b0fc71067d13dda3e9d14e9cf7c"
+  }
+}

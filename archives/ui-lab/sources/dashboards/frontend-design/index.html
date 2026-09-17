@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>城市通集团数据驾驶舱 · 城市夜班运营台</title>
+<style>
+:root{
+  --ink:#071016;
+  --night:#0c171d;
+  --surface:#102229;
+  --surface-2:#142b33;
+  --surface-3:#19343a;
+  --line:rgba(186,226,222,.16);
+  --line-strong:rgba(110,224,214,.42);
+  --paper:#f0f6f1;
+  --soft:#b5c9c7;
+  --muted:#7f9b9c;
+  --dim:#557073;
+  --cyan:#68ded0;
+  --cyan-deep:#2daaa8;
+  --indigo:#9ba7ff;
+  --amber:#e7ba68;
+  --lime:#a8d974;
+  --ease:cubic-bezier(.22,.8,.24,1);
+  --shadow:0 18px 40px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.035);
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:var(--ink);color:var(--paper);font-family:"Avenir Next","PingFang SC","Microsoft YaHei",sans-serif}
+body{overflow:hidden;background:
+ radial-gradient(circle at 50% -25%,rgba(83,180,173,.18),transparent 38%),
+ linear-gradient(115deg,rgba(255,255,255,.028) 1px,transparent 1px),
+ linear-gradient(25deg,rgba(255,255,255,.018) 1px,transparent 1px),var(--ink);
+ background-size:auto,96px 96px,120px 120px,auto}
+button,select,input{font:inherit}
+button{color:inherit}
+.viewport{height:100vh;min-height:760px;padding:18px 22px 12px;display:grid;grid-template-rows:72px 82px minmax(0,1fr) 16px;gap:11px;overflow:hidden}
+.topbar{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:20px}
+.brand{display:flex;align-items:center;gap:13px;min-width:380px}
+.brand-mark{width:39px;height:39px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--cyan);color:var(--cyan);font-size:18px;font-weight:800;letter-spacing:-2px;background:rgba(104,222,208,.08)}
+.eyebrow{color:var(--cyan);font-size:9px;letter-spacing:2.6px;font-weight:700}
+h1{margin:4px 0 0;font-size:24px;line-height:1;letter-spacing:1.5px;font-weight:750}
+.brand-sub{margin-top:6px;color:var(--muted);font-size:10px;letter-spacing:.4px}
+.top-actions{display:flex;align-items:center;gap:12px}
+.status{display:flex;align-items:center;gap:6px;color:var(--soft);font-size:10px;white-space:nowrap}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 4px rgba(168,217,116,.1)}
+.badge{padding:6px 9px;border:1px solid rgba(231,186,104,.43);border-radius:4px;color:var(--amber);font-size:10px;letter-spacing:.8px;background:rgba(231,186,104,.07)}
+.filters{display:flex;align-items:center;gap:7px;padding:7px 9px;background:rgba(13,31,38,.75);border:1px solid var(--line);border-radius:5px}
+.filters label{font-size:10px;color:var(--muted)}
+select{appearance:none;min-width:68px;padding:5px 23px 5px 8px;border:1px solid rgba(104,222,208,.35);border-radius:3px;background:#173238;color:var(--paper);font-size:11px;outline:none;background-image:linear-gradient(45deg,transparent 50%,var(--cyan) 50%),linear-gradient(135deg,var(--cyan) 50%,transparent 50%);background-position:calc(100% - 12px) 9px,calc(100% - 8px) 9px;background-size:4px 4px;background-repeat:no-repeat}
+select:focus,input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(104,222,208,.11)}
+.clock{min-width:130px;text-align:right}
+.clock-time{font-size:20px;line-height:1;font-weight:700;letter-spacing:1px;font-variant-numeric:tabular-nums}
+.clock-date{margin-top:4px;color:var(--muted);font-size:9px}
+.kpis{display:grid;grid-template-columns:1.35fr repeat(5,1fr);gap:9px}
+.kpi{position:relative;min-width:0;padding:12px 14px;border:1px solid var(--line);border-radius:6px;background:linear-gradient(135deg,rgba(21,50,57,.91),rgba(11,28,34,.97));box-shadow:var(--shadow);overflow:hidden}
+.kpi:before{content:"";position:absolute;top:0;left:14px;width:30px;height:2px;background:var(--cyan)}
+.kpi:first-child{background:linear-gradient(135deg,rgba(31,78,77,.96),rgba(13,35,40,.98));border-color:var(--line-strong)}
+.kpi:first-child:after{content:"";position:absolute;right:-20px;bottom:-31px;width:130px;height:80px;background:radial-gradient(circle,rgba(104,222,208,.25),transparent 67%)}
+.kpi.gold:before{background:var(--amber)}.kpi.indigo:before{background:var(--indigo)}
+.kpi-label{color:var(--soft);font-size:10px}
+.kpi-value{margin-top:8px;color:#fff;font-size:22px;line-height:1;font-weight:800;letter-spacing:.2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kpi:first-child .kpi-value{font-size:30px}
+.kpi-unit{margin-left:5px;color:var(--cyan);font-size:9px;font-weight:500}
+.gold .kpi-unit{color:var(--amber)}.indigo .kpi-unit{color:var(--indigo)}
+.kpi-note{position:absolute;right:12px;bottom:10px;color:var(--dim);font-size:9px}
+.layout{min-height:0;display:grid;grid-template-columns:minmax(230px,.86fr) minmax(520px,1.7fr) minmax(300px,1fr);gap:11px}
+.column{min-height:0;display:grid;gap:11px}
+.left{grid-template-rows:1.06fr .94fr}.center{grid-template-rows:1.45fr .55fr}.right{grid-template-rows:1.06fr .94fr}
+.panel{min-height:0;overflow:hidden;padding:13px 14px;background:linear-gradient(145deg,rgba(17,41,48,.91),rgba(9,24,30,.97));border:1px solid var(--line);border-radius:7px;box-shadow:var(--shadow)}
+.hero-panel{background:linear-gradient(145deg,rgba(18,49,54,.94),rgba(8,24,31,.98));border-color:rgba(104,222,208,.25)}
+.panel-head{height:29px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);margin-bottom:7px}
+.panel-title{display:flex;gap:8px;align-items:center;font-size:12px;font-weight:750;letter-spacing:.5px}
+.panel-title:before{content:"";width:4px;height:14px;border-radius:1px;background:var(--cyan)}
+.panel-meta{color:var(--muted);font-size:9px;white-space:nowrap}
+.legend{display:flex;gap:10px;color:var(--soft);font-size:9px}
+.legend span{display:flex;align-items:center;gap:5px}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}.dot.cyan{background:var(--cyan)}.dot.indigo{background:var(--indigo)}.dot.amber{background:var(--amber)}.dot.lime{background:var(--lime)}
+.age-list{height:calc(100% - 31px);display:flex;flex-direction:column;justify-content:space-around;padding:2px 0}
+.age-row{display:grid;grid-template-columns:61px 1fr 57px;align-items:center;gap:8px;color:var(--soft);font-size:9px}
+.age-track{height:6px;background:#18353b;border-radius:1px;overflow:hidden}
+.age-fill{display:block;height:100%;background:linear-gradient(90deg,var(--cyan-deep),var(--cyan));border-radius:1px}
+.age-value{text-align:right;color:var(--paper);font-variant-numeric:tabular-nums}.age-value em{margin-left:4px;color:var(--cyan);font-size:8px;font-style:normal}
+.mode-body{height:calc(100% - 33px);display:grid;grid-template-columns:132px 1fr;align-items:center;gap:10px}
+.donut{width:128px;height:128px;position:relative;display:grid;place-items:center}
+.donut svg{width:128px;height:128px;transform:rotate(-90deg);overflow:visible}
+.donut-base{fill:none;stroke:#19353c;stroke-width:14}
+.donut-segment{fill:none;stroke-width:14;cursor:pointer;transition:opacity 180ms var(--ease),filter 180ms var(--ease)}
+.donut-segment.selected{filter:drop-shadow(0 0 5px currentColor)}.donut-segment.dim{opacity:.18}
+.donut-center{position:absolute;text-align:center;pointer-events:none}.donut-center strong{display:block;color:#fff;font-size:19px;line-height:1}.donut-center span{color:var(--muted);font-size:8px}
+.mode-list{display:flex;flex-direction:column;gap:8px}
+.mode-card{border:1px solid var(--line);border-radius:4px;padding:8px 9px;background:rgba(8,24,30,.5);cursor:pointer;text-align:left;transition:transform 160ms var(--ease),border-color 180ms ease,background-color 180ms ease}
+.mode-card.selected{border-color:var(--cyan);background:rgba(42,128,124,.2)}.mode-card.metro.selected{border-color:var(--indigo);background:rgba(121,110,212,.14)}
+.mode-name{display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:700}.mode-share{color:var(--cyan);font-variant-numeric:tabular-nums}.metro .mode-share{color:var(--indigo)}
+.mode-values{display:flex;justify-content:space-between;margin-top:5px;color:var(--muted);font-size:8px}.mode-values b{color:var(--paper);font-size:10px}
+.chart-wrap{position:relative;min-height:0;flex:1}.chart-svg{display:block;width:100%;height:100%;overflow:visible}
+.grid-line{stroke:rgba(170,210,210,.14);stroke-width:1}.axis-label{fill:#6e898c;font-size:9px}
+.rush-band{fill:rgba(104,222,208,.08);stroke:rgba(104,222,208,.18);stroke-width:1}.rush-band.evening{fill:rgba(155,167,255,.08);stroke:rgba(155,167,255,.18)}
+.rush-label{fill:var(--cyan);font-size:9px}.rush-label.evening-label{fill:var(--indigo)}
+.trend-line{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:opacity 180ms ease}.trend-line.bus{stroke:var(--cyan)}.trend-line.metro{stroke:var(--indigo)}.trend-line.dim{opacity:.18}
+.trend-dot{stroke:var(--night);stroke-width:2;cursor:pointer}.trend-dot.bus{fill:var(--cyan)}.trend-dot.metro{fill:var(--indigo)}.trend-dot.dim{opacity:.18}.trend-dot.selected{stroke:#fff;stroke-width:2.5}
+.chart-foot{display:flex;justify-content:space-between;align-items:end;height:21px;color:var(--dim);font-size:8px}.chart-legend{display:flex;gap:12px}.chart-legend span{display:flex;align-items:center;gap:5px}.chart-legend i{display:inline-block;width:15px;height:2px}.chart-legend .bus-line{background:var(--cyan)}.chart-legend .metro-line{background:var(--indigo)}
+.bar-amount{fill:rgba(231,186,104,.55);cursor:pointer;transition:fill 180ms ease,filter 180ms ease}.bar-amount.selected{fill:var(--amber);filter:drop-shadow(0 0 4px rgba(231,186,104,.45))}
+.amount-line{fill:none;stroke:var(--lime);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.amount-dot{fill:var(--lime);stroke:var(--night);stroke-width:2;cursor:pointer}
+.month-label{fill:#6e898c;font-size:9px;text-anchor:middle}.month-label.selected{fill:var(--amber);font-weight:700}.month-axis{stroke:rgba(170,210,210,.2);stroke-width:1}
+.meal-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.meal-kpi{padding:8px;border:1px solid rgba(231,186,104,.22);border-radius:4px;background:rgba(77,64,32,.18)}.meal-kpi-label{color:var(--muted);font-size:8px}.meal-kpi-value{margin-top:5px;color:var(--amber);font-size:17px;font-weight:800}.meal-kpi-unit{margin-left:3px;color:#c9a962;font-size:8px}
+.subhead{display:flex;justify-content:space-between;margin:10px 0 5px;color:var(--soft);font-size:9px}.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.mini-bars{height:74px;display:flex;align-items:flex-end;gap:6px;border-bottom:1px solid var(--line);padding:0 4px}.mini-col{height:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px}.mini-col i{display:block;width:100%;max-width:23px;min-height:4px;background:linear-gradient(180deg,var(--amber),#76521c);border-radius:2px 2px 0 0;cursor:pointer}.mini-col b{font-size:8px;color:var(--paper);font-weight:500}.mini-col span{font-size:8px;color:var(--muted);white-space:nowrap}
+.rank-list{display:flex;flex-direction:column;gap:5px;min-height:0;overflow:hidden}.rank-row{width:100%;display:grid;grid-template-columns:23px 1fr auto;gap:8px;align-items:center;padding:6px;border:1px solid transparent;border-radius:4px;background:rgba(9,28,33,.56);cursor:pointer;text-align:left;transition:transform 160ms var(--ease),border-color 180ms ease,background-color 180ms ease}.rank-row.selected{border-color:rgba(104,222,208,.55);background:rgba(42,128,124,.18);box-shadow:inset 3px 0 var(--cyan)}.rank-no{width:19px;height:19px;display:grid;place-items:center;background:#1a3b41;color:#9bb4b3;font-size:8px}.rank-row:nth-child(-n+3) .rank-no{background:rgba(231,186,104,.16);color:var(--amber)}.rank-name{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--paper);font-size:9px}.rank-sub{display:block;margin-top:3px;color:var(--muted);font-size:8px}.rank-value{color:var(--cyan);font-size:9px;text-align:right;white-space:nowrap}.rank-value small{color:var(--muted);font-size:8px}
+.detail{min-height:39px;margin-top:7px;padding:7px 9px;border-left:2px solid var(--amber);border-radius:3px;background:rgba(231,186,104,.06);color:var(--soft);font-size:9px;line-height:1.55}.detail b{color:#fff}
+.footer{display:flex;align-items:center;justify-content:space-between;color:#557072;font-size:8px;padding:0 2px}.footer strong{color:#8ba9a8;font-weight:500}
+#tooltip{position:fixed;z-index:30;max-width:240px;padding:7px 9px;border:1px solid rgba(104,222,208,.55);border-radius:4px;background:rgba(7,20,25,.96);box-shadow:0 12px 26px rgba(0,0,0,.3);color:#effbf8;font-size:9px;line-height:1.5;pointer-events:none;opacity:0;visibility:hidden;transform:translateY(4px);transition:opacity 150ms ease,transform 150ms ease,visibility 0s linear 150ms}
+#tooltip.visible{opacity:1;visibility:visible;transform:translateY(0);transition:opacity 150ms ease,transform 150ms ease}
+button:focus-visible,select:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+button:active{transform:scale(.985)}
+@media (hover:hover) and (pointer:fine){.mode-card:hover,.rank-row:hover{border-color:var(--line-strong);transform:translateX(2px)}.donut-segment:hover{filter:drop-shadow(0 0 5px currentColor);opacity:1}.bar-amount:hover{fill:var(--amber)}.mini-col i:hover{filter:brightness(1.2)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}body:after{display:none}}
+@media(max-width:1200px){.viewport{padding:12px;gap:8px}.brand{min-width:300px}h1{font-size:20px}.layout{grid-template-columns:minmax(210px,.8fr) minmax(450px,1.4fr) minmax(270px,.9fr);gap:8px}.panel{padding:10px}.mode-body{grid-template-columns:112px 1fr}.donut{width:108px;height:108px}.donut svg{width:108px;height:108px}}
+@media(max-width:1000px){body{overflow:auto}.viewport{height:auto;min-height:100vh;overflow:visible;grid-template-rows:auto auto auto 16px}.topbar{height:auto;min-height:70px;flex-wrap:wrap;padding-bottom:8px}.top-actions{margin-left:auto}.kpis{grid-template-columns:repeat(3,1fr);height:auto}.kpi{min-height:76px}.layout{grid-template-columns:1fr 1.25fr;min-height:880px}.right{grid-column:1/-1;grid-template-columns:1fr 1fr;grid-template-rows:330px 330px}.left,.center{grid-template-rows:330px 290px}.panel{min-height:290px}}
+@media(max-width:680px){.viewport{padding:10px;display:flex;flex-direction:column;min-height:100vh}.topbar{display:block}.brand{min-width:0}.top-actions{margin-top:12px;justify-content:space-between;flex-wrap:wrap}.filters{flex:1}.clock{min-width:0}.kpis{grid-template-columns:repeat(2,1fr)}.layout{display:flex;flex-direction:column;min-height:0}.column{display:flex;flex-direction:column}.panel{min-height:300px}.hero-panel{min-height:360px}.footer{height:auto;gap:8px;align-items:flex-start}}
+</style>
+</head>
+<body>
+<main class="viewport">
+  <header class="topbar" data-od-id="brand-and-period">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">城</div>
+      <div><div class="eyebrow">CITYPASS GROUP / GUIYANG OPS</div><h1>城市通集团综合服务数据驾驶舱</h1><div class="brand-sub">公交 · 地铁 · 助老餐厅 · 城市出行与民生服务一体化视图</div></div>
+    </div>
+    <div class="top-actions">
+      <div class="status"><span class="status-dot"></span>运营数据在线 <span class="badge">演示数据</span></div>
+      <div class="filters" data-od-id="global-filters"><label for="yearFilter">年度</label><select id="yearFilter" aria-label="选择年度"><option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option></select><label for="monthFilter">月份</label><select id="monthFilter" aria-label="选择月份"><option value="all" selected>全年</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select></div>
+      <div class="clock"><div class="clock-time" id="clockTime">09:49:00</div><div class="clock-date" id="clockDate">2026年09月07日 · 实时模拟</div></div>
+    </div>
+  </header>
+  <section class="kpis" id="kpis" aria-label="核心指标" data-od-id="kpi-strip"></section>
+  <section class="layout" data-od-id="operations-canvas">
+    <div class="column left">
+      <section class="panel" data-od-id="age-structure"><div class="panel-head"><div class="panel-title">乘车人年龄结构</div><div class="panel-meta" id="ageMeta">客流构成</div></div><div class="age-list" id="ageList"></div></section>
+      <section class="panel" data-od-id="transport-mix"><div class="panel-head"><div class="panel-title">公交 / 地铁客流结构</div><div class="panel-meta">点击分区联动</div></div><div class="mode-body" id="modeBody"></div></section>
+    </div>
+    <div class="column center">
+      <section class="panel hero-panel" data-od-id="hourly-peak"><div class="panel-head"><div class="panel-title">全天客流峰值趋势</div><div class="legend"><span><i class="dot cyan"></i>公交</span><span><i class="dot indigo"></i>地铁</span></div></div><div class="chart-wrap" id="hourlyChart"></div><div class="chart-foot"><div class="chart-legend"><span><i class="bus-line"></i>公交客流</span><span><i class="metro-line"></i>地铁客流</span></div><span>万人次 / 小时 · 通勤窗口 07—09 / 17—19</span></div></section>
+      <section class="panel" data-od-id="monthly-trend"><div class="panel-head"><div class="panel-title">交易金额与笔数趋势</div><div class="panel-meta" id="monthlyMeta">金额：万元 · 笔数：万笔</div></div><div class="chart-wrap" id="monthlyChart"></div></section>
+    </div>
+    <div class="column right">
+      <section class="panel" data-od-id="meal-monitor"><div class="panel-head"><div class="panel-title">助老餐厅服务监测</div><div class="panel-meta" id="mealMeta">示例服务点</div></div><div class="meal-kpis" id="mealKpis"></div><div class="subhead"><span>助餐对象年龄段</span><span>服务人次</span></div><div class="mini-grid"><div class="mini-bars" id="mealAgeChart"></div><div><div class="subhead" style="margin-top:0"><span>餐次服务量</span><span>万人次</span></div><div class="mini-bars" id="mealPeriodChart"></div></div></div></section>
+      <section class="panel" data-od-id="hot-ranking"><div class="panel-head"><div class="panel-title">热门线路 / 服务点</div><div class="panel-meta">点击查看详情</div></div><div class="rank-list" id="rankList"></div><div class="detail" id="detailBox">点击线路或助老餐厅，可查看对应运营指标。</div></section>
+    </div>
+  </section>
+  <footer class="footer"><span>口径：全年为累计交易与年均日客流；月份为当月累计交易与月均日客流。</span><strong>模拟数据，仅用于方案展示 · 不含真实乘客信息</strong></footer>
+</main>
+<div id="tooltip" role="status" aria-live="polite"></div>
+<script>
+(function(){
+  "use strict";
+  var state={year:2026,month:"all",selectedMode:null,selectedEntity:null};
+  var monthSeason=[.84,.78,.93,.96,1.02,1.06,1.10,1.08,1.04,1,.96,.91], yearFactor={2024:.86,2025:.94,2026:1};
+  var hourLabels=["06:00","07:00","08:00","09:00","10:00","12:00","14:00","16:00","17:00","18:00","19:00","21:00"];
+  var baseBusHour=[5.2,10.8,15.6,11.2,8.8,9.5,8.3,9.9,12.8,15.1,10.6,6.1], baseMetroHour=[3.3,8.9,18.4,13.3,8.1,8.7,7.6,9.8,16.8,19.3,12.6,4.7];
+  var ageDefs=[{label:"18岁以下",share:.06},{label:"18—30岁",share:.28},{label:"31—45岁",share:.31},{label:"46—60岁",share:.19},{label:"61—70岁",share:.10},{label:"70岁以上",share:.06}];
+  var mealAgeDefs=[{label:"60—69岁",share:.36},{label:"70—79岁",share:.43},{label:"80岁以上",share:.21}], mealPeriodDefs=[{label:"早餐",share:.18},{label:"午餐",share:.53},{label:"晚餐",share:.29}];
+  var baseLines=[{id:"B1",name:"BRT B1 示范线",type:"公交",district:"观山湖—云岩",passengers:112,transactions:86,amount:324},{id:"B52",name:"公交 52 路（示例）",type:"公交",district:"南明—花溪",passengers:96,transactions:74,amount:268},{id:"M1",name:"地铁 1 号线（示例）",type:"地铁",district:"小河—观山湖",passengers:138,transactions:121,amount:452},{id:"M2",name:"地铁 2 号线（示例）",type:"地铁",district:"白云—南明",passengers:105,transactions:92,amount:345},{id:"S1",name:"地铁 S1 线（示例）",type:"地铁",district:"双龙—贵阳",passengers:82,transactions:69,amount:228}];
+  var baseMeals=[{id:"meal1",name:"和悦助老餐厅（示例）",district:"云岩区",services:5.4,amount:21.6,ticket:4},{id:"meal2",name:"花溪长者食堂（示例）",district:"花溪区",services:4.6,amount:18,ticket:3.9},{id:"meal3",name:"观山湖社区餐厅（示例）",district:"观山湖区",services:4.1,amount:17.2,ticket:4.2},{id:"meal4",name:"暖心助餐点（示例）",district:"南明区",services:3.5,amount:13.3,ticket:3.8}];
+  function round(v,d){var p=Math.pow(10,d||0);return Math.round(v*p)/p}
+  function fmt(v,d){var n=d===undefined?0:d;return Number(v).toLocaleString("zh-CN",{minimumFractionDigits:n,maximumFractionDigits:n})}
+  function scale(v,f,d){return round(v*f,d)}
+  function period(){return state.year+"年"+(state.month==="all"?"全年":state.month+"月")}
+  function tipText(s){return String(s).replace(/"/g,"&quot;")}
+  function makeTrend(year){return monthSeason.map(function(s,i){return{month:i+1,amount:scale(2570*s*yearFactor[year],1),count:scale(292*s*yearFactor[year],1)}})}
+  function snapshot(year,month){
+    var yf=yearFactor[year], selected=month==="all"?1:monthSeason[month-1], all=month==="all", passenger=all?scale(2058*yf,1):scale(171.5*yf*selected*30,1), busShare=all?.58:.56+((month%3)-1)*.01, amount=all?round(30240*yf,0):round(30240*yf*selected/12,0), busTx=all?round(1698*yf,0):round(1698*yf*selected/12,0), metroTx=all?round(1282*yf,0):round(1282*yf*selected/12,0), meals=all?scale(32.8*yf,1):scale(32.8*yf*selected/12,1), mealAmount=all?scale(128.6*yf,1):scale(128.6*yf*selected/12,1), factor=(all?.98:selected)*yf;
+    var hourly=hourLabels.map(function(label,i){return{time:label,bus:scale(baseBusHour[i]*factor,1),metro:scale(baseMetroHour[i]*factor,1)}}), peak=Math.max.apply(null,hourly.map(function(x){return x.bus+x.metro}));
+    var ages=ageDefs.map(function(x){return{label:x.label,share:x.share,count:scale(passenger*x.share,1)}}), modes=[{name:"公交",share:busShare,transactionCount:busTx,transactionAmount:round(amount*busShare,0)},{name:"地铁",share:1-busShare,transactionCount:metroTx,transactionAmount:round(amount*(1-busShare),0)}];
+    var mealAges=mealAgeDefs.map(function(x){return{label:x.label,count:scale(meals*x.share,1)}}), periods=mealPeriodDefs.map(function(x){return{label:x.label,count:scale(meals*x.share,1)}});
+    var lines=baseLines.map(function(x,i){var f=(all?1:selected)*yf*(1+i*.035);return{id:x.id,name:x.name,type:x.type,district:x.district,passengers:scale(x.passengers*f,1),transactions:scale(x.transactions*f,1),amount:scale(x.amount*f,1)}}).sort(function(a,b){return b.passengers-a.passengers});
+    var mealRows=baseMeals.map(function(x,i){var f=(all?1:selected)*yf*(1+i*.025);return{id:x.id,name:x.name,district:x.district,services:scale(x.services*f,1),amount:scale(x.amount*f,1),ticket:round(x.ticket*(1+(year-2024)*.025),1)}});
+    return{kpi:{passengerCount:passenger,busTransactionCount:busTx,metroTransactionCount:metroTx,transportAmount:amount,mealServiceCount:meals,peakPassengerCount:round(peak,1),mealAmount:mealAmount},ageGroups:ages,transportModes:modes,hourlyPassengerTrend:hourly,monthlyTransactionTrend:makeTrend(year),mealAgeGroups:mealAges,mealPeriods:periods,hotLines:lines,mealServices:mealRows};
+  }
+  function renderKpis(s){
+    var cards=[["综合客流量",fmt(s.kpi.passengerCount,1),"万人次","年末 / 月末快照",""],["公交交易笔数",fmt(s.kpi.busTransactionCount),"万笔","累计交易",""],["地铁交易笔数",fmt(s.kpi.metroTransactionCount),"万笔","累计交易","indigo"],["出行交易金额",fmt(s.kpi.transportAmount),"万元","公交 + 地铁","gold"],["助老餐厅服务",fmt(s.kpi.mealServiceCount,1),"万人次","助餐服务","gold"],["最高峰小时",fmt(s.kpi.peakPassengerCount,1),"万人次/时","公交 + 地铁","indigo"]];
+    document.getElementById("kpis").innerHTML=cards.map(function(c){return'<div class="kpi '+c[4]+'"><div class="kpi-label">'+c[0]+'</div><div class="kpi-value">'+c[1]+'<span class="kpi-unit">'+c[2]+'</span></div><div class="kpi-note">'+c[3]+'</div></div>'}).join("");
+  }
+  function renderAge(s){var max=Math.max.apply(null,s.ageGroups.map(function(x){return x.count}));document.getElementById("ageMeta").textContent=period()+" · 万人次";document.getElementById("ageList").innerHTML=s.ageGroups.map(function(x){return'<div class="age-row" data-tip="'+tipText(x.label+"： "+fmt(x.count,1)+"万人次，占比 "+fmt(x.share*100,1)+"%")+'"><span>'+x.label+'</span><span class="age-track"><i class="age-fill" style="width:'+x.count/max*100+'%"></i></span><span class="age-value">'+fmt(x.count,1)+'<em>'+fmt(x.share*100,0)+'%</em></span></div>'}).join("")}
+  function renderModes(s){
+    var bus=s.transportModes[0],metro=s.transportModes[1],circ=263.89,busLen=round(circ*bus.share,2),metroLen=round(circ*metro.share,2),sel=state.selectedMode;
+    document.getElementById("modeBody").innerHTML='<div class="donut"><svg viewBox="0 0 120 120" aria-label="公交地铁客流占比"><circle class="donut-base" cx="60" cy="60" r="42"></circle><circle class="donut-segment '+(sel==="公交"?"selected ":"")+(sel==="地铁"?"dim":"")+'" data-mode="公交" data-tip="'+tipText("公交："+fmt(bus.share*100,1)+"%，"+fmt(bus.transactionCount)+"万笔，"+fmt(bus.transactionAmount)+"万元")+'" cx="60" cy="60" r="42" stroke="var(--cyan)" stroke-dasharray="'+busLen+" "+round(circ-busLen,2)+'"></circle><circle class="donut-segment '+(sel==="地铁"?"selected ":"")+(sel==="公交"?"dim":"")+'" data-mode="地铁" data-tip="'+tipText("地铁："+fmt(metro.share*100,1)+"%，"+fmt(metro.transactionCount)+"万笔，"+fmt(metro.transactionAmount)+"万元")+'" cx="60" cy="60" r="42" stroke="var(--indigo)" stroke-dasharray="'+metroLen+" "+round(circ-metroLen,2)+'" stroke-dashoffset="-'+busLen+'"></circle></svg><div class="donut-center"><strong>'+fmt(s.kpi.passengerCount,0)+'</strong><span>万人次</span></div></div><div class="mode-list"><button class="mode-card '+(sel==="公交"?"selected":"")+'" data-mode="公交" aria-label="筛选公交"><div class="mode-name"><span><i class="dot cyan"></i> 公交</span><span class="mode-share">'+fmt(bus.share*100,1)+'%</span></div><div class="mode-values"><span>交易笔数 <b>'+fmt(bus.transactionCount)+'万</b></span><span>金额 <b>'+fmt(bus.transactionAmount)+'万</b></span></div></button><button class="mode-card metro '+(sel==="地铁"?"selected":"")+'" data-mode="地铁" aria-label="筛选地铁"><div class="mode-name"><span><i class="dot indigo"></i> 地铁</span><span class="mode-share">'+fmt(metro.share*100,1)+'%</span></div><div class="mode-values"><span>交易笔数 <b>'+fmt(metro.transactionCount)+'万</b></span><span>金额 <b>'+fmt(metro.transactionAmount)+'万</b></span></div></button></div>';
+    document.querySelectorAll("[data-mode]").forEach(function(el){el.addEventListener("click",function(){var value=el.getAttribute("data-mode");state.selectedMode=state.selectedMode===value?null:value;renderAll()})});
+  }
+  function points(values,w,h,max){var l=38,r=12,t=14,b=24;return values.map(function(v,i){return{x:l+(w-l-r)*(i/(values.length-1)),y:t+(h-t-b)*(1-v/max)}})}
+  function path(list){return list.map(function(p,i){return(i?"L":"M")+round(p.x,1)+" "+round(p.y,1)}).join(" ")}
+  function renderHourly(s){
+    var w=800,h=240,all=s.hourlyPassengerTrend.map(function(x){return x.bus+x.metro}),max=Math.ceil(Math.max.apply(null,all)*1.18),bus=points(s.hourlyPassengerTrend.map(function(x){return x.bus}),w,h,max),metro=points(s.hourlyPassengerTrend.map(function(x){return x.metro}),w,h,max);
+    var grid=[0,1,2,3].map(function(i){var y=14+(h-38)*(i/3);return'<line class="grid-line" x1="38" x2="788" y1="'+y+'" y2="'+y+'"></line><text class="axis-label" x="3" y="'+(y+3)+'">'+fmt(max*(1-i/3),0)+'</text>'}).join(""), bands='<rect class="rush-band" x="'+bus[1].x+'" y="14" width="'+(bus[3].x-bus[1].x)+'" height="202"></rect><text class="rush-label" x="'+((bus[1].x+bus[3].x)/2)+'" y="25" text-anchor="middle">早高峰</text><rect class="rush-band evening" x="'+bus[8].x+'" y="14" width="'+(bus[10].x-bus[8].x)+'" height="202"></rect><text class="rush-label evening-label" x="'+((bus[8].x+bus[10].x)/2)+'" y="25" text-anchor="middle">晚高峰</text>',labels=hourLabels.map(function(x,i){return'<text class="axis-label" x="'+bus[i].x+'" y="233" text-anchor="middle">'+x+'</text>'}).join("");
+    function dots(list,mode){return list.map(function(p,i){var x=s.hourlyPassengerTrend[i],dim=state.selectedMode&&state.selectedMode!==(mode==="bus"?"公交":"地铁");return'<circle class="trend-dot '+mode+' '+(dim?"dim":"")+'" cx="'+p.x+'" cy="'+p.y+'" r="'+(i===2||i===9?4.2:3.1)+'" data-tip="'+tipText(x.time+" · "+(mode==="bus"?"公交":"地铁")+" "+fmt(x[mode],1)+"万人次/时")+'"></circle>'}).join("")}
+    document.getElementById("hourlyChart").innerHTML='<svg class="chart-svg" viewBox="0 0 800 240" preserveAspectRatio="none">'+grid+bands+'<path class="trend-line bus '+(state.selectedMode==="地铁"?"dim":"")+'" d="'+path(bus)+'"></path><path class="trend-line metro '+(state.selectedMode==="公交"?"dim":"")+'" d="'+path(metro)+'"></path>'+dots(bus,"bus")+dots(metro,"metro")+labels+'</svg>';
+  }
+  function renderMonthly(s){
+    var w=800,h=190,t=s.monthlyTransactionTrend,maxA=Math.max.apply(null,t.map(function(x){return x.amount}))*1.2,maxC=Math.max.apply(null,t.map(function(x){return x.count}))*1.2,ap=points(t.map(function(x){return x.amount}),w,h,maxA),cp=points(t.map(function(x){return x.count}),w,h,maxC),grid=[0,1,2,3].map(function(i){var y=14+(h-41)*(i/3);return'<line class="grid-line" x1="38" x2="788" y1="'+y+'" y2="'+y+'"></line>'}).join(""),bars=t.map(function(x,i){var y=ap[i].y,sel=state.month!=="all"&&state.month===x.month;return'<rect class="bar-amount '+(sel?"selected":"")+'" x="'+(ap[i].x-14)+'" y="'+y+'" width="28" height="'+Math.max(3,190-27-y)+'" rx="2" data-tip="'+tipText(x.month+"月 · 交易金额 "+fmt(x.amount)+"万元 · 交易笔数 "+fmt(x.count,1)+"万笔")+'"></rect>'}).join(""),dots=cp.map(function(p,i){var sel=state.month!=="all"&&state.month===i+1;return'<circle class="amount-dot" cx="'+p.x+'" cy="'+p.y+'" r="'+(sel?4.5:3)+'" data-tip="'+tipText((i+1)+"月 · 交易笔数 "+fmt(t[i].count,1)+"万笔 · 金额 "+fmt(t[i].amount)+"万元")+'"></circle>'}).join(""),labels=t.map(function(x,i){return'<text class="month-label '+(state.month!=="all"&&state.month===x.month?"selected":"")+'" x="'+ap[i].x+'" y="184">'+x.month+'月</text>'}).join("");
+    document.getElementById("monthlyMeta").textContent=period()+" · 金额：万元 · 笔数：万笔";document.getElementById("monthlyChart").innerHTML='<svg class="chart-svg" viewBox="0 0 800 190" preserveAspectRatio="none">'+grid+bars+'<path class="amount-line" d="'+path(cp)+'"></path>'+dots+labels+'<line class="month-axis" x1="38" x2="788" y1="163" y2="163"></line><text class="axis-label" x="3" y="19">金额</text><text class="axis-label" x="786" y="19" text-anchor="end">笔数</text></svg>';
+  }
+  function renderMeal(s){
+    var avg=s.kpi.mealServiceCount?s.kpi.mealAmount/s.kpi.mealServiceCount:0;document.getElementById("mealMeta").textContent=period()+" · 示例服务点";document.getElementById("mealKpis").innerHTML='<div class="meal-kpi"><div class="meal-kpi-label">服务人次</div><div class="meal-kpi-value">'+fmt(s.kpi.mealServiceCount,1)+'<span class="meal-kpi-unit">万人次</span></div></div><div class="meal-kpi"><div class="meal-kpi-label">交易金额</div><div class="meal-kpi-value">'+fmt(s.kpi.mealAmount,1)+'<span class="meal-kpi-unit">万元</span></div></div><div class="meal-kpi"><div class="meal-kpi-label">平均客单价</div><div class="meal-kpi-value">'+fmt(avg,1)+'<span class="meal-kpi-unit">元</span></div></div>';
+    function mini(items){var max=Math.max.apply(null,items.map(function(x){return x.count}));return items.map(function(x){return'<div class="mini-col" data-tip="'+tipText(x.label+" · "+fmt(x.count,1)+"万人次")+'"><b>'+fmt(x.count,1)+'</b><i style="height:'+Math.max(4,x.count/max*100)+'%"></i><span>'+x.label+'</span></div>'}).join("")}
+    document.getElementById("mealAgeChart").innerHTML=mini(s.mealAgeGroups);document.getElementById("mealPeriodChart").innerHTML=mini(s.mealPeriods);
+  }
+  function renderRanking(s){
+   var rows=s.hotLines.map(function(x){return{id:x.id,name:x.name,type:x.type,district:x.district,primary:x.passengers,passengers:x.passengers,secondary:"客流 "+fmt(x.passengers,1)+"万人次",transactions:x.transactions,amount:x.amount}});s.mealServices.forEach(function(x){rows.push({id:x.id,name:x.name,type:"助老餐厅",district:x.district,primary:x.services,secondary:"服务 "+fmt(x.services,1)+"万人次",services:x.services,amount:x.amount,ticket:x.ticket})});rows.sort(function(a,b){return b.primary-a.primary});var visible=rows.slice(0,7);
+    document.getElementById("rankList").innerHTML=visible.map(function(x,i){return'<button class="rank-row '+(state.selectedEntity===x.id?"selected":"")+'" data-entity="'+x.id+'" aria-label="查看 '+x.name+' 详情"><span class="rank-no">'+String(i+1).padStart(2,"0")+'</span><span><span class="rank-name">'+x.name+'</span><span class="rank-sub">'+x.type+" · "+x.district+" · "+x.secondary+'</span></span><span class="rank-value">'+fmt(x.primary,1)+'<br><small>万人次</small></span></button>'}).join("");
+    document.querySelectorAll("[data-entity]").forEach(function(el){el.addEventListener("click",function(){state.selectedEntity=el.getAttribute("data-entity");renderAll()})});
+    var selected=rows.filter(function(x){return x.id===state.selectedEntity})[0],detail=document.getElementById("detailBox");if(!selected){detail.innerHTML="点击线路或助老餐厅，可查看对应运营指标。";return}detail.innerHTML=selected.type==="助老餐厅"?"<b>"+selected.name+"</b> · "+selected.district+"　服务人次 <b>"+fmt(selected.services,1)+"万</b>　交易金额 <b>"+fmt(selected.amount,1)+"万元</b>　客单价 <b>"+fmt(selected.ticket,1)+"元</b>":"<b>"+selected.name+"</b> · "+selected.district+"　客流 <b>"+fmt(selected.passengers,1)+"万</b>　交易笔数 <b>"+fmt(selected.transactions,1)+"万</b>　交易金额 <b>"+fmt(selected.amount,1)+"万元</b>";
+  }
+  function bindTips(){
+    var tooltip=document.getElementById("tooltip");document.querySelectorAll("[data-tip]").forEach(function(el){el.addEventListener("pointerenter",function(e){tooltip.textContent=el.getAttribute("data-tip");tooltip.classList.add("visible");move(e)});el.addEventListener("pointermove",move);el.addEventListener("pointerleave",function(){tooltip.classList.remove("visible")})});function move(e){var gap=14,pad=12,w=tooltip.offsetWidth,h=tooltip.offsetHeight;tooltip.style.left=Math.max(pad,Math.min(e.clientX+gap,window.innerWidth-w-pad))+"px";tooltip.style.top=Math.max(pad,Math.min(e.clientY+gap,window.innerHeight-h-pad))+"px"}
+  }
+  function renderAll(){var s=snapshot(state.year,state.month);renderKpis(s);renderAge(s);renderModes(s);renderHourly(s);renderMonthly(s);renderMeal(s);renderRanking(s);bindTips()}
+  function sync(){document.getElementById("yearFilter").value=String(state.year);document.getElementById("monthFilter").value=String(state.month)}
+  function clock(){var d=new Date(),p=function(x){return String(x).padStart(2,"0")};document.getElementById("clockTime").textContent=p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds());document.getElementById("clockDate").textContent=d.getFullYear()+"年"+p(d.getMonth()+1)+"月"+p(d.getDate())+"日 · 实时模拟"}
+  function register(){var api=window.webmcp||window.WebMCP;if(!api)return;var def={name:"set_dashboard_period",description:"设置城市通集团演示驾驶舱的年度和月份筛选。",inputSchema:{type:"object",properties:{year:{type:"integer",enum:[2024,2025,2026]},month:{anyOf:[{type:"null"},{type:"integer",minimum:1,maximum:12}]}},required:["year","month"]},execute:function(input){var y=Number(input&&input.year),raw=input&&input.month,m=raw===null?"all":Number(raw);if([2024,2025,2026].indexOf(y)<0||!(m==="all"||(Number.isInteger(m)&&m>=1&&m<=12)))throw new Error("非法年份或月份");state.year=y;state.month=m;state.selectedMode=null;state.selectedEntity=null;sync();renderAll();return{success:true,year:y,month:m==="all"?null:m}}};try{if(typeof api.registerTool==="function")api.registerTool(def);else if(typeof api.register==="function")api.register(def)}catch(e){}}
+  document.getElementById("yearFilter").addEventListener("change",function(){state.year=Number(this.value);state.selectedMode=null;state.selectedEntity=null;renderAll()});document.getElementById("monthFilter").addEventListener("change",function(){state.month=this.value==="all"?"all":Number(this.value);state.selectedMode=null;state.selectedEntity=null;renderAll()});renderAll();clock();setInterval(clock,1000);register();
+})();
+</script>
+</body>
+</html>

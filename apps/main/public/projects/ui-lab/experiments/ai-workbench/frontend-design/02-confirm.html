@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><link rel="icon" href="data:,"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'"><script>/* Frozen demonstration boundary. Kept local to every immutable snapshot. */
+(() => {
+  const NativeDate = Date;
+  const epoch = NativeDate.parse('2026-09-15T02:00:00Z');
+  function FrozenDate(...args) {
+    if (!new.target) return new NativeDate(epoch).toString();
+    return Reflect.construct(NativeDate, args.length ? args : [epoch], new.target);
+  }
+  Object.setPrototypeOf(FrozenDate, NativeDate);
+  FrozenDate.prototype = NativeDate.prototype;
+  FrozenDate.now = () => epoch;
+  window.Date = FrozenDate;
+  let seed = 915;
+  Math.random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+  let failed = false;
+  window.addEventListener('error', () => { failed = true; }, true);
+  window.addEventListener('unhandledrejection', () => { failed = true; });
+  const base = new URL('.', location.href);
+  const notify = (type) => {
+    if (window.parent !== window) window.parent.postMessage({ type, path: location.pathname }, '*');
+  };
+  window.addEventListener('load', () => {
+    const label = document.createElement('div');
+    label.id = 'ui-lab-freeze-notice';
+    label.textContent = '冻结交互快照 · 全部为演示数据 · 不代表当前正式产品';
+    label.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;padding:5px 10px;background:#202020;color:#fff;font:11px/1.5 system-ui;text-align:center;pointer-events:none';
+    document.body.append(label);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const imagesOK = [...document.images].every(img => !img.src || (img.complete && img.naturalWidth > 0));
+      notify(failed || !imagesOK ? 'ui-lab:error' : 'ui-lab:ready');
+    }));
+  });
+  document.addEventListener('submit', event => event.preventDefault());
+  // Sandbox blocks native form submission before submit handlers can run.
+  // Dispatch only local events, retaining native constraint validation.
+  function submitDemo(form, submitter) {
+    if (!form.reportValidity()) return;
+    form.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true, submitter }));
+  }
+  document.addEventListener('click', event => {
+    const button = event.target.closest?.('button, input[type="submit"]');
+    if (button?.form && button.type === 'submit') {
+      event.preventDefault();
+      submitDemo(button.form, button);
+    }
+  }, true);
+  document.addEventListener('click', event => {
+    const link = event.target.closest?.('a[href]');
+    if (!link) return;
+    const dest = new URL(link.getAttribute('href'), location.href);
+    if (dest.origin !== base.origin || !dest.pathname.startsWith(base.pathname) || link.target || link.hasAttribute('download')) {
+      event.preventDefault();
+      const label = document.getElementById('ui-lab-freeze-notice');
+      if (label) label.textContent = '冻结快照仅保留版本内页面，请使用外层查看器返回。';
+    }
+  }, true);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') notify('ui-lab:exit');
+    if (event.key === 'Enter' && !event.isComposing && event.target.matches?.('input:not([type="checkbox"]):not([type="radio"])') && event.target.form) {
+      event.preventDefault();
+      submitDemo(event.target.form, null);
+    }
+  });
+})();
+</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI Solution Lab 静态对照稿：确认理解">
+  <title>02 确认理解｜AI Solution Lab</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <header class="site-header">
+    <a class="brand" href="index.html"><span class="brand-mark">策</span><span>AI Solution Lab</span></a>
+    <span class="edition">STRATEGY DESK · 02 / 03</span>
+    <nav class="header-nav" aria-label="页面导航"><a href="01-input.html">上一页</a><a href="03-result-analytics.html">查看结果 ↗</a></nav>
+  </header>
+
+  <main id="main" class="page-shell">
+    <nav class="process-rail" aria-label="设计进度">
+      <span class="process-step is-complete"><b>01</b>描述问题</span>
+      <span class="process-step is-current" aria-current="step"><b>02</b>确认理解</span>
+      <span class="process-step"><b>03</b>方案与原型</span>
+    </nav>
+
+    <section class="confirm-heading reveal" aria-labelledby="confirm-title">
+      <div>
+        <p class="eyebrow">Shared understanding / Review copy</p>
+        <h1 id="confirm-title" class="display display--medium">先把同一件事，<br>说得<em>一样</em>。</h1>
+      </div>
+      <blockquote>下面是一份可修改的理解稿。空白不会被假装成事实，而会作为下一步需要确认的条件。</blockquote>
+    </section>
+
+    <div class="confirm-document reveal">
+      <section class="sheet" aria-labelledby="core-title">
+        <div class="sheet-label"><span>理解稿 / Rev. 01</span><span>来自经营分析示例</span></div>
+        <form class="form-sheet">
+          <h2 id="core-title" class="section-number"><span>SECTION 01</span>核心理解</h2>
+          <div class="editorial-form">
+            <label class="field field--wide"><span>草稿名称</span><input value="医院经营分析工作台"></label>
+            <label class="field"><span>谁来使用</span><textarea>医院管理人员</textarea></label>
+            <label class="field"><span>现在的困扰</span><textarea>经营数据分散，需要手工汇总后才能发现变化。</textarea></label>
+            <label class="field field--wide"><span>希望完成的事</span><textarea>按周查看经营趋势、识别异常，并用自然语言查询。</textarea></label>
+          </div>
+
+          <h2 class="section-number" style="margin-top:38px"><span>SECTION 02</span>已有条件</h2>
+          <div class="editorial-form">
+            <label class="field field--wide"><span>系统与数据范围</span><textarea>已有 HIS、预约和缴费系统；每日导出汇总数据；不查询患者明细。</textarea></label>
+            <label class="field"><span>产品方向</span><select data-scenario-select><option value="analytics">经营分析</option><option value="retail">消费者导购</option><option value="marketing">营销策划</option></select></label>
+            <label class="field"><span>业务领域</span><select><option>医疗经营</option><option>零售</option><option>其他 / 通用参考</option></select></label>
+            <label class="field"><span>AI 使用偏好</span><select><option>有价值时使用</option><option>这次不使用 AI</option><option>请帮我判断</option></select></label>
+            <label class="field"><span>当前假设</span><textarea>各系统指标口径暂时可以统一；实际落地前仍需核对。</textarea></label>
+          </div>
+        </form>
+      </section>
+
+      <aside class="boundary-sheet">
+        <section class="sheet" aria-labelledby="boundary-title">
+          <div class="sheet-label"><span>方案边界</span><span>必须保留</span></div>
+          <div class="boundary-body">
+            <h2 id="boundary-title">这份方案暂时做到哪里？</h2>
+            <dl class="boundary-list">
+              <div><dt>时间范围</dt><dd>先按周查看，不要求实时更新</dd></div>
+              <div><dt>数据粒度</dt><dd>只使用经营汇总，不进入患者明细</dd></div>
+              <div><dt>模型职责</dt><dd>帮助理解查询、解释变化，不计算原始指标</dd></div>
+              <div><dt>待验证</dt><dd>三个系统的指标口径是否一致</dd></div>
+            </dl>
+            <div class="question-slip">
+              <b>Question / 01</b>
+              <label>异常需要由谁确认？<input placeholder="暂不清楚也可以"></label>
+            </div>
+          </div>
+        </section>
+        <div class="confirm-actions">
+          <a class="button-secondary" href="01-input.html">← 修改原始描述</a>
+          <a class="button" data-result-link href="03-result-analytics.html">生成方案草稿 <span aria-hidden="true">↗</span></a>
+        </div>
+        <p class="lab-note" style="margin:22px 0 0">切换“产品方向”可查看对应结果页。</p>
+      </aside>
+    </div>
+
+    <footer class="site-footer"><span>静态视觉实验 · 页面 02</span><span>表单内容只保留在当前页面，不会提交</span></footer>
+  </main>
+</body>
+</html>

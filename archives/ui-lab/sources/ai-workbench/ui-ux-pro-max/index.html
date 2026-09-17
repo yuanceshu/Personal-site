@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI Solution Lab UI/UX Pro Max 静态页面对照稿">
+  <title>AI Solution Lab｜UI/UX Pro Max 对照稿</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-raised: #ffffff;
+      --surface-muted: #eef2f6;
+      --text: #020617;
+      --text-secondary: #475569;
+      --text-tertiary: #64748b;
+      --border: #d8e0ea;
+      --border-strong: #a9b7c9;
+      --primary: #0f172a;
+      --primary-text: #ffffff;
+      --accent: #0369a1;
+      --accent-hover: #075985;
+      --accent-soft: #e0f2fe;
+      --accent-ink: #075985;
+      --button-bg: #0369a1;
+      --button-hover: #075985;
+      --button-text: #ffffff;
+      --success: #047857;
+      --success-soft: #d1fae5;
+      --warning: #92400e;
+      --warning-soft: #fef3c7;
+      --danger: #b91c1c;
+      --focus: #0284c7;
+      --chart-grid: #dbe4ee;
+      --chart-area: #bae6fd;
+      --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
+      --shadow-md: 0 12px 36px rgb(15 23 42 / 0.09);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --header-height: 68px;
+      --font-sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --font-display: "Avenir Next", Avenir, Inter, "PingFang SC", sans-serif;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #07111e;
+      --surface: #0d1928;
+      --surface-raised: #122135;
+      --surface-muted: #18283d;
+      --text: #f8fafc;
+      --text-secondary: #c1ccda;
+      --text-tertiary: #a4b3c6;
+      --border: #2b3d54;
+      --border-strong: #51647b;
+      --primary: #f8fafc;
+      --primary-text: #0f172a;
+      --accent: #38bdf8;
+      --accent-hover: #7dd3fc;
+      --accent-soft: #0c3b56;
+      --accent-ink: #bae6fd;
+      --button-bg: #38bdf8;
+      --button-hover: #7dd3fc;
+      --button-text: #07111e;
+      --success: #6ee7b7;
+      --success-soft: #123c32;
+      --warning: #fcd34d;
+      --warning-soft: #493417;
+      --danger: #fca5a5;
+      --focus: #7dd3fc;
+      --chart-grid: #2b3d54;
+      --chart-area: #103e5a;
+      --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.32);
+      --shadow-md: 0 16px 42px rgb(0 0 0 / 0.28);
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-height) + 24px); }
+    body {
+      min-width: 320px;
+      margin: 0;
+      color: var(--text);
+      background: var(--bg);
+      font: 16px/1.55 var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, select { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button { color: inherit; }
+    svg { display: block; }
+    .icon { width: 20px; height: 20px; flex: 0 0 auto; stroke-width: 1.8; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .skip-link { position: fixed; z-index: 100; top: 8px; left: 8px; padding: 10px 14px; color: var(--primary-text); background: var(--primary); border-radius: var(--radius-sm); transform: translateY(-150%); }
+    .skip-link:focus { transform: translateY(0); }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+    .app-header {
+      position: sticky;
+      z-index: 50;
+      top: 0;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      min-height: var(--header-height);
+      align-items: center;
+      gap: 32px;
+      padding: 0 clamp(16px, 3vw, 44px);
+      border-bottom: 1px solid var(--border);
+      background: color-mix(in srgb, var(--bg) 92%, transparent);
+      backdrop-filter: blur(16px);
+    }
+    .brand { display: inline-flex; min-height: 44px; align-items: center; gap: 11px; color: var(--text); font-weight: 750; letter-spacing: -0.02em; text-decoration: none; }
+    .brand-symbol { display: grid; width: 34px; height: 34px; grid-template-columns: 1fr 1fr; gap: 3px; padding: 7px; border-radius: 10px; color: var(--primary-text); background: var(--primary); }
+    .brand-symbol i { border: 1.5px solid currentColor; border-radius: 2px; }
+    .top-nav { display: flex; align-items: center; gap: 4px; }
+    .top-nav a { display: inline-flex; min-height: 44px; align-items: center; padding: 0 13px; border-radius: var(--radius-sm); color: var(--text-secondary); font-size: 14px; text-decoration: none; }
+    .top-nav a[aria-current="page"] { color: var(--text); background: var(--surface-muted); font-weight: 700; }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+    .icon-button { display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid var(--border); border-radius: 50%; cursor: pointer; background: var(--surface); transition: border-color 180ms ease, background 180ms ease, color 180ms ease; }
+    .icon-button:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+    .page { width: min(1480px, calc(100% - 48px)); margin: 0 auto; padding: 32px 0 64px; }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 22px; color: var(--text-secondary); font-size: 13px; }
+    .breadcrumb span { color: var(--border-strong); }
+    .result-hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; align-items: end; margin-bottom: 24px; }
+    .eyebrow { margin: 0 0 8px; color: var(--accent-ink); font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { max-width: 920px; margin: 0; font-family: var(--font-display); font-size: clamp(38px, 5vw, 68px); font-weight: 760; letter-spacing: -.055em; line-height: 1.05; }
+    .hero-copy { max-width: 760px; margin: 15px 0 0; color: var(--text-secondary); }
+    .hero-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+    .button { display: inline-flex; min-height: 46px; align-items: center; justify-content: center; gap: 9px; padding: 10px 16px; border: 1px solid transparent; border-radius: var(--radius-sm); cursor: pointer; font-weight: 700; font-size: 14px; text-decoration: none; transition: background 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease; }
+    .button:active, .icon-button:active, .segment-button:active, .capability-button:active { opacity: .72; }
+    .button-primary { color: var(--button-text); background: var(--button-bg); box-shadow: var(--shadow-sm); }
+    .button-primary:hover { background: var(--button-hover); box-shadow: var(--shadow-md); }
+    .button-secondary { color: var(--text); border-color: var(--border-strong); background: var(--surface); }
+    .button-secondary:hover { border-color: var(--text-secondary); background: var(--surface-muted); }
+    .button-quiet { color: var(--accent-ink); border-color: transparent; background: transparent; }
+    .button-quiet:hover { background: var(--accent-soft); }
+
+    .status-banner { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; margin-bottom: 16px; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--success) 38%, var(--border)); border-radius: var(--radius-md); color: var(--text); background: var(--success-soft); }
+    .status-icon { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 50%; color: var(--success-soft); background: var(--success); }
+    .status-banner strong { display: block; font-size: 14px; }
+    .status-banner p { margin: 1px 0 0; color: var(--text-secondary); font-size: 13px; }
+    .dismiss { display: grid; width: 44px; height: 44px; place-items: center; border: 0; border-radius: 50%; cursor: pointer; background: transparent; }
+    .dismiss:hover { background: color-mix(in srgb, var(--success) 14%, transparent); }
+
+    .mobile-jump { display: none; position: sticky; z-index: 40; top: calc(var(--header-height) + 8px); grid-template-columns: 1fr 1fr; margin-bottom: 12px; padding: 4px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow-sm); }
+    .mobile-jump button { min-height: 44px; border: 0; border-radius: var(--radius-sm); cursor: pointer; background: transparent; font-weight: 700; }
+    .mobile-jump button:hover { background: var(--surface-muted); }
+
+    .workspace { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 16px; align-items: start; }
+    .panel { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-sm); }
+    .panel-header { display: flex; min-height: 54px; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    .panel-header h2, .panel-header h3 { margin: 0; font-size: 15px; letter-spacing: -.01em; }
+    .panel-label { color: var(--text-tertiary); font-size: 12px; }
+    .plan-panel { position: sticky; top: calc(var(--header-height) + 16px); overflow: hidden; }
+    .summary { padding: 18px; }
+    .summary h2 { margin: 0 0 9px; font-size: 23px; line-height: 1.25; letter-spacing: -.025em; }
+    .summary > p { margin: 0; color: var(--text-secondary); font-size: 14px; }
+    .summary-dl { display: grid; gap: 12px; margin: 18px 0 0; padding: 14px; border-radius: var(--radius-md); background: var(--surface-muted); }
+    .summary-dl div { display: grid; grid-template-columns: 72px 1fr; gap: 8px; }
+    .summary-dl dt { color: var(--text-tertiary); font-size: 12px; }
+    .summary-dl dd { margin: 0; font-size: 13px; font-weight: 650; }
+    .capability-title { margin: 0; padding: 0 18px 8px; color: var(--text-tertiary); font-size: 12px; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
+    .capability-list { display: grid; gap: 4px; padding: 0 10px 12px; }
+    .capability-button { display: grid; grid-template-columns: 36px 1fr auto; gap: 10px; width: 100%; min-height: 64px; align-items: center; padding: 9px; border: 1px solid transparent; border-radius: var(--radius-md); cursor: pointer; text-align: left; background: transparent; transition: border-color 180ms ease, background 180ms ease; }
+    .capability-button:hover { background: var(--surface-muted); }
+    .capability-button[aria-pressed="true"] { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); background: var(--accent-soft); }
+    .capability-index { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid var(--border-strong); border-radius: 10px; color: var(--text-secondary); font-size: 12px; font-weight: 800; }
+    .capability-button[aria-pressed="true"] .capability-index { color: var(--primary-text); border-color: var(--primary); background: var(--primary); }
+    .capability-copy strong { display: block; font-size: 14px; }
+    .capability-copy small { display: block; margin-top: 2px; color: var(--text-secondary); font-size: 12px; }
+    .chevron { color: var(--text-tertiary); }
+    .technical { border-top: 1px solid var(--border); }
+    .technical summary { min-height: 48px; padding: 13px 18px; cursor: pointer; font-size: 13px; font-weight: 700; }
+    .technical-content { padding: 0 18px 18px; color: var(--text-secondary); font-size: 13px; }
+    .technical-content ul { margin: 8px 0 0; padding-left: 20px; }
+
+    .prototype { overflow: hidden; }
+    .prototype-header { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+    .prototype-title { display: flex; align-items: center; gap: 12px; }
+    .prototype-title h2 { margin: 0; font-size: 17px; }
+    .prototype-title p { margin: 2px 0 0; color: var(--text-tertiary); font-size: 12px; }
+    .badge { display: inline-flex; min-height: 26px; align-items: center; padding: 3px 8px; border: 1px solid var(--border); border-radius: 999px; color: var(--text-secondary); background: var(--surface-muted); font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .badge-demo { color: var(--warning); border-color: color-mix(in srgb, var(--warning) 30%, var(--border)); background: var(--warning-soft); }
+    .prototype-body { padding: 20px; background: color-mix(in srgb, var(--surface-muted) 55%, var(--bg)); }
+    .dashboard-top { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; margin-bottom: 16px; }
+    .dashboard-top h2 { margin: 0; font-size: 24px; letter-spacing: -.03em; }
+    .dashboard-top p { margin: 3px 0 0; color: var(--text-secondary); font-size: 13px; }
+    .segments { display: inline-flex; padding: 3px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+    .segment-button { min-width: 72px; min-height: 44px; padding: 7px 12px; border: 0; border-radius: 7px; cursor: pointer; color: var(--text-secondary); background: transparent; font-size: 13px; font-weight: 700; }
+    .segment-button[aria-pressed="true"] { color: var(--primary-text); background: var(--primary); box-shadow: var(--shadow-sm); }
+    .module { scroll-margin-top: calc(var(--header-height) + 24px); transition: box-shadow 240ms ease, border-color 240ms ease, background 240ms ease; }
+    .module.is-highlighted { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent); }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+    .metric { min-width: 0; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-raised); }
+    .metric-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .metric-label { color: var(--text-secondary); font-size: 13px; font-weight: 650; }
+    .metric-icon { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 10px; color: var(--accent-ink); background: var(--accent-soft); }
+    .metric strong { display: block; margin: 20px 0 5px; font-size: clamp(26px, 3vw, 38px); letter-spacing: -.04em; line-height: 1; }
+    .metric small { color: var(--text-tertiary); font-size: 12px; }
+    .change { display: inline-flex; align-items: center; gap: 4px; color: var(--danger); font-weight: 700; }
+    .content-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(250px, .65fr); gap: 12px; }
+    .data-card { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-raised); }
+    .card-header { display: flex; align-items: start; justify-content: space-between; gap: 12px; padding: 16px 16px 0; }
+    .card-header h3 { margin: 0; font-size: 15px; }
+    .card-header p { margin: 4px 0 0; color: var(--text-tertiary); font-size: 12px; }
+    .chart-wrap { padding: 8px 16px 2px; }
+    .chart-wrap svg { width: 100%; height: auto; overflow: visible; }
+    .grid-line { stroke: var(--chart-grid); stroke-width: 1; stroke-dasharray: 4 5; }
+    .area { fill: var(--chart-area); opacity: .62; }
+    .trend-line { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .chart-point { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
+    .chart-label { fill: var(--text-tertiary); font: 12px var(--font-sans); }
+    .chart-value { fill: var(--text); font: 700 12px var(--font-sans); }
+    .chart-summary { display: flex; align-items: center; gap: 8px; margin: 0 16px 14px; padding: 10px 12px; border-radius: var(--radius-sm); color: var(--text-secondary); background: var(--surface-muted); font-size: 12px; }
+    .data-table { border-top: 1px solid var(--border); }
+    .data-table summary { min-height: 44px; padding: 11px 16px; cursor: pointer; color: var(--accent-ink); font-size: 12px; font-weight: 700; }
+    table { width: calc(100% - 32px); margin: 0 16px 16px; border-collapse: collapse; font-size: 12px; }
+    th, td { padding: 8px; border-bottom: 1px solid var(--border); text-align: left; }
+    th { color: var(--text-secondary); font-weight: 700; }
+    .insight { display: flex; flex-direction: column; overflow: hidden; }
+    .insight-body { padding: 16px; }
+    .alert-mark { display: grid; width: 44px; height: 44px; place-items: center; margin-bottom: 18px; border-radius: 14px; color: var(--warning); background: var(--warning-soft); }
+    .insight h3 { margin: 0 0 8px; font-size: 19px; line-height: 1.28; }
+    .insight p { margin: 0; color: var(--text-secondary); font-size: 13px; }
+    .evidence { display: grid; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; }
+    .evidence li { display: grid; grid-template-columns: 8px 1fr; gap: 8px; font-size: 12px; }
+    .evidence li::before { width: 7px; height: 7px; margin-top: 6px; border-radius: 50%; background: var(--warning); content: ""; }
+    .insight footer { margin-top: auto; padding: 12px 16px; border-top: 1px solid var(--border); color: var(--text-tertiary); font-size: 12px; }
+    .query { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: end; padding: 16px; }
+    .query label { display: block; font-size: 13px; font-weight: 700; }
+    .query-input { display: flex; align-items: center; gap: 9px; min-height: 46px; margin-top: 7px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); }
+    .query-input:focus-within { border-color: var(--focus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 20%, transparent); }
+    .query-input input { width: 100%; border: 0; outline: 0; color: var(--text); background: transparent; }
+    .query output { grid-column: 1 / -1; padding: 12px; border-radius: var(--radius-sm); color: var(--accent-ink); background: var(--accent-soft); font-size: 13px; }
+    .query output[hidden] { display: none; }
+    .footer { display: flex; justify-content: space-between; gap: 20px; padding: 24px 2px 0; color: var(--text-tertiary); font-size: 12px; }
+
+    @media (max-width: 1100px) {
+      .workspace { grid-template-columns: 280px minmax(0, 1fr); }
+      .content-grid { grid-template-columns: 1fr; }
+      .query { grid-column: auto; }
+    }
+    @media (max-width: 820px) {
+      .app-header { grid-template-columns: 1fr auto; gap: 12px; padding: 0 16px; }
+      .top-nav { display: none; }
+      .page { width: min(100% - 28px, 680px); padding-top: 22px; }
+      .breadcrumb { margin-bottom: 16px; }
+      .result-hero { grid-template-columns: 1fr; }
+      .hero-actions { display: grid; grid-template-columns: 1fr 1fr; justify-content: stretch; }
+      .mobile-jump { display: grid; }
+      .workspace { grid-template-columns: 1fr; }
+      .plan-panel { position: static; }
+      .prototype-header { grid-template-columns: 1fr; }
+      .dashboard-top { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: 1fr; }
+      .metric { min-height: 134px; }
+      .segment-button { min-height: 44px; flex: 1; }
+      .segments { width: 100%; }
+      .query { grid-template-columns: 1fr; }
+      .query .button { width: 100%; }
+      .footer { flex-direction: column; }
+    }
+    @media (max-width: 420px) {
+      .brand span:last-child { font-size: 14px; }
+      .header-actions .badge { display: none; }
+      h1 { font-size: 40px; }
+      .hero-actions { grid-template-columns: 1fr; }
+      .status-banner { grid-template-columns: auto 1fr; }
+      .status-banner .dismiss { grid-column: 2; justify-self: end; margin-top: -44px; }
+      .prototype-body { padding: 12px; }
+      .prototype-header { padding: 16px; }
+      .chart-wrap { padding-inline: 8px; }
+      .summary-dl div { grid-template-columns: 64px 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+    @media (prefers-contrast: more) {
+      :root { --border: #8795a7; --border-strong: #536276; --text-secondary: #334155; }
+      html[data-theme="dark"] { --border: #778aa3; --border-strong: #a4b3c6; --text-secondary: #e2e8f0; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <header class="app-header">
+    <a class="brand" href="#main" aria-label="AI Solution Lab 工作台首页">
+      <span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span>AI Solution Lab</span>
+    </a>
+    <nav class="top-nav" aria-label="主要导航">
+      <a href="#main" aria-current="page">工作台</a>
+      <a href="#plan">方案判断</a>
+      <a href="#prototype">原型预览</a>
+    </nav>
+    <div class="header-actions">
+      <span class="badge badge-demo">静态演示</span>
+      <button class="icon-button" type="button" data-theme-toggle aria-label="切换到深色模式" title="切换显示模式">
+        <svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="4"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main" class="page">
+    <div class="breadcrumb" aria-label="当前位置"><span>AI 场景诊断</span><span aria-hidden="true">/</span><strong>方案与原型</strong></div>
+
+    <section class="result-hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">经营分析 · 方案 01</p>
+        <h1 id="page-title">医院经营分析工作台</h1>
+        <p class="hero-copy">帮助医院管理人员统一查看经营汇总、识别变化，并在明确的数据边界内查询关键指标。</p>
+      </div>
+      <div class="hero-actions">
+        <button class="button button-secondary" type="button" data-notice-action="new">
+          <svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>开始新需求
+        </button>
+        <button class="button button-primary" type="button" data-notice-action="edit">
+          <svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m4 16-.8 4 4-.8L18.5 7.9a2.1 2.1 0 0 0-3-3L4 16Z"/><path d="m13.8 6.6 3.6 3.6"/></svg>调整需求与能力
+        </button>
+      </div>
+    </section>
+
+    <div class="status-banner" role="status" data-status-banner>
+      <span class="status-icon" aria-hidden="true">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m7 12 3 3 7-7"/></svg>
+      </span>
+      <div><strong>版本 1 已生成</strong><p>这是预设示例方案，原型使用虚构演示数据，未调用模型。</p></div>
+      <button class="dismiss" type="button" data-dismiss aria-label="关闭状态提示">
+        <svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+
+    <nav class="mobile-jump" aria-label="结果内容快捷导航">
+      <button type="button" data-scroll="#plan">查看方案</button>
+      <button type="button" data-scroll="#prototype">查看原型</button>
+    </nav>
+
+    <div class="workspace">
+      <aside id="plan" class="panel plan-panel" aria-labelledby="plan-title">
+        <div class="panel-header"><h2 id="plan-title">方案判断</h2><span class="panel-label">Decision 01</span></div>
+        <div class="summary">
+          <p class="eyebrow">核心结论</p>
+          <h2>先统一指标口径，再解释数据变化。</h2>
+          <p>模型参与问题理解与解释表达；指标计算、权限和数据范围由程序控制。</p>
+          <dl class="summary-dl">
+            <div><dt>服务于</dt><dd>医院管理人员</dd></div>
+            <div><dt>优先解决</dt><dd>经营变化发现滞后</dd></div>
+            <div><dt>数据范围</dt><dd>每日经营汇总</dd></div>
+          </dl>
+        </div>
+        <h3 class="capability-title">关键能力</h3>
+        <div class="capability-list">
+          <button class="capability-button" type="button" aria-pressed="true" data-target="#metrics">
+            <span class="capability-index">01</span><span class="capability-copy"><strong>经营指标展示</strong><small>确定性程序</small></span><svg class="icon chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <button class="capability-button" type="button" aria-pressed="false" data-target="#insight">
+            <span class="capability-index">02</span><span class="capability-copy"><strong>异常识别与解释</strong><small>规则计算 + AI 解释</small></span><svg class="icon chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <button class="capability-button" type="button" aria-pressed="false" data-target="#query">
+            <span class="capability-index">03</span><span class="capability-copy"><strong>自然语言问数</strong><small>AI + 受限查询工具</small></span><svg class="icon chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+        <details class="technical"><summary>实现建议与待确认事项</summary><div class="technical-content">落地前需要核对：<ul><li>HIS、预约与缴费系统的指标口径</li><li>汇总数据访问权限</li><li>异常解释的人工审核责任</li></ul></div></details>
+      </aside>
+
+      <section id="prototype" class="panel prototype" aria-labelledby="prototype-title">
+        <header class="prototype-header">
+          <div class="prototype-title">
+            <span class="metric-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19V9m5 10V5m5 14v-7m5 7V3"/></svg></span>
+            <div><h2 id="prototype-title">产品草稿 · 交互预览</h2><p>医院经营分析工作台 / Overview</p></div>
+          </div>
+          <span class="badge badge-demo">演示数据</span>
+        </header>
+
+        <div class="prototype-body">
+          <div class="dashboard-top">
+            <div><h2>经营概览</h2><p>更新时间：今天 08:30 · 不包含患者明细</p></div>
+            <div class="segments" data-period-group aria-label="选择统计周期">
+              <button class="segment-button" type="button" aria-pressed="true" data-period="week">本周</button>
+              <button class="segment-button" type="button" aria-pressed="false" data-period="previous">上周</button>
+            </div>
+          </div>
+
+          <section id="metrics" class="metrics module" aria-label="关键经营指标">
+            <article class="metric">
+              <div class="metric-head"><span class="metric-label">门诊人次</span><span class="metric-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 20v-5m6 5V9m6 11V4"/></svg></span></div>
+              <strong data-value="visits">12,450</strong><small class="change" data-value="change">↓ 8.2% 较前一周</small>
+            </article>
+            <article class="metric">
+              <div class="metric-head"><span class="metric-label">预约人次</span><span class="metric-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4m8-4v4M4 10h16"/></svg></span></div>
+              <strong data-value="appointments">8,320</strong><small>每日汇总</small>
+            </article>
+            <article class="metric">
+              <div class="metric-head"><span class="metric-label">缴费金额</span><span class="metric-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h3"/></svg></span></div>
+              <strong data-value="revenue">326 万</strong><small>示例金额</small>
+            </article>
+          </section>
+
+          <div class="content-grid">
+            <section class="data-card module" aria-labelledby="trend-title">
+              <div class="card-header"><div><h3 id="trend-title">每日门诊变化</h3><p>单位：人次 · <span data-period-label>本周</span></p></div><span class="badge">7 天</span></div>
+              <div class="chart-wrap">
+                <svg viewBox="0 0 720 280" role="img" aria-labelledby="chart-title chart-desc">
+                  <title id="chart-title" data-chart-title>本周每日门诊人次趋势</title><desc id="chart-desc" data-chart-desc>周一 1900，周二 1650，周三 1600，周四 1780，周五 1870，周六 1950，周日 1700。周三最低。</desc>
+                  <line class="grid-line" x1="46" y1="46" x2="688" y2="46"/><line class="grid-line" x1="46" y1="126" x2="688" y2="126"/><line class="grid-line" x1="46" y1="206" x2="688" y2="206"/>
+                  <path class="area" data-chart-area d="M54 73 L158 125 L262 135 L366 96 L470 76 L574 63 L678 115 L678 206 L54 206 Z"/>
+                  <polyline class="trend-line" data-chart-line points="54,73 158,125 262,135 366,96 470,76 574,63 678,115"/>
+                  <g data-chart-points><circle class="chart-point" cx="54" cy="73" r="5"/><circle class="chart-point" cx="158" cy="125" r="5"/><circle class="chart-point" cx="262" cy="135" r="5"/><circle class="chart-point" cx="366" cy="96" r="5"/><circle class="chart-point" cx="470" cy="76" r="5"/><circle class="chart-point" cx="574" cy="63" r="5"/><circle class="chart-point" cx="678" cy="115" r="5"/></g>
+                  <g class="chart-label" text-anchor="middle"><text x="54" y="244">周一</text><text x="158" y="244">周二</text><text x="262" y="244">周三</text><text x="366" y="244">周四</text><text x="470" y="244">周五</text><text x="574" y="244">周六</text><text x="678" y="244">周日</text></g>
+                  <text class="chart-value" data-chart-low x="262" y="118" text-anchor="middle">1,600</text>
+                </svg>
+              </div>
+              <p class="chart-summary"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 9v4m0 4h.01"/><circle cx="12" cy="12" r="9"/></svg><span data-chart-summary>本周门诊合计 12,450 人次，周三为最低点。</span></p>
+              <details class="data-table"><summary>查看图表数据表</summary><table><thead><tr><th scope="col">日期</th><th scope="col">门诊人次</th></tr></thead><tbody data-table-body><tr><td>周一</td><td>1,900</td></tr><tr><td>周二</td><td>1,650</td></tr><tr><td>周三</td><td>1,600</td></tr><tr><td>周四</td><td>1,780</td></tr><tr><td>周五</td><td>1,870</td></tr><tr><td>周六</td><td>1,950</td></tr><tr><td>周日</td><td>1,700</td></tr></tbody></table></details>
+            </section>
+
+            <aside id="insight" class="data-card insight module" aria-labelledby="insight-title">
+              <div class="insight-body">
+                <span class="alert-mark" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 9v4m0 4h.01"/><path d="M10.3 4.2 2.8 17.1A2 2 0 0 0 4.5 20h15a2 2 0 0 0 1.7-2.9L13.7 4.2a2 2 0 0 0-3.4 0Z"/></svg></span>
+                <p class="eyebrow">变化观察</p><h3 id="insight-title" data-insight-title>本周总量下降，周三最低。</h3>
+                <p>当前只能确认数据变化，不能直接推断原因。</p>
+                <ul class="evidence"><li>检查周三排班是否变化</li><li>核对节假日及特殊事件</li><li>确认导出数据是否完整</li></ul>
+              </div>
+              <footer>规则计算 · AI 模拟解释 · 需要人工核对</footer>
+            </aside>
+
+            <form id="query" class="data-card query module">
+              <label for="query-input">问一问当前示例数据<span class="query-input"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4"/></svg><input id="query-input" value="本周门诊总量是多少？" autocomplete="off"></span></label>
+              <button class="button button-primary" type="submit">查询示例数据 <svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg></button>
+              <output hidden aria-live="polite">本周示例门诊人次为 12,450，较前一周下降 8.2%。最低为周三的 1,600 人次。当前数据不足以判断下降原因。</output>
+            </form>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="footer"><span>UI/UX Pro Max · 单页静态对照稿</span><span>所有指标均为虚构演示数据</span></footer>
+  </main>
+
+  <div class="sr-only" role="status" aria-live="polite" data-live></div>
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const live = document.querySelector("[data-live]");
+      const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const announce = (message) => { live.textContent = ""; requestAnimationFrame(() => { live.textContent = message; }); };
+
+      document.querySelector("[data-theme-toggle]").addEventListener("click", (event) => {
+        const next = root.dataset.theme === "light" ? "dark" : "light";
+        root.dataset.theme = next;
+        event.currentTarget.setAttribute("aria-label", next === "dark" ? "切换到浅色模式" : "切换到深色模式");
+        announce(next === "dark" ? "已切换到深色模式" : "已切换到浅色模式");
+      });
+
+      document.querySelector("[data-dismiss]").addEventListener("click", () => {
+        document.querySelector("[data-status-banner]").hidden = true;
+      });
+
+      document.querySelectorAll("[data-notice-action]").forEach((button) => {
+        button.addEventListener("click", () => announce(button.dataset.noticeAction === "new" ? "静态演示：这里将开始新的需求" : "静态演示：这里将返回需求调整页"));
+      });
+
+      const scrollTo = (selector, block = "start") => {
+        document.querySelector(selector)?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block });
+      };
+      document.querySelectorAll("[data-scroll]").forEach((button) => button.addEventListener("click", () => scrollTo(button.dataset.scroll)));
+
+      document.querySelectorAll(".capability-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          document.querySelectorAll(".capability-button").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+          document.querySelectorAll(".module.is-highlighted").forEach((item) => item.classList.remove("is-highlighted"));
+          const target = document.querySelector(button.dataset.target);
+          target?.classList.add("is-highlighted");
+          scrollTo(button.dataset.target, "center");
+          announce(`已定位到${button.querySelector("strong").textContent}`);
+          setTimeout(() => target?.classList.remove("is-highlighted"), 1800);
+        });
+      });
+
+      const data = {
+        week: {
+          visits: "12,450", appointments: "8,320", revenue: "326 万", change: "↓ 8.2% 较前一周",
+          label: "本周", insight: "本周总量下降，周三最低。", low: "1,600",
+          line: "54,73 158,125 262,135 366,96 470,76 574,63 678,115",
+          area: "M54 73 L158 125 L262 135 L366 96 L470 76 L574 63 L678 115 L678 206 L54 206 Z",
+          summary: "本周门诊合计 12,450 人次，周三为最低点。",
+          rows: [["周一","1,900"],["周二","1,650"],["周三","1,600"],["周四","1,780"],["周五","1,870"],["周六","1,950"],["周日","1,700"]]
+        },
+        previous: {
+          visits: "13,562", appointments: "8,030", revenue: "333 万", change: "↑ 2.7% 较前一周",
+          label: "上周", insight: "上周总量小幅增加，周三最低。", low: "1,820",
+          line: "54,62 158,80 262,101 366,68 470,75 574,66 678,91",
+          area: "M54 62 L158 80 L262 101 L366 68 L470 75 L574 66 L678 91 L678 206 L54 206 Z",
+          summary: "上周门诊合计 13,562 人次，周三为最低点。",
+          rows: [["周一","2,010"],["周二","1,930"],["周三","1,820"],["周四","1,980"],["周五","1,950"],["周六","1,990"],["周日","1,882"]]
+        }
+      };
+      document.querySelectorAll("[data-period]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const selected = data[button.dataset.period];
+          document.querySelectorAll("[data-period]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+          for (const key of ["visits", "appointments", "revenue", "change"]) document.querySelector(`[data-value="${key}"]`).textContent = selected[key];
+          document.querySelector("[data-period-label]").textContent = selected.label;
+          document.querySelector("[data-insight-title]").textContent = selected.insight;
+          document.querySelector("[data-chart-line]").setAttribute("points", selected.line);
+          document.querySelector("[data-chart-area]").setAttribute("d", selected.area);
+          document.querySelector("[data-chart-points]").innerHTML = selected.line.split(" ").map((point) => { const [cx, cy] = point.split(","); return `<circle class="chart-point" cx="${cx}" cy="${cy}" r="5"></circle>`; }).join("");
+          document.querySelector("[data-chart-low]").textContent = selected.low;
+          document.querySelector("[data-chart-summary]").textContent = selected.summary;
+          document.querySelector("[data-chart-title]").textContent = `${selected.label}每日门诊人次趋势`;
+          document.querySelector("[data-chart-desc]").textContent = `${selected.label}每日门诊人次数据。${selected.summary}`;
+          document.querySelector("[data-table-body]").innerHTML = selected.rows.map(([day, value]) => `<tr><td>${day}</td><td>${value}</td></tr>`).join("");
+          announce(`已切换到${selected.label}数据`);
+        });
+      });
+
+      document.querySelector("#query").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const output = event.currentTarget.querySelector("output");
+        output.hidden = false;
+        announce("示例查询完成");
+      });
+    })();
+  </script>
+</body>
+</html>

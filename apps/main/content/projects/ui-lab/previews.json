@@ -1,0 +1,242 @@
+{
+  "dashboards/bare": {
+    "desktop": {
+      "src": "/projects/ui-lab/previews/dashboards/bare/desktop.webp",
+      "width": 1440,
+      "height": 1000,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "innerScroll": 0
+    },
+    "mobile": {
+      "src": "/projects/ui-lab/previews/dashboards/bare/mobile.webp",
+      "width": 375,
+      "height": 2482,
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "overflow": true,
+      "innerScroll": 1
+    }
+  },
+  "dashboards/dashboard": {
+    "desktop": {
+      "src": "/projects/ui-lab/previews/dashboards/dashboard/desktop.webp",
+      "width": 1440,
+      "height": 1000,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "innerScroll": 1
+    },
+    "mobile": {
+      "src": "/projects/ui-lab/previews/dashboards/dashboard/mobile.webp",
+      "width": 375,
+      "height": 2009,
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "overflow": false,
+      "innerScroll": 1
+    }
+  },
+  "dashboards/frontend-design": {
+    "desktop": {
+      "src": "/projects/ui-lab/previews/dashboards/frontend-design/desktop.webp",
+      "width": 1440,
+      "height": 1000,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "innerScroll": 0
+    },
+    "mobile": {
+      "src": "/projects/ui-lab/previews/dashboards/frontend-design/mobile.webp",
+      "width": 375,
+      "height": 2518,
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "overflow": false,
+      "innerScroll": 1
+    }
+  },
+  "dashboards/apple-design": {
+    "desktop": {
+      "src": "/projects/ui-lab/previews/dashboards/apple-design/desktop.webp",
+      "width": 1440,
+      "height": 1000,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "innerScroll": 0
+    },
+    "mobile": {
+      "src": "/projects/ui-lab/previews/dashboards/apple-design/mobile.webp",
+      "width": 375,
+      "height": 2558,
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "overflow": false,
+      "innerScroll": 1
+    }
+  },
+  "dashboards/ui-ux-pro-max": {
+    "desktop": {
+      "src": "/projects/ui-lab/previews/dashboards/ui-ux-pro-max/desktop.webp",
+      "width": 1440,
+      "height": 1000,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "innerScroll": 0
+    },
+    "mobile": {
+      "src": "/projects/ui-lab/previews/dashboards/ui-ux-pro-max/mobile.webp",
+      "width": 375,
+      "height": 2526,
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "overflow": false,
+      "innerScroll": 1
+    }
+  },
+  "ai-workbench/frontend-design": {
+    "desktop": {
+      "src": "/projects/ui-lab/previews/ai-workbench/frontend-design/desktop.webp",
+      "width": 1440,
+      "height": 1492,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "innerScroll": 0
+    },
+    "mobile": {
+      "src": "/projects/ui-lab/previews/ai-workbench/frontend-design/mobile.webp",
+      "width": 375,
+      "height": 3127,
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "overflow": false,
+      "innerScroll": 0
+    }
+  },
+  "ai-workbench/ui-ux-pro-max": {
+    "desktop": {
+      "src": "/projects/ui-lab/previews/ai-workbench/ui-ux-pro-max/desktop.webp",
+      "width": 1440,
+      "height": 1417,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "innerScroll": 0
+    },
+    "mobile": {
+      "src": "/projects/ui-lab/previews/ai-workbench/ui-ux-pro-max/mobile.webp",
+      "width": 375,
+      "height": 2962,
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "overflow": false,
+      "innerScroll": 0
+    }
+  },
+  "island-travel/ui-ux-pro-max": {
+    "desktop": {
+      "src": "/projects/ui-lab/previews/island-travel/ui-ux-pro-max/desktop.webp",
+      "width": 1440,
+      "height": 2398,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "innerScroll": 0
+    },
+    "mobile": {
+      "src": "/projects/ui-lab/previews/island-travel/ui-ux-pro-max/mobile.webp",
+      "width": 375,
+      "height": 3074,
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "overflow": false,
+      "innerScroll": 0
+    }
+  },
+  "ai-workbench/apple-design": {
+    "desktop": {
+      "src": "/projects/ui-lab/previews/ai-workbench/apple-design/desktop.webp",
+      "width": 1440,
+      "height": 1893,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "innerScroll": 0
+    },
+    "mobile": {
+      "src": "/projects/ui-lab/previews/ai-workbench/apple-design/mobile.webp",
+      "width": 375,
+      "height": 2584,
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "overflow": false,
+      "innerScroll": 0
+    }
+  },
+  "island-travel/frontend-design": {
+    "desktop": {
+      "src": "/projects/ui-lab/previews/island-travel/frontend-design/desktop.webp",
+      "width": 1440,
+      "height": 1407,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": false,
+      "innerScroll": 0
+    },
+    "mobile": {
+      "src": "/projects/ui-lab/previews/island-travel/frontend-design/mobile.webp",
+      "width": 375,
+      "height": 2179,
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "overflow": false,
+      "innerScroll": 0
+    }
+  }
+}

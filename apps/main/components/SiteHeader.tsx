@@ -6,7 +6,6 @@ type SiteHeaderProps = {
 };
 
 export function SiteHeader({ projectLabel }: SiteHeaderProps) {
-  const isSolutionLab = projectLabel === "作品 / AI LAB";
   const jingmiansenUrl =
     process.env.JINGMIANSEN_SITE_URL?.replace(/\/$/, "") ??
     "http://localhost:3001";
@@ -16,15 +15,8 @@ export function SiteHeader({ projectLabel }: SiteHeaderProps) {
       <div className="site-header__inner page-shell">
         <Link className="site-header__name" href="/" aria-label="返回袁策书的个人作品首页">
           <SiteMark className="site-header__mark" />
-          <span
-            style={isSolutionLab ? {
-              fontSize: "0.6875rem",
-              fontWeight: 400,
-              letterSpacing: "0.12em",
-              color: "var(--secondary)",
-            } : undefined}
-          >
-            {isSolutionLab ? "PERSONAL LAB" : "袁策书"}
+          <span className={projectLabel ? "site-header__identity--project" : undefined}>
+            {projectLabel ? "PERSONAL LAB" : "袁策书"}
           </span>
         </Link>
         <span className="site-header__context">

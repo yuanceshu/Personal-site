@@ -1,0 +1,44 @@
+{
+  "id": "dashboards/frontend-design",
+  "title": "Frontend Design",
+  "model": "Luna",
+  "modelVersion": null,
+  "reasoningEffort": null,
+  "skillMode": "skill",
+  "skillName": "Frontend Design",
+  "skillVersion": null,
+  "createdAt": null,
+  "frozenAt": "2026-09-15",
+  "sealedAt": "2026-09-16T01:26:47.513Z",
+  "comparisonLevel": "showcase",
+  "sourceType": "frozen-static-snapshot",
+  "sourceEvidence": "用户确认模型与版本归属；本机实际源码已核对。原始 Prompt 未公开。",
+  "entry": "index.html",
+  "promptSummary": "为城市通集团组织运营总览，呈现交通客流、消费与助老服务等演示指标，提供筛选与排行查看。",
+  "additionalConstraints": [],
+  "references": {
+    "value": "unknown",
+    "note": "未记录"
+  },
+  "imageGeneration": {
+    "value": "unknown",
+    "note": "未记录"
+  },
+  "archiveChanges": [
+    "复制必要文件，固定演示时间与随机序列",
+    "添加离线隔离、冻结标识和就绪通知",
+    "表单动作仅触发本地演示事件，不提交网络表单"
+  ],
+  "limitations": [
+    "页面含内部滚动区域；全页图不展开其折叠或滚动外内容，请进入体验查看。",
+    "历史页面的字号、对比度与交互缺陷保留，不作为实验室外壳质量标准。"
+  ],
+  "files": {
+    "index.html": "78a276add05dae5bb5ee1130bef97ed8ea730e1dd68d04eef1f90fce19feeb63"
+  },
+  "previews": {
+    "projects/ui-lab/previews/dashboards/frontend-design/desktop.webp": "b6d6cbf9e1cb3c26e759b0c61adb56262802bc03a1f21e4bb5125f271b3a3358",
+    "projects/ui-lab/previews/dashboards/frontend-design/mobile.webp": "3b8d09214f0d1a9b44488a8276d59d7eeca79d983ae2e6bd96c5925611939c70",
+    "projects/ui-lab/previews/dashboards/frontend-design/thumbnail.webp": "6e1dca201f56de9c90d75f504d7d99448caf6a4ecfdbd592178a97c860321b7b"
+  }
+}

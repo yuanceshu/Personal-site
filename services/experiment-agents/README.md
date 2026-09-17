@@ -1,6 +1,6 @@
 # 实验作品服务
 
-当前仅实现 AI 场景诊断工作台，使用 FastAPI/Pydantic 和显式模型调用。没有 Agno、数据库、账号或任务队列。完整计划和验收以 [工作台实现文档](../../docs/projects/ai-solution-lab.md) 为准。
+当前实现 AI 场景诊断工作台与岛见行程理解，使用 FastAPI/Pydantic 和显式模型调用。没有 Agno、业务数据库、账号或任务队列。分别见[工作台实现文档](../../docs/projects/ai-solution-lab.md)与[岛见实现记录](../../docs/projects/island-travel.md)；岛见接口尚未部署。
 
 ## 本地启动
 
@@ -53,6 +53,7 @@ EXPERIMENT_AGENT_TOKEN=与实验服务 Preview 完全一致的凭据
 
 - `GET /healthz`：公开、仅返回状态。
 - `POST /works/ai-solution-lab/generate`：Bearer 凭据必需，请求最多 32 KiB。
+- `POST /works/island-travel/chat`：独立行程理解契约，同样要求 Bearer 和 32 KiB 上限；不接收或处理订单、乘客身份、票价和支付。
 - 无公开 OpenAPI、管理或任意模型执行接口。
 - `analyze` 输入 `{stage,input}`，输出需求 `Brief`。
 - `diagnose` 输入 `{stage,brief,selectedCapabilities}`，输出 `Diagnosis`；非空能力选择必须严格保留。
@@ -89,3 +90,9 @@ EXPERIMENT_AGENT_URL=http://127.0.0.1:8002 EXPERIMENT_AGENT_TOKEN=local-test-onl
 ```
 
 这个入口使用公开的测试凭据，只返回固定经营分析结果；仅用于验证浏览器 → Next.js → FastAPI → 模型替身，不用于质量评估或公开部署。普通本地预览使用 3000 端口，避免误把替身当真实服务。
+
+## 岛见接口（本地已验证，未部署）
+
+契约及提示词位于 `works/island_travel/`。单次显式模型调用，不自动重试、不返回伪造业务数据；模型预算沿用 1–45 秒，接口外层48秒，Next.js代理50秒、Function60秒。结构错误502，缺配置503，超时504；客户端断开时取消当前调用。浏览器只发送行程与最近16条对话，FAQ、班次和交易由前端程序处理。
+
+岛见主站代理新增 Redis REST 原子限流（每IP每600秒10次），只保存带盐IP摘要和过期计数，不存订单或聊天；此配置不自动覆盖工作台接口。当前公网未部署此版本，也未创建计数资源。原有工作台的公网限流风险仍按上文记录，不能把岛见本地检查当作全服务已完成生产防护。

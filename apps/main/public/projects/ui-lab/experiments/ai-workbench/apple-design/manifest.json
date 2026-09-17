@@ -1,0 +1,48 @@
+{
+  "id": "ai-workbench/apple-design",
+  "title": "Apple Design",
+  "model": "Sol",
+  "modelVersion": null,
+  "reasoningEffort": null,
+  "skillMode": "skill",
+  "skillName": "Apple Design",
+  "skillVersion": null,
+  "createdAt": null,
+  "frozenAt": "2026-09-15",
+  "sealedAt": "2026-09-16T01:26:47.518Z",
+  "comparisonLevel": "showcase",
+  "sourceType": "frozen-static-snapshot",
+  "sourceEvidence": "用户确认模型与版本归属；本机实际源码已核对。原始 Prompt 未公开。",
+  "entry": "index.html",
+  "promptSummary": "从业务需求出发，呈现理解、能力判断与可操作原型；各版覆盖的流程阶段不同。",
+  "additionalConstraints": [],
+  "references": {
+    "value": "unknown",
+    "note": "未记录"
+  },
+  "imageGeneration": {
+    "value": "unknown",
+    "note": "未记录"
+  },
+  "archiveChanges": [
+    "复制当前React、数据、纯逻辑、样式和身份素材",
+    "Next图片/链接替换为本地静态适配",
+    "真实诊断接口替换为既有确定性示例逻辑",
+    "固定时间；添加离线边界、冻结标识与就绪通知"
+  ],
+  "limitations": [
+    "历史页面的字号、对比度与交互缺陷保留，不作为实验室外壳质量标准。"
+  ],
+  "files": {
+    "assets/site-mark-dark.png": "66948fd7a4e34cb21097d370a5ec282b7aedd03eb5655a7ab8864efacbf285b7",
+    "build-info.json": "e70c3b307bd4421daaf52b622013c454b1c94b36667b11356c79c08999874761",
+    "index.html": "657481254e446d6051ec2550957cefa28e7c4824fce9c2891f586204466b0641",
+    "snapshot.css": "d27fa5ac385b4c83ab063b97a83cbc309983a08afa81a2c776b39de656b04d64",
+    "snapshot.js": "2031e34f45bab7b1d22b540b69ac2fabc3a79dc3b0088fce7fb589e372974285"
+  },
+  "previews": {
+    "projects/ui-lab/previews/ai-workbench/apple-design/desktop.webp": "3da2c08c153dd2bc259f7747fbe6e89e3045272e0f83758c875380df8f766099",
+    "projects/ui-lab/previews/ai-workbench/apple-design/mobile.webp": "2d52609e0d5adcbbd36315cf5f2f07bc79a946f9f1a330e96ff92cb42b3c1d79",
+    "projects/ui-lab/previews/ai-workbench/apple-design/thumbnail.webp": "a7b295fca028408d091bb5c1945455af35445096ccc46977827633fe4a3c1f2e"
+  }
+}

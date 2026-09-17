@@ -1,0 +1,44 @@
+{
+  "id": "dashboards/apple-design",
+  "title": "Apple Design",
+  "model": "Luna",
+  "modelVersion": null,
+  "reasoningEffort": null,
+  "skillMode": "skill",
+  "skillName": "Apple Design",
+  "skillVersion": null,
+  "createdAt": null,
+  "frozenAt": "2026-09-15",
+  "sealedAt": "2026-09-16T01:26:47.514Z",
+  "comparisonLevel": "showcase",
+  "sourceType": "frozen-static-snapshot",
+  "sourceEvidence": "用户确认模型与版本归属；本机实际源码已核对。原始 Prompt 未公开。",
+  "entry": "index.html",
+  "promptSummary": "为城市通集团组织运营总览，呈现交通客流、消费与助老服务等演示指标，提供筛选与排行查看。",
+  "additionalConstraints": [],
+  "references": {
+    "value": "unknown",
+    "note": "未记录"
+  },
+  "imageGeneration": {
+    "value": "unknown",
+    "note": "未记录"
+  },
+  "archiveChanges": [
+    "复制必要文件，固定演示时间与随机序列",
+    "添加离线隔离、冻结标识和就绪通知",
+    "表单动作仅触发本地演示事件，不提交网络表单"
+  ],
+  "limitations": [
+    "页面含内部滚动区域；全页图不展开其折叠或滚动外内容，请进入体验查看。",
+    "历史页面的字号、对比度与交互缺陷保留，不作为实验室外壳质量标准。"
+  ],
+  "files": {
+    "index.html": "8be8e39a4245c0f19603bd708dd61444efea13b2f7767bc96a9cf014eb82c300"
+  },
+  "previews": {
+    "projects/ui-lab/previews/dashboards/apple-design/desktop.webp": "15bbedb88f3191e7f507e82f3dcf292b43e720f90b29933584ca02c092378509",
+    "projects/ui-lab/previews/dashboards/apple-design/mobile.webp": "ada83d0340e44373e953bf7554c66138a4c86415c707b35846fd09116cd0ef11",
+    "projects/ui-lab/previews/dashboards/apple-design/thumbnail.webp": "0cc74b5c5b1652be23fb434ad86753653d6687e0e5b2e3e752ed0ca377845a9a"
+  }
+}

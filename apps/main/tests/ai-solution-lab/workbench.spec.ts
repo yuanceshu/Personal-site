@@ -48,6 +48,9 @@ test("shared portfolio shell uses neutral canvas and blue interaction", async ({
   page,
 }) => {
   await page.goto(path);
+  await expect(page.locator(".site-header__name > span")).toHaveText(
+    "PERSONAL LAB",
+  );
   await expect(page.locator(".site-header__context")).toHaveText("作品 / AI LAB");
   await expect(
     page.getByRole("link", { name: "返回袁策书的个人作品首页" }),
@@ -56,6 +59,17 @@ test("shared portfolio shell uses neutral canvas and blue interaction", async ({
     "href",
     "/",
   );
+  for (const [workPath, label] of [
+    ["/works/project-000", "作品 / 000"],
+    ["/works/demos", "作品 / 行业 Demo 集"],
+  ]) {
+    await page.goto(workPath);
+    await expect(page.locator(".site-header__name > span")).toHaveText(
+      "PERSONAL LAB",
+    );
+    await expect(page.locator(".site-header__context")).toHaveText(label);
+  }
+  await page.goto(path);
   await expect(page.locator(".lab-header")).toHaveCount(0);
   await expect(page.locator(".solution-lab")).toHaveCSS(
     "background-color",
@@ -227,8 +241,8 @@ test("320px, reduced motion and peer home entry", async ({ page }) => {
     ).toBeVisible();
   }
   await page.goto("/");
-  await expect(page.locator(".home-lab-entry")).toBeVisible();
-  await page.locator(".home-lab-entry").click();
+  await expect(page.locator('.home-lab-entry[href="/works/ai-solution-lab"]')).toBeVisible();
+  await page.locator('.home-lab-entry[href="/works/ai-solution-lab"]').click();
   await expect(page).toHaveURL(new RegExp(path));
   await page.getByLabel("你想解决什么问题？").focus();
   await page.keyboard.press("Tab");

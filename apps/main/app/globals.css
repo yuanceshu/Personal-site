@@ -135,6 +135,13 @@ button:focus-visible {
   color: var(--brand-deep);
 }
 
+.site-header__identity--project {
+  color: var(--secondary);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+}
+
 .site-header__context {
   color: var(--secondary);
   font-size: 0.6875rem;

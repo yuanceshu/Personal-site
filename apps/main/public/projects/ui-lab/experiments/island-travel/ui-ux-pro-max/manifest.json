@@ -1,0 +1,46 @@
+{
+  "id": "island-travel/ui-ux-pro-max",
+  "title": "UI UX Pro Max · Study 03",
+  "model": "Astra 6",
+  "modelVersion": null,
+  "reasoningEffort": null,
+  "skillMode": "skill",
+  "skillName": "UI UX Pro Max",
+  "skillVersion": null,
+  "createdAt": "2026-09-15",
+  "frozenAt": "2026-09-15",
+  "sealedAt": "2026-09-16T01:26:47.525Z",
+  "comparisonLevel": "showcase",
+  "sourceType": "frozen-static-snapshot",
+  "sourceEvidence": "用户确认模型与版本归属；本机实际源码已核对。原始 Prompt 未公开。",
+  "entry": "index.html",
+  "promptSummary": "以虚构的岛见品牌组织海南出行，从出行意向到班次选择与行程确认。",
+  "additionalConstraints": [],
+  "references": {
+    "value": "no",
+    "note": "随稿说明记录：不读取或复用前版代码、截图、图片；沿用虚构品牌与出行命题。"
+  },
+  "imageGeneration": {
+    "value": "yes",
+    "note": "随稿说明记录独立生成山林图，无参考图。"
+  },
+  "archiveChanges": [
+    "复制必要文件，固定演示时间与随机序列",
+    "添加离线隔离、冻结标识和就绪通知",
+    "表单动作仅触发本地演示事件，不提交网络表单"
+  ],
+  "limitations": [
+    "历史页面的字号、对比度与交互缺陷保留，不作为实验室外壳质量标准。"
+  ],
+  "files": {
+    "app.js": "66c4ff6a6725ab372e40bf93e50b8d54114c594ca80449a0eeda42b81f3de58b",
+    "index.html": "aeb3ae1bc1d3e712106a61199d098b0e3e795c4a544098ae34c0c5ce5181e993",
+    "rainforest.webp": "f13e18c78bac818cfb0beea49b64fa7f3e89d5bc7048bcca5a1b4dfb845a10b8",
+    "style.css": "13515aa41b43ab30f6299ad82e5bed040dc14bded689fc9d6dbde1848d51f5bf"
+  },
+  "previews": {
+    "projects/ui-lab/previews/island-travel/ui-ux-pro-max/desktop.webp": "1755446fc3e60f895a4b654a9d22ef06401c8b223135522bae3186ebb0630f1f",
+    "projects/ui-lab/previews/island-travel/ui-ux-pro-max/mobile.webp": "0b02fa6466ad5ac8c53283a18e519ecdd97b847770b8ae47c6ca822abbe5cfd7",
+    "projects/ui-lab/previews/island-travel/ui-ux-pro-max/thumbnail.webp": "5661754ea06635484e809609631f22ef68363a4fc7437db8277d3440dc58c2af"
+  }
+}

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><link rel="icon" href="data:,"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'"><script>/* Frozen demonstration boundary. Kept local to every immutable snapshot. */
+(() => {
+  const NativeDate = Date;
+  const epoch = NativeDate.parse('2026-09-15T02:00:00Z');
+  function FrozenDate(...args) {
+    if (!new.target) return new NativeDate(epoch).toString();
+    return Reflect.construct(NativeDate, args.length ? args : [epoch], new.target);
+  }
+  Object.setPrototypeOf(FrozenDate, NativeDate);
+  FrozenDate.prototype = NativeDate.prototype;
+  FrozenDate.now = () => epoch;
+  window.Date = FrozenDate;
+  let seed = 915;
+  Math.random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+  let failed = false;
+  window.addEventListener('error', () => { failed = true; }, true);
+  window.addEventListener('unhandledrejection', () => { failed = true; });
+  const base = new URL('.', location.href);
+  const notify = (type) => {
+    if (window.parent !== window) window.parent.postMessage({ type, path: location.pathname }, '*');
+  };
+  window.addEventListener('load', () => {
+    const label = document.createElement('div');
+    label.id = 'ui-lab-freeze-notice';
+    label.textContent = '冻结交互快照 · 全部为演示数据 · 不代表当前正式产品';
+    label.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;padding:5px 10px;background:#202020;color:#fff;font:11px/1.5 system-ui;text-align:center;pointer-events:none';
+    document.body.append(label);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const imagesOK = [...document.images].every(img => !img.src || (img.complete && img.naturalWidth > 0));
+      notify(failed || !imagesOK ? 'ui-lab:error' : 'ui-lab:ready');
+    }));
+  });
+  document.addEventListener('submit', event => event.preventDefault());
+  // Sandbox blocks native form submission before submit handlers can run.
+  // Dispatch only local events, retaining native constraint validation.
+  function submitDemo(form, submitter) {
+    if (!form.reportValidity()) return;
+    form.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true, submitter }));
+  }
+  document.addEventListener('click', event => {
+    const button = event.target.closest?.('button, input[type="submit"]');
+    if (button?.form && button.type === 'submit') {
+      event.preventDefault();
+      submitDemo(button.form, button);
+    }
+  }, true);
+  document.addEventListener('click', event => {
+    const link = event.target.closest?.('a[href]');
+    if (!link) return;
+    const dest = new URL(link.getAttribute('href'), location.href);
+    if (dest.origin !== base.origin || !dest.pathname.startsWith(base.pathname) || link.target || link.hasAttribute('download')) {
+      event.preventDefault();
+      const label = document.getElementById('ui-lab-freeze-notice');
+      if (label) label.textContent = '冻结快照仅保留版本内页面，请使用外层查看器返回。';
+    }
+  }, true);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') notify('ui-lab:exit');
+    if (event.key === 'Enter' && !event.isComposing && event.target.matches?.('input:not([type="checkbox"]):not([type="radio"])') && event.target.form) {
+      event.preventDefault();
+      submitDemo(event.target.form, null);
+    }
+  });
+})();
+</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI Solution Lab Frontend Design 静态对照稿">
+  <title>AI Solution Lab｜Frontend Design 对照稿</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <header class="site-header">
+    <a class="brand" href="index.html"><span class="brand-mark">策</span><span>AI Solution Lab</span></a>
+    <span class="edition">FRONTEND DESIGN STUDY · 2026</span>
+    <nav class="header-nav" aria-label="页面导航">
+      <a href="#pages">页面目录</a>
+      <a href="01-input.html">进入体验 ↗</a>
+    </nav>
+  </header>
+
+  <main id="main" class="page-shell">
+    <section class="index-hero reveal" aria-labelledby="index-title">
+      <div class="index-title">
+        <div>
+          <p class="eyebrow">Design Study / Static Edition</p>
+          <h1 id="index-title" class="display">把一个模糊的想法，<br><em>编成</em>产品蓝图。</h1>
+          <p class="lede">AI 场景诊断与原型生成工作台的独立视觉实验。六份静态页面，把需求记录、产品判断和可操作草稿整理成一套可以直接翻阅的策略档案。</p>
+        </div>
+        <div class="index-stamp">
+          <strong>LAB<br>07</strong>
+          <p>这是一组前端设计对照稿。所有内容与数据均为演示，页面不连接模型、数据库或真实业务系统。</p>
+        </div>
+      </div>
+      <aside class="index-dossier" aria-label="实验档案">
+        <p class="lab-note">同一个产品，换一种设计判断。</p>
+        <dl>
+          <div><dt>Design direction</dt><dd>策略编辑室</dd></div>
+          <div><dt>Format</dt><dd>6 份离线 HTML</dd></div>
+          <div><dt>Focus</dt><dd>清晰、可信、可讨论</dd></div>
+          <div><dt>Technology</dt><dd>HTML · CSS · 原生 JS</dd></div>
+        </dl>
+        <a class="button" href="01-input.html">从第一页开始 <span aria-hidden="true">↗</span></a>
+      </aside>
+    </section>
+
+    <section id="pages" class="reveal" aria-labelledby="pages-title">
+      <div class="contact-heading">
+        <h2 id="pages-title">页面目录</h2>
+        <p>从需求访谈到三类产品草稿 · 点击任一页单独查看</p>
+      </div>
+      <div class="page-contact-sheet">
+        <a class="page-card" href="01-input.html">
+          <div><span class="page-number">01</span><h3>描述问题</h3><p>自由输入与三份场景档案</p></div>
+          <div class="mini-layout" aria-hidden="true"></div>
+        </a>
+        <a class="page-card" href="02-confirm.html">
+          <div><span class="page-number">02</span><h3>确认理解</h3><p>核心需求、边界与待确认项</p></div>
+          <div class="mini-layout" aria-hidden="true"></div>
+        </a>
+        <a class="page-card" href="03-result-analytics.html">
+          <div><span class="page-number">03A</span><h3>经营分析</h3><p>指标、趋势、异常与问数</p></div>
+          <div class="mini-layout" aria-hidden="true"></div>
+        </a>
+        <a class="page-card" href="04-result-retail.html">
+          <div><span class="page-number">03B</span><h3>消费者导购</h3><p>偏好、推荐与到店信息</p></div>
+          <div class="mini-layout" aria-hidden="true"></div>
+        </a>
+        <a class="page-card" href="05-result-marketing.html">
+          <div><span class="page-number">03C</span><h3>营销策划</h3><p>材料、目标与活动草稿</p></div>
+          <div class="mini-layout" aria-hidden="true"></div>
+        </a>
+      </div>
+    </section>
+
+    <section class="state-board reveal" aria-label="界面状态样例">
+      <div class="state-sample"><small>State 01 · Ready</small><strong>等待你的描述</strong><p>可以自由输入，也可以选择一份场景档案。</p></div>
+      <div class="state-sample is-processing"><small>State 02 · Processing</small><strong>正在理解需求…</strong><p>理解目标 → 标记缺口</p></div>
+      <div class="state-sample"><small>State 03 · Complete</small><strong>方案草稿已整理</strong><p>原型使用演示数据，可继续调整。</p></div>
+      <div class="state-sample is-error"><small>State 04 · Recoverable</small><strong>这次没有完成</strong><p>输入仍然保留，可以重新尝试。</p></div>
+    </section>
+
+    <footer class="site-footer"><span>AI 场景诊断与原型生成工作台 · 静态视觉实验</span><span>所有示例均为虚构演示内容</span></footer>
+  </main>
+</body>
+</html>

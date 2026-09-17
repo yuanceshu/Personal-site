@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><link rel="icon" href="data:,"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'"><script>/* Frozen demonstration boundary. Kept local to every immutable snapshot. */
+(() => {
+  const NativeDate = Date;
+  const epoch = NativeDate.parse('2026-09-15T02:00:00Z');
+  function FrozenDate(...args) {
+    if (!new.target) return new NativeDate(epoch).toString();
+    return Reflect.construct(NativeDate, args.length ? args : [epoch], new.target);
+  }
+  Object.setPrototypeOf(FrozenDate, NativeDate);
+  FrozenDate.prototype = NativeDate.prototype;
+  FrozenDate.now = () => epoch;
+  window.Date = FrozenDate;
+  let seed = 915;
+  Math.random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+  let failed = false;
+  window.addEventListener('error', () => { failed = true; }, true);
+  window.addEventListener('unhandledrejection', () => { failed = true; });
+  const base = new URL('.', location.href);
+  const notify = (type) => {
+    if (window.parent !== window) window.parent.postMessage({ type, path: location.pathname }, '*');
+  };
+  window.addEventListener('load', () => {
+    const label = document.createElement('div');
+    label.id = 'ui-lab-freeze-notice';
+    label.textContent = '冻结交互快照 · 全部为演示数据 · 不代表当前正式产品';
+    label.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;padding:5px 10px;background:#202020;color:#fff;font:11px/1.5 system-ui;text-align:center;pointer-events:none';
+    document.body.append(label);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const imagesOK = [...document.images].every(img => !img.src || (img.complete && img.naturalWidth > 0));
+      notify(failed || !imagesOK ? 'ui-lab:error' : 'ui-lab:ready');
+    }));
+  });
+  document.addEventListener('submit', event => event.preventDefault());
+  // Sandbox blocks native form submission before submit handlers can run.
+  // Dispatch only local events, retaining native constraint validation.
+  function submitDemo(form, submitter) {
+    if (!form.reportValidity()) return;
+    form.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true, submitter }));
+  }
+  document.addEventListener('click', event => {
+    const button = event.target.closest?.('button, input[type="submit"]');
+    if (button?.form && button.type === 'submit') {
+      event.preventDefault();
+      submitDemo(button.form, button);
+    }
+  }, true);
+  document.addEventListener('click', event => {
+    const link = event.target.closest?.('a[href]');
+    if (!link) return;
+    const dest = new URL(link.getAttribute('href'), location.href);
+    if (dest.origin !== base.origin || !dest.pathname.startsWith(base.pathname) || link.target || link.hasAttribute('download')) {
+      event.preventDefault();
+      const label = document.getElementById('ui-lab-freeze-notice');
+      if (label) label.textContent = '冻结快照仅保留版本内页面，请使用外层查看器返回。';
+    }
+  }, true);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') notify('ui-lab:exit');
+    if (event.key === 'Enter' && !event.isComposing && event.target.matches?.('input:not([type="checkbox"]):not([type="radio"])') && event.target.form) {
+      event.preventDefault();
+      submitDemo(event.target.form, null);
+    }
+  });
+})();
+</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI Solution Lab 静态对照稿：经营分析方案">
+  <title>03A 经营分析｜AI Solution Lab</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <header class="site-header">
+    <a class="brand" href="index.html"><span class="brand-mark">策</span><span>AI Solution Lab</span></a>
+    <span class="edition">PRODUCT BLUEPRINT · 03A</span>
+    <nav class="header-nav" aria-label="页面导航"><a href="02-confirm.html">调整需求</a><a href="04-result-retail.html">下一方案 ↗</a></nav>
+  </header>
+
+  <main id="main" class="page-shell page-shell--wide">
+    <nav class="process-rail" aria-label="设计进度">
+      <span class="process-step is-complete"><b>01</b>描述问题</span>
+      <span class="process-step is-complete"><b>02</b>确认理解</span>
+      <span class="process-step is-current" aria-current="step"><b>03</b>方案与原型</span>
+    </nav>
+
+    <section class="result-header reveal" aria-labelledby="result-title">
+      <div>
+        <p class="eyebrow">Blueprint 03A / Operations intelligence</p>
+        <h1 id="result-title">医院经营分析工作台</h1>
+        <div class="meta-row"><span class="tag tag--demo">预设示例</span><span class="tag">版本 01</span><span class="tag">医疗经营</span><span class="tag">每日汇总数据</span></div>
+      </div>
+      <div class="result-tools"><a class="button-secondary" href="01-input.html">开始新需求</a><a class="button" href="02-confirm.html">调整需求与能力 <span aria-hidden="true">↗</span></a></div>
+    </section>
+
+    <nav class="result-jump" aria-label="结果内容"><button type="button" data-scroll-target="#plan">查看方案</button><button type="button" data-scroll-target="#prototype">查看原型</button></nav>
+
+    <div class="result-grid reveal">
+      <aside id="plan" class="diagnosis-sheet sheet" aria-labelledby="plan-title">
+        <div class="sheet-label"><span>产品判断</span><span>Decision sheet</span></div>
+        <div class="diagnosis-body">
+          <div>
+            <p class="eyebrow">方案摘要</p>
+            <h2 id="plan-title">先统一口径，再解释变化。</h2>
+            <p>服务医院管理人员按周查看经营趋势、识别异常，并在受限数据范围内自然语言查询。</p>
+            <dl class="summary-pairs"><div><dt>服务于</dt><dd>医院管理人员</dd></div><div><dt>优先解决</dt><dd>汇总耗时与变化发现滞后</dd></div></dl>
+          </div>
+          <div class="decision-list" aria-label="关键能力">
+            <button class="decision" type="button" aria-pressed="false" data-module-target="#metrics"><span>01 · 确定性程序</span><strong>经营指标展示</strong><small>按统一口径查询与计算</small></button>
+            <button class="decision" type="button" aria-pressed="false" data-module-target="#anomaly"><span>02 · 规则 + AI 解释</span><strong>异常识别与解释</strong><small>区分现象与待验证原因</small></button>
+            <button class="decision" type="button" aria-pressed="false" data-module-target="#query"><span>03 · AI + 查询工具</span><strong>自然语言问数</strong><small>只访问允许的汇总指标</small></button>
+          </div>
+          <details class="technical"><summary>实现建议与待确认事项</summary><p>指标计算由确定性程序完成；模型只理解问题并组织解释。落地前需要确认指标口径、数据权限与异常审核责任。</p></details>
+        </div>
+      </aside>
+
+      <section id="prototype" class="prototype-frame" aria-labelledby="prototype-title">
+        <div class="frame-bar"><span class="frame-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Product prototype / Interaction preview</span><span>演示数据</span></div>
+        <div class="prototype-app">
+          <div class="prototype-topline">
+            <div><p class="eyebrow">Operations overview</p><h2 id="prototype-title">经营周报</h2><p>数据更新时间：今日 08:30 · 示例汇总，不包含患者明细</p></div>
+            <div class="segmented" data-exclusive><button type="button" aria-pressed="true" data-period="week">本周</button><button type="button" aria-pressed="false" data-period="previous">上周</button></div>
+          </div>
+
+          <section id="metrics" class="module" aria-labelledby="metrics-title">
+            <div class="module-title"><h3 id="metrics-title">关键指标</h3><span data-period-label>本周</span></div>
+            <div class="metrics-grid">
+              <article class="metric is-alert"><span>门诊人次</span><strong data-metric-value="visits">12,450</strong><small data-metric-value="change">−8.2% 较前一周</small></article>
+              <article class="metric"><span>预约人次</span><strong data-metric-value="appointments">8,320</strong><small>示例汇总</small></article>
+              <article class="metric"><span>缴费金额</span><strong data-metric-value="revenue">326 万</strong><small>示例汇总</small></article>
+            </div>
+          </section>
+
+          <div class="analytics-body">
+            <section class="chart-panel module" aria-labelledby="trend-title">
+              <div class="module-title"><h3 id="trend-title">每日门诊变化</h3><span>单位：人次</span></div>
+              <svg viewBox="0 0 700 250" role="img" aria-label="本周门诊人次折线图，周三最低">
+                <line class="chart-grid" x1="36" y1="35" x2="670" y2="35"/><line class="chart-grid" x1="36" y1="115" x2="670" y2="115"/><line class="chart-grid" x1="36" y1="195" x2="670" y2="195"/>
+                <path class="chart-area" d="M46 68 L146 109 L246 117 L346 91 L446 76 L546 60 L646 101 L646 195 L46 195 Z"/>
+                <polyline class="chart-line" points="46,68 146,109 246,117 346,91 446,76 546,60 646,101"/>
+                <g fill="#667068" font-size="11" text-anchor="middle"><text x="46" y="225">周一</text><text x="146" y="225">周二</text><text x="246" y="225">周三</text><text x="346" y="225">周四</text><text x="446" y="225">周五</text><text x="546" y="225">周六</text><text x="646" y="225">周日</text></g>
+                <g><circle class="chart-dot" cx="46" cy="68" r="5"/><circle class="chart-dot" cx="146" cy="109" r="5"/><circle class="chart-dot" cx="246" cy="117" r="5"/><circle class="chart-dot" cx="346" cy="91" r="5"/><circle class="chart-dot" cx="446" cy="76" r="5"/><circle class="chart-dot" cx="546" cy="60" r="5"/><circle class="chart-dot" cx="646" cy="101" r="5"/></g>
+              </svg>
+            </section>
+            <section id="anomaly" class="anomaly-panel module" aria-labelledby="anomaly-title">
+              <div class="module-title"><h3 id="anomaly-title">变化观察</h3><span>需人工核对</span></div>
+              <strong class="delta" data-metric-value="anomaly">周三 · 1,600 人次</strong>
+              <p>门诊人次为本周最低点。当前只能确认数据变化，排班、节假日或数据缺漏等原因仍需补充证据。</p>
+              <button class="text-action" type="button" style="color:#fff" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden">查看分析依据 ↗</button>
+              <p hidden>计算依据：本周每日汇总数据与上一周合计；不包含任何患者明细。</p>
+            </section>
+            <form id="query" class="query-panel module" onsubmit="event.preventDefault(); this.querySelector('output').hidden=false">
+              <label>问一问当前示例数据<input aria-label="询问示例数据" value="本周总量是多少？"><output hidden>本周示例门诊人次为 12,450，较前一周下降 8.2%。</output></label>
+              <button class="button" type="submit">发送示例问题 <span aria-hidden="true">↗</span></button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="site-footer"><span>静态视觉实验 · 结果 03A</span><span>演示数据只用于说明界面，不代表真实医院经营情况</span></footer>
+  </main>
+</body>
+</html>

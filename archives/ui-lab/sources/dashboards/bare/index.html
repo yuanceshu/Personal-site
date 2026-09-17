@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>城市通集团数据驾驶舱-离线版</title>
+<style>
+:root{
+  --bg:#040b18;
+  --panel:#0b1a31;
+  --panel-deep:#081326;
+  --line:rgba(126,181,218,.2);
+  --line-strong:rgba(81,191,255,.48);
+  --cyan:#53d9f4;
+  --blue:#4f96ff;
+  --indigo:#9a8cff;
+  --gold:#f4c967;
+  --green:#63dcb1;
+  --text:#edf8ff;
+  --muted:#86a2b9;
+  --dim:#5e7790;
+  --surface:rgba(9,25,49,.9);
+  --surface-raised:rgba(15,36,67,.9);
+  --ease-out:cubic-bezier(.23,1,.32,1);
+  --shadow:0 12px 32px rgba(0,0,0,.2), inset 0 1px 0 rgba(172,225,255,.045);
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text);font-family:"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",Arial,sans-serif}
+body{overflow:hidden;background:
+  radial-gradient(ellipse at 50% -12%,rgba(19,106,180,.24),transparent 44%),
+  linear-gradient(rgba(28,111,178,.045) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(28,111,178,.045) 1px,transparent 1px),
+  var(--bg);
+  background-size:auto,36px 36px,36px 36px,auto;
+}
+body:after{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 0%,rgba(68,195,255,.018) 50%,transparent 100%);mix-blend-mode:screen;animation:scan 14s linear infinite}
+@keyframes scan{from{transform:translateY(-100%)}to{transform:translateY(100%)}}
+button,select{font:inherit}
+.dashboard{height:100vh;min-height:760px;padding:14px 20px 11px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.topbar{height:70px;display:flex;align-items:center;justify-content:space-between;gap:18px;position:relative;border-bottom:1px solid rgba(126,181,218,.14)}
+.brand{display:flex;align-items:center;gap:12px;min-width:330px}
+.brand-mark{width:42px;height:42px;display:grid;place-items:center;border:1px solid rgba(83,217,244,.72);border-radius:12px;color:var(--cyan);font-size:22px;font-weight:800;background:linear-gradient(145deg,rgba(83,217,244,.16),rgba(79,150,255,.04));box-shadow:0 0 20px rgba(64,216,255,.2),inset 0 0 12px rgba(64,216,255,.1)}
+.eyebrow{font-size:10px;letter-spacing:2.2px;color:var(--cyan);opacity:.8}
+h1{font-size:25px;letter-spacing:2.2px;margin:3px 0 0;font-weight:800;text-shadow:0 0 20px rgba(83,217,244,.16)}
+.brand-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.header-right{display:flex;align-items:center;gap:15px}
+.header-status{display:flex;gap:7px;align-items:center;font-size:11px;color:#9dd5ea;white-space:nowrap}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
+.clock{text-align:right;min-width:135px}
+.clock-time{font-size:20px;font-weight:700;letter-spacing:1px;color:#fff}
+.clock-date{font-size:10px;color:var(--muted);margin-top:2px}
+.filters{display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid rgba(126,181,218,.2);border-radius:10px;background:rgba(9,27,51,.76);box-shadow:0 8px 20px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.04);white-space:nowrap}
+.filters label{font-size:11px;color:var(--muted)}
+select{appearance:none;color:var(--text);background:#102846;border:1px solid rgba(83,217,244,.32);padding:6px 26px 6px 9px;border-radius:7px;font-size:12px;outline:none;background-image:linear-gradient(45deg,transparent 50%,var(--cyan) 50%),linear-gradient(135deg,var(--cyan) 50%,transparent 50%);background-position:calc(100% - 13px) 10px,calc(100% - 9px) 10px;background-size:4px 4px;background-repeat:no-repeat}
+select:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(64,216,255,.14)}
+.demo-badge{padding:6px 10px;border:1px solid rgba(244,201,103,.42);border-radius:999px;color:var(--gold);font-size:11px;letter-spacing:1px;background:rgba(244,201,103,.08)}
+.kpis{display:grid;grid-template-columns:1.24fr repeat(5,minmax(0,1fr));gap:9px;height:88px}
+.kpi{position:relative;padding:11px 14px;border:1px solid var(--line);border-radius:11px;background:linear-gradient(135deg,rgba(16,40,73,.9),rgba(7,20,40,.96));box-shadow:var(--shadow);overflow:hidden;animation:rise-in 360ms var(--ease-out) both}
+.kpi:first-child{background:radial-gradient(circle at 92% 8%,rgba(83,217,244,.2),transparent 34%),linear-gradient(135deg,rgba(17,59,86,.96),rgba(7,24,44,.96));border-color:rgba(83,217,244,.36)}
+.kpi:before{content:"";position:absolute;left:14px;top:0;width:42px;height:2px;background:var(--cyan);box-shadow:0 0 8px rgba(83,217,244,.45)}
+.kpi:after{content:"";position:absolute;right:-14px;bottom:-24px;width:100px;height:72px;border-radius:50%;background:radial-gradient(circle,rgba(83,217,244,.13),transparent 66%)}
+.kpi-label{font-size:11px;color:var(--muted)}
+.kpi:first-child .kpi-value{font-size:29px}
+.kpi-value{margin-top:7px;font-size:23px;line-height:1;font-weight:800;letter-spacing:.5px;color:#f4fbff;font-variant-numeric:tabular-nums}
+.kpi-unit{font-size:10px;color:var(--cyan);margin-left:5px;font-weight:500}
+.kpi-note{position:absolute;right:11px;bottom:10px;font-size:10px;color:var(--dim)}
+.kpi.gold:before{background:var(--gold);box-shadow:0 0 9px var(--gold)}
+.kpi.gold .kpi-unit{color:var(--gold)}
+.kpi.indigo:before{background:var(--indigo);box-shadow:0 0 9px var(--indigo)}
+.kpi.indigo .kpi-unit{color:var(--indigo)}
+.content{flex:1;min-height:0;display:grid;grid-template-columns:minmax(235px,.86fr) minmax(500px,1.62fr) minmax(285px,1fr);gap:11px}
+.column{min-height:0;display:grid;gap:10px}
+.left{grid-template-rows:1.18fr .82fr}
+.center{grid-template-rows:1.27fr .73fr}
+.right{grid-template-rows:1.07fr .93fr}
+.panel{min-height:0;position:relative;border:1px solid var(--line);border-radius:12px;background:linear-gradient(145deg,rgba(13,34,64,.88),rgba(5,16,33,.97));box-shadow:var(--shadow);overflow:hidden;padding:12px 13px;animation:rise-in 400ms var(--ease-out) both}
+.panel:before,.panel:after{content:"";position:absolute;width:18px;height:18px;pointer-events:none}
+.panel:before{top:-1px;left:-1px;border-top:1px solid rgba(83,217,244,.68);border-left:1px solid rgba(83,217,244,.68);border-radius:12px 0 0 0}
+.panel:after{right:-1px;bottom:-1px;border-right:1px solid rgba(83,217,244,.34);border-bottom:1px solid rgba(83,217,244,.34);border-radius:0 0 12px 0}
+.panel-head{height:31px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;border-bottom:1px solid rgba(126,181,218,.13);margin-bottom:4px}
+.panel-title{font-size:13px;letter-spacing:.8px;font-weight:700;color:#e4f5fc;display:flex;align-items:center;gap:7px}
+.panel-title:before{content:"";display:inline-block;width:4px;height:13px;border-radius:3px;background:var(--cyan);box-shadow:0 0 7px rgba(83,217,244,.35)}
+.panel-meta{font-size:10px;color:var(--muted);white-space:nowrap}
+.legend{display:flex;align-items:center;gap:10px;font-size:10px;color:var(--muted)}
+.legend-item{display:flex;align-items:center;gap:4px}
+.legend-dot{width:7px;height:7px;border-radius:50%}
+.cyan{background:var(--cyan)} .indigo-dot{background:var(--indigo)} .gold-dot{background:var(--gold)} .green-dot{background:var(--green)}
+.age-list{height:calc(100% - 30px);display:flex;flex-direction:column;justify-content:space-around;padding:4px 2px 0}
+.age-row{display:grid;grid-template-columns:62px 1fr 45px;align-items:center;gap:8px;font-size:10px;color:#a9c8da}
+.age-bar{height:7px;background:#122c4c;position:relative;overflow:hidden;border-radius:1px}
+.age-bar i{display:block;height:100%;background:linear-gradient(90deg,#177de1,var(--cyan));box-shadow:0 0 9px rgba(64,216,255,.55)}
+.age-num{text-align:right;color:#e5f7ff;font-variant-numeric:tabular-nums}
+.age-percent{color:var(--cyan);font-size:9px;margin-left:2px}
+.mode-panel{display:flex;flex-direction:column}
+.mode-body{display:grid;grid-template-columns:135px 1fr;align-items:center;gap:8px;flex:1;min-height:0}
+.donut-wrap{height:136px;width:136px;position:relative;display:grid;place-items:center;margin-left:1px}
+.donut-svg{width:136px;height:136px;transform:rotate(-90deg);overflow:visible}
+.donut-base{fill:none;stroke:#122b4c;stroke-width:13}
+.donut-segment{fill:none;stroke-width:13;cursor:pointer;transition:opacity 180ms ease,filter 180ms ease}
+.donut-segment.selected{filter:drop-shadow(0 0 5px currentColor);opacity:1}
+.donut-segment.dim{opacity:.27}
+.donut-center{position:absolute;text-align:center;pointer-events:none}
+.donut-center strong{display:block;font-size:19px;line-height:1;color:#fff}
+.donut-center span{font-size:9px;color:var(--muted)}
+.mode-metrics{display:flex;flex-direction:column;gap:8px}
+.mode-button{border:1px solid rgba(126,181,218,.18);background:rgba(8,27,51,.72);color:var(--text);text-align:left;padding:8px 9px;cursor:pointer;border-radius:8px;transition:transform 160ms var(--ease-out),border-color 180ms ease,background-color 180ms ease,box-shadow 180ms ease}
+.mode-button.selected{border-color:var(--cyan);background:rgba(23,99,147,.25);box-shadow:0 0 12px rgba(64,216,255,.14)}
+.mode-button.metro.selected{border-color:var(--indigo)}
+.mode-name{font-size:11px;font-weight:700;display:flex;justify-content:space-between}
+.mode-share{font-size:10px;color:var(--cyan)}
+.metro .mode-share{color:var(--indigo)}
+.mode-values{margin-top:5px;display:flex;justify-content:space-between;color:var(--muted);font-size:9px}
+.mode-values b{color:#e8f7ff;font-size:11px}
+.chart-panel{display:flex;flex-direction:column}
+.chart-wrap{flex:1;min-height:0;position:relative}
+.chart-svg{width:100%;height:100%;display:block;overflow:visible;animation:chart-in 260ms var(--ease-out) both}
+.grid-line{stroke:rgba(105,171,222,.15);stroke-width:1}
+.axis-label{fill:#6685a1;font-size:10px}
+.rush-band{fill:rgba(64,216,255,.075);stroke:rgba(64,216,255,.13);stroke-width:1}
+.rush-band.evening{fill:rgba(141,124,255,.09);stroke:rgba(141,124,255,.16)}
+.rush-label{fill:#6fc5dc;font-size:9px}
+.rush-label.evening-label{fill:#a79dff}
+.trend-line{fill:none;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;transition:opacity 180ms ease}
+.trend-line.bus{stroke:var(--cyan);filter:drop-shadow(0 0 3px rgba(64,216,255,.38))}
+.trend-line.metro{stroke:var(--indigo);filter:drop-shadow(0 0 3px rgba(141,124,255,.32))}
+.trend-line.dim{opacity:.18}
+.trend-dot{stroke:#061224;stroke-width:2;cursor:pointer}
+.trend-dot.bus{fill:var(--cyan)} .trend-dot.metro{fill:var(--indigo)}
+.trend-dot.selected{stroke:#fff;stroke-width:2.5;filter:drop-shadow(0 0 5px currentColor)}
+.chart-foot{height:22px;display:flex;justify-content:space-between;align-items:end;color:var(--dim);font-size:9px}
+.chart-legend{display:flex;gap:13px}
+.chart-legend span{display:flex;align-items:center;gap:5px}
+.chart-legend i{width:14px;height:2px;display:inline-block}
+.chart-legend .bus-line{background:var(--cyan)} .chart-legend .metro-line{background:var(--indigo)}
+.month-svg{height:100%;min-height:120px}
+.bar-amount{fill:rgba(244,201,103,.64);cursor:pointer;transition:fill 180ms ease,filter 180ms ease}
+.bar-amount.selected{fill:var(--gold);filter:drop-shadow(0 0 4px rgba(244,201,103,.46))}
+.amount-line{fill:none;stroke:var(--green);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 3px rgba(80,224,177,.4))}
+.amount-dot{fill:var(--green);stroke:#061224;stroke-width:2;cursor:pointer}
+.month-label{fill:#6685a1;font-size:9px;text-anchor:middle}
+.month-label.selected{fill:var(--gold);font-weight:700}
+.month-axis{stroke:rgba(114,169,207,.22);stroke-width:1}
+.meal-panel{display:flex;flex-direction:column}
+.meal-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:3px}
+.meal-kpi{padding:7px 8px;border-radius:8px;background:linear-gradient(145deg,rgba(63,57,34,.4),rgba(24,48,66,.42));border:1px solid rgba(244,201,103,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}
+.meal-kpi-label{font-size:9px;color:var(--muted)}
+.meal-kpi-value{font-size:18px;font-weight:800;color:var(--gold);margin-top:4px}
+.meal-kpi-unit{font-size:9px;color:#d6bc78;margin-left:3px}
+.subsection-title{font-size:10px;color:#9bb9cd;margin:9px 0 5px;display:flex;justify-content:space-between}
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;min-height:0}
+.mini-bars{display:flex;align-items:flex-end;gap:6px;height:68px;padding:0 3px;border-bottom:1px solid rgba(105,171,222,.16)}
+.mini-col{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px}
+.mini-col i{width:100%;max-width:22px;background:linear-gradient(180deg,var(--gold),#7d5417);border-radius:2px 2px 0 0;cursor:pointer;min-height:4px;transition:filter 180ms ease,box-shadow 180ms ease}
+.mini-col span{font-size:8px;color:var(--muted);white-space:nowrap}
+.mini-col b{font-size:8px;color:#d5e9f3;font-weight:500}
+.ranking-panel{display:flex;flex-direction:column}
+.rank-list{flex:1;min-height:0;display:flex;flex-direction:column;gap:5px;margin-top:2px;overflow:hidden}
+.rank-row{width:100%;display:grid;grid-template-columns:22px 1fr auto;gap:7px;align-items:center;border:1px solid transparent;background:rgba(9,29,53,.62);color:var(--text);text-align:left;padding:6px 6px;cursor:pointer;border-radius:8px;transition:transform 160ms var(--ease-out),border-color 180ms ease,background-color 180ms ease,box-shadow 180ms ease}
+.rank-row.selected{border-color:rgba(83,217,244,.52);background:rgba(23,88,127,.24);box-shadow:inset 3px 0 0 var(--cyan)}
+.rank-no{width:18px;height:18px;display:grid;place-items:center;background:#143252;color:#87b2ca;font-size:9px}
+.rank-row:nth-child(-n+3) .rank-no{background:rgba(255,201,91,.18);color:var(--gold)}
+.rank-main{min-width:0}
+.rank-name{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-sub{font-size:9px;color:var(--muted);margin-top:2px}
+.rank-value{text-align:right;color:var(--cyan);font-size:10px;white-space:nowrap}
+.detail{margin-top:7px;padding:7px 9px;border:1px solid rgba(244,201,103,.18);border-left:2px solid var(--gold);border-radius:7px;background:rgba(244,201,103,.06);font-size:10px;color:#c6dce8;line-height:1.55;min-height:43px}
+.detail b{color:#fff}
+.footer{height:15px;display:flex;justify-content:space-between;align-items:center;color:#4e6b85;font-size:9px;padding:0 3px}
+.footer strong{color:#789bb5;font-weight:500}
+#tooltip{position:fixed;z-index:20;max-width:240px;padding:7px 9px;border:1px solid rgba(83,217,244,.58);border-radius:7px;background:rgba(4,17,36,.95);box-shadow:0 10px 24px rgba(0,0,0,.28),0 0 14px rgba(83,217,244,.15);color:#eaf7ff;font-size:10px;line-height:1.45;pointer-events:none;white-space:normal;opacity:0;visibility:hidden;transform:translateY(4px) scale(.98);transition:opacity 150ms ease-out,transform 150ms ease-out,visibility 0s linear 150ms}
+#tooltip.visible{opacity:1;visibility:visible;transform:translateY(0) scale(1);transition:opacity 150ms ease-out,transform 150ms ease-out}
+.hidden{display:none!important}
+@keyframes rise-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes chart-in{from{opacity:.35;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.kpi:nth-child(2){animation-delay:35ms}.kpi:nth-child(3){animation-delay:70ms}.kpi:nth-child(4){animation-delay:105ms}.kpi:nth-child(5){animation-delay:140ms}.kpi:nth-child(6){animation-delay:175ms}
+.left .panel:nth-child(2){animation-delay:90ms}.center .panel:nth-child(2){animation-delay:120ms}.right .panel:nth-child(2){animation-delay:150ms}
+button:active{transform:scale(.98)}
+@media (hover:hover) and (pointer:fine){
+  .mode-button:hover{border-color:var(--cyan);background:rgba(23,99,147,.25);box-shadow:0 0 12px rgba(64,216,255,.14)}
+  .mode-button.metro:hover{border-color:var(--indigo)}
+  .donut-segment:hover{filter:drop-shadow(0 0 5px currentColor);opacity:1}
+  .bar-amount:hover{fill:var(--gold);filter:drop-shadow(0 0 4px rgba(244,201,103,.46))}
+  .rank-row:hover{border-color:rgba(83,217,244,.4);background:rgba(23,88,127,.2);transform:translateX(2px)}
+  .mini-col i:hover{filter:brightness(1.25);box-shadow:0 0 7px rgba(244,201,103,.35)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+  body:after{display:none}
+}
+@media(max-width:1200px){
+  .dashboard{padding:11px;gap:8px}
+  .brand{min-width:280px}
+  h1{font-size:21px}
+  .content{grid-template-columns:minmax(220px,.8fr) minmax(430px,1.3fr) minmax(260px,.9fr);gap:8px}
+  .panel{padding:10px}
+  .mode-body{grid-template-columns:116px 1fr}
+  .donut-wrap,.donut-svg{width:116px;height:116px}
+}
+@media(max-width:1000px){
+  body{overflow:auto}
+  .dashboard{height:auto;min-height:100vh;overflow:visible}
+  .topbar{height:auto;min-height:68px;align-items:flex-start;flex-wrap:wrap}
+  .header-right{margin-left:auto}
+  .kpis{height:auto;grid-template-columns:repeat(3,1fr)}
+  .kpi{min-height:78px}
+  .content{grid-template-columns:1fr 1.25fr;grid-template-rows:auto;min-height:900px}
+  .right{grid-column:1 / -1;grid-template-columns:1fr 1fr;grid-template-rows:340px 340px}
+  .left,.center{grid-template-rows:340px 300px}
+  .panel{min-height:300px}
+}
+@media(max-width:680px){
+  .dashboard{padding:9px;min-width:0}
+  .topbar{display:block}
+  .brand{min-width:0}
+  .header-right{margin-top:10px;justify-content:space-between}
+  .filters{flex:1}
+  .filters select{max-width:100px}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .content{display:flex;flex-direction:column;min-height:0}
+  .column{display:flex;flex-direction:column}
+  .panel{height:auto;min-height:300px}
+  .hourly-panel{min-height:360px}
+  .monthly-panel{min-height:270px}
+  .footer{height:auto;gap:8px;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<main class="dashboard">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">城</div>
+      <div>
+        <div class="eyebrow">CITYPASS GROUP · GUIYANG OPERATIONS</div>
+        <h1>城市通集团综合服务数据驾驶舱</h1>
+        <div class="brand-sub">公交 · 地铁 · 助老餐厅 · 城市出行与民生服务一体化视图</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-status"><span class="status-dot"></span>运营数据在线 <span class="demo-badge">演示数据</span></div>
+      <div class="filters">
+        <label for="yearFilter">年度</label>
+        <select id="yearFilter" aria-label="选择年度">
+          <option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option>
+        </select>
+        <label for="monthFilter">月份</label>
+        <select id="monthFilter" aria-label="选择月份">
+          <option value="all" selected>全年</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+        </select>
+        <span class="panel-meta">全局口径联动</span>
+      </div>
+      <div class="clock"><div class="clock-time" id="clockTime">09:49:00</div><div class="clock-date" id="clockDate">2026年09月07日 · 实时模拟</div></div>
+    </div>
+  </header>
+
+  <section class="kpis" id="kpis" aria-label="核心指标"></section>
+
+  <section class="content">
+    <div class="column left">
+      <section class="panel age-panel">
+        <div class="panel-head"><div class="panel-title">乘车人年龄结构</div><div class="panel-meta" id="ageMeta">客流构成 · 万人次</div></div>
+        <div class="age-list" id="ageList"></div>
+      </section>
+      <section class="panel mode-panel">
+        <div class="panel-head"><div class="panel-title">公交 / 地铁客流结构</div><div class="panel-meta">点击分区联动</div></div>
+        <div class="mode-body" id="modeBody"></div>
+      </section>
+    </div>
+
+    <div class="column center">
+      <section class="panel chart-panel hourly-panel">
+        <div class="panel-head">
+          <div class="panel-title">全天客流峰值趋势</div>
+          <div class="legend"><span class="legend-item"><i class="legend-dot cyan"></i>公交</span><span class="legend-item"><i class="legend-dot indigo-dot"></i>地铁</span></div>
+        </div>
+        <div class="chart-wrap" id="hourlyChart"></div>
+        <div class="chart-foot"><div class="chart-legend"><span><i class="bus-line"></i>公交客流</span><span><i class="metro-line"></i>地铁客流</span></div><span>单位：万人次 / 小时 · 高峰窗口 07:00—09:00 / 17:00—19:00</span></div>
+      </section>
+      <section class="panel chart-panel monthly-panel">
+        <div class="panel-head">
+          <div class="panel-title">交易金额与笔数趋势</div>
+          <div class="panel-meta" id="monthlyMeta">金额：万元 · 笔数：万笔</div>
+        </div>
+        <div class="chart-wrap" id="monthlyChart"></div>
+      </section>
+    </div>
+
+    <div class="column right">
+      <section class="panel meal-panel">
+        <div class="panel-head"><div class="panel-title">助老餐厅服务监测</div><div class="panel-meta" id="mealMeta">服务民生 · 示例</div></div>
+        <div class="meal-kpis" id="mealKpis"></div>
+        <div class="subsection-title"><span>助餐对象年龄段</span><span>服务人次占比</span></div>
+        <div class="mini-grid">
+          <div class="mini-bars" id="mealAgeChart"></div>
+          <div>
+            <div class="subsection-title" style="margin-top:0"><span>餐次服务量</span><span>万人次</span></div>
+            <div class="mini-bars" id="mealPeriodChart"></div>
+          </div>
+        </div>
+      </section>
+      <section class="panel ranking-panel">
+        <div class="panel-head"><div class="panel-title">热门线路 / 服务点排行</div><div class="panel-meta">点击查看详情</div></div>
+        <div class="rank-list" id="rankList"></div>
+        <div class="detail" id="detailBox">点击线路或助老餐厅，可查看对应运营指标。</div>
+      </section>
+    </div>
+  </section>
+
+  <footer class="footer"><span>口径：全年为累计交易与年均日客流；月份为当月累计交易与月均日客流。</span><strong>模拟数据，仅用于方案展示 · 不含真实乘客信息</strong></footer>
+</main>
+<div id="tooltip" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+  var state = {year:2026, month:"all", selectedMode:null, selectedEntity:null};
+  var monthSeason = [0.84,0.78,0.93,0.96,1.02,1.06,1.10,1.08,1.04,1.00,0.96,0.91];
+  var yearFactor = {2024:0.86, 2025:0.94, 2026:1};
+  var hourLabels = ["06:00","07:00","08:00","09:00","10:00","12:00","14:00","16:00","17:00","18:00","19:00","21:00"];
+  var baseBusHour = [5.2,10.8,15.6,11.2,8.8,9.5,8.3,9.9,12.8,15.1,10.6,6.1];
+  var baseMetroHour = [3.3,8.9,18.4,13.3,8.1,8.7,7.6,9.8,16.8,19.3,12.6,4.7];
+  var ageDefs = [
+    {label:"18岁以下",share:.06},{label:"18—30岁",share:.28},{label:"31—45岁",share:.31},
+    {label:"46—60岁",share:.19},{label:"61—70岁",share:.10},{label:"70岁以上",share:.06}
+  ];
+  var mealAgeDefs = [
+    {label:"60—69岁",share:.36},{label:"70—79岁",share:.43},{label:"80岁以上",share:.21}
+  ];
+  var mealPeriodDefs = [{label:"早餐",share:.18},{label:"午餐",share:.53},{label:"晚餐",share:.29}];
+  var baseLines = [
+    {id:"B1",name:"BRT B1 示范线",type:"公交",district:"观山湖—云岩",passengers:112,transactions:86,amount:324},
+    {id:"B52",name:"公交 52 路（示例）",type:"公交",district:"南明—花溪",passengers:96,transactions:74,amount:268},
+    {id:"M1",name:"地铁 1 号线（示例）",type:"地铁",district:"小河—观山湖",passengers:138,transactions:121,amount:452},
+    {id:"M2",name:"地铁 2 号线（示例）",type:"地铁",district:"白云—南明",passengers:105,transactions:92,amount:345},
+    {id:"S1",name:"地铁 S1 线（示例）",type:"地铁",district:"双龙—贵阳",passengers:82,transactions:69,amount:228}
+  ];
+  var baseMeals = [
+    {id:"meal1",name:"和悦助老餐厅（示例）",district:"云岩区",services:5.4,amount:21.6,ticket:4.0},
+    {id:"meal2",name:"花溪长者食堂（示例）",district:"花溪区",services:4.6,amount:18.0,ticket:3.9},
+    {id:"meal3",name:"观山湖社区餐厅（示例）",district:"观山湖区",services:4.1,amount:17.2,ticket:4.2},
+    {id:"meal4",name:"暖心助餐点（示例）",district:"南明区",services:3.5,amount:13.3,ticket:3.8}
+  ];
+
+  function round(value, digits){
+    var p = Math.pow(10, digits || 0);
+    return Math.round(value * p) / p;
+  }
+  function fmt(value, digits){
+    var d = digits === undefined ? 0 : digits;
+    return Number(value).toLocaleString("zh-CN",{minimumFractionDigits:d,maximumFractionDigits:d});
+  }
+  function monthName(month){ return month === "all" ? "全年" : month + "月"; }
+  function periodText(){ return state.year + "年" + monthName(state.month); }
+  function scale(value, factor, digits){ return round(value * factor, digits); }
+  function sum(list, key){ return list.reduce(function(total,item){return total + Number(item[key] || 0)},0); }
+  function makeTrend(year, month){
+    var yf = yearFactor[year];
+    return monthSeason.map(function(season, index){
+      return {
+        month:index+1,
+        amount:scale(2570 * season * yf,1),
+        count:scale(292 * season * yf,1)
+      };
+    });
+  }
+  function createSnapshot(year, month){
+    var yf = yearFactor[year];
+    var selected = month === "all" ? 1 : monthSeason[month-1];
+    var monthly = month === "all" ? 12 : 1;
+    var avgDailyPassenger = month === "all" ? scale(171.5*yf,1) : scale(171.5*yf*selected,1);
+    var passengerCount = month === "all" ? scale(2058*yf,1) : scale(avgDailyPassenger*monthly*30,1);
+    var busShare = month === "all" ? .58 : .56 + ((month%3)-1)*.01;
+    var metroShare = 1 - busShare;
+    var transportAmount = month === "all" ? scale(30240*yf,0) : scale(30240*yf*selected/12,0);
+    var busTransactions = month === "all" ? scale(1698*yf,0) : scale(1698*yf*selected/12,0);
+    var metroTransactions = month === "all" ? scale(1282*yf,0) : scale(1282*yf*selected/12,0);
+    var mealCount = month === "all" ? scale(32.8*yf,1) : scale(32.8*yf*selected/12,1);
+    var mealAmount = month === "all" ? scale(128.6*yf,1) : scale(128.6*yf*selected/12,1);
+    var hourlyFactor = (month === "all" ? .98 : selected) * yf;
+    var hourlyPassengerTrend = hourLabels.map(function(label,index){
+      return {time:label,bus:scale(baseBusHour[index]*hourlyFactor,1),metro:scale(baseMetroHour[index]*hourlyFactor,1)};
+    });
+    var peakPassengerCount = Math.max.apply(null,hourlyPassengerTrend.map(function(item){return item.bus+item.metro}));
+    var ageGroups = ageDefs.map(function(item){return {label:item.label,share:item.share,count:scale(passengerCount*item.share,1)}});
+    var transportModes = [
+      {name:"公交",share:busShare,transactionCount:busTransactions,transactionAmount:scale(transportAmount*busShare,0),color:"#40d8ff"},
+      {name:"地铁",share:metroShare,transactionCount:metroTransactions,transactionAmount:scale(transportAmount*metroShare,0),color:"#8d7cff"}
+    ];
+    var mealAgeGroups = mealAgeDefs.map(function(item){return {label:item.label,share:item.share,count:scale(mealCount*item.share,1)}});
+    var mealPeriods = mealPeriodDefs.map(function(item){return {label:item.label,share:item.share,count:scale(mealCount*item.share,1)}});
+    var lines = baseLines.map(function(item,index){
+      var lineFactor = (month === "all" ? 1 : selected) * yf * (1 + index*.035);
+      return {
+        id:item.id,name:item.name,type:item.type,district:item.district,
+        passengers:scale(item.passengers*lineFactor,1),transactions:scale(item.transactions*lineFactor,1),amount:scale(item.amount*lineFactor,1)
+      };
+    }).sort(function(a,b){return b.passengers-a.passengers});
+    var meals = baseMeals.map(function(item,index){
+      var mealFactor = (month === "all" ? 1 : selected) * yf * (1 + index*.025);
+      return {
+        id:item.id,name:item.name,district:item.district,
+        services:scale(item.services*mealFactor,1),amount:scale(item.amount*mealFactor,1),ticket:round(item.ticket*(1 + (year-2024)*.025),1)
+      };
+    });
+    var recent = [
+      {time:"08:42",name:"地铁 1 号线（示例）",type:"进站交易",amount:round(6.4*selected,1)},
+      {time:"08:36",name:"BRT B1 示范线",type:"公交交易",amount:round(2.0*selected,1)},
+      {time:"12:08",name:"和悦助老餐厅（示例）",type:"助餐服务",amount:round(4.0*selected,1)},
+      {time:"18:16",name:"地铁 2 号线（示例）",type:"出站交易",amount:round(5.1*selected,1)}
+    ];
+    return {
+      year:year,month:month,
+      kpi:{passengerCount:passengerCount,busTransactionCount:busTransactions,metroTransactionCount:metroTransactions,transportAmount:transportAmount,mealServiceCount:mealCount,peakPassengerCount:round(peakPassengerCount,1),avgDailyPassenger:avgDailyPassenger,mealAmount:mealAmount},
+      ageGroups:ageGroups,transportModes:transportModes,hourlyPassengerTrend:hourlyPassengerTrend,
+      monthlyTransactionTrend:makeTrend(year,month),mealServices:meals,mealAgeGroups:mealAgeGroups,mealPeriods:mealPeriods,hotLines:lines,recentTransactions:recent
+    };
+  }
+
+  function tipText(text){ return String(text).replace(/"/g,"&quot;"); }
+  function renderKpis(snapshot){
+    var cards = [
+      {label:"综合客流量",value:fmt(snapshot.kpi.passengerCount,1),unit:"万人次",note:"年末 / 月末快照",cls:""},
+      {label:"公交交易笔数",value:fmt(snapshot.kpi.busTransactionCount),unit:"万笔",note:"累计交易",cls:""},
+      {label:"地铁交易笔数",value:fmt(snapshot.kpi.metroTransactionCount),unit:"万笔",note:"累计交易",cls:"indigo"},
+      {label:"出行交易金额",value:fmt(snapshot.kpi.transportAmount),unit:"万元",note:"公交 + 地铁",cls:"gold"},
+      {label:"助老餐厅服务",value:fmt(snapshot.kpi.mealServiceCount,1),unit:"万人次",note:"助餐服务",cls:"gold"},
+      {label:"最高峰小时",value:fmt(snapshot.kpi.peakPassengerCount,1),unit:"万人次/时",note:"公交 + 地铁",cls:"indigo"}
+    ];
+    document.getElementById("kpis").innerHTML = cards.map(function(card){
+      return '<div class="kpi '+card.cls+'"><div class="kpi-label">'+card.label+'</div><div class="kpi-value">'+card.value+'<span class="kpi-unit">'+card.unit+'</span></div><div class="kpi-note">'+card.note+'</div></div>';
+    }).join("");
+  }
+  function renderAge(snapshot){
+    var max = Math.max.apply(null,snapshot.ageGroups.map(function(item){return item.count}));
+    document.getElementById("ageMeta").textContent = periodText()+" · 万人次";
+    document.getElementById("ageList").innerHTML = snapshot.ageGroups.map(function(item){
+      var width = max ? item.count/max*100 : 0;
+      return '<div class="age-row" data-tip="'+tipText(item.label+"： "+fmt(item.count,1)+"万人次，占比 "+fmt(item.share*100,1)+"%")+'"><span>'+item.label+'</span><span class="age-bar"><i style="width:'+width+'%"></i></span><span class="age-num">'+fmt(item.count,1)+'<em class="age-percent">'+fmt(item.share*100,0)+'%</em></span></div>';
+    }).join("");
+  }
+  function renderModes(snapshot){
+    var bus = snapshot.transportModes[0], metro = snapshot.transportModes[1];
+    var circ = 263.89, busLen = round(circ*bus.share,2), metroLen = round(circ*metro.share,2);
+    var selected = state.selectedMode;
+    document.getElementById("modeBody").innerHTML =
+      '<div class="donut-wrap"><svg class="donut-svg" viewBox="0 0 120 120" aria-label="公交地铁客流占比">'+
+      '<circle class="donut-base" cx="60" cy="60" r="42"></circle>'+
+      '<circle class="donut-segment '+(selected==="公交"?"selected ":"")+(selected==="地铁"?"dim":"")+'" data-mode="公交" data-tip="'+tipText("公交："+fmt(bus.share*100,1)+"%，"+fmt(bus.transactionCount)+"万笔，"+fmt(bus.transactionAmount)+"万元")+'" cx="60" cy="60" r="42" stroke="#40d8ff" stroke-dasharray="'+busLen+" "+round(circ-busLen,2)+'"></circle>'+
+      '<circle class="donut-segment '+(selected==="地铁"?"selected ":"")+(selected==="公交"?"dim":"")+'" data-mode="地铁" data-tip="'+tipText("地铁："+fmt(metro.share*100,1)+"%，"+fmt(metro.transactionCount)+"万笔，"+fmt(metro.transactionAmount)+"万元")+'" cx="60" cy="60" r="42" stroke="#8d7cff" stroke-dasharray="'+metroLen+" "+round(circ-metroLen,2)+'" stroke-dashoffset="-'+busLen+'"></circle>'+
+      '</svg><div class="donut-center"><strong>'+fmt(snapshot.kpi.passengerCount,0)+'</strong><span>万人次</span></div></div>'+
+      '<div class="mode-metrics">'+
+      '<button class="mode-button '+(selected==="公交"?"selected":"")+'" data-mode="公交" aria-label="筛选公交客流"><div class="mode-name"><span><i class="legend-dot cyan" style="display:inline-block;margin-right:5px"></i>公交</span><span class="mode-share">'+fmt(bus.share*100,1)+'%</span></div><div class="mode-values"><span>交易笔数 <b>'+fmt(bus.transactionCount)+'万</b></span><span>金额 <b>'+fmt(bus.transactionAmount)+'万</b></span></div></button>'+
+      '<button class="mode-button metro '+(selected==="地铁"?"selected":"")+'" data-mode="地铁" aria-label="筛选地铁客流"><div class="mode-name"><span><i class="legend-dot indigo-dot" style="display:inline-block;margin-right:5px"></i>地铁</span><span class="mode-share">'+fmt(metro.share*100,1)+'%</span></div><div class="mode-values"><span>交易笔数 <b>'+fmt(metro.transactionCount)+'万</b></span><span>金额 <b>'+fmt(metro.transactionAmount)+'万</b></span></div></button>'+
+      '</div>';
+    document.querySelectorAll("[data-mode]").forEach(function(element){
+      element.addEventListener("click",function(){ state.selectedMode = state.selectedMode===element.getAttribute("data-mode") ? null : element.getAttribute("data-mode"); renderAll(); });
+    });
+  }
+  function points(values, width, height, maxValue){
+    var left=38,right=12,top=14,bottom=24;
+    return values.map(function(value,index){
+      var x=left+(width-left-right)*(index/(values.length-1));
+      var y=top+(height-top-bottom)*(1-value/maxValue);
+      return {x:x,y:y,value:value};
+    });
+  }
+  function linePath(pointList){ return pointList.map(function(point,index){return (index?"L":"M")+round(point.x,1)+" "+round(point.y,1)}).join(" "); }
+  function renderHourly(snapshot){
+    var width=800,height=240;
+    var combined=snapshot.hourlyPassengerTrend.map(function(item){return item.bus+item.metro});
+    var maxValue=Math.ceil(Math.max.apply(null,combined)*1.18);
+    var busPoints=points(snapshot.hourlyPassengerTrend.map(function(item){return item.bus}),width,height,maxValue);
+    var metroPoints=points(snapshot.hourlyPassengerTrend.map(function(item){return item.metro}),width,height,maxValue);
+    var grid = [0,1,2,3].map(function(step){
+      var y=14+(height-14-24)*(step/3);
+      var val=maxValue*(1-step/3);
+      return '<line class="grid-line" x1="38" x2="788" y1="'+y+'" y2="'+y+'"></line><text class="axis-label" x="3" y="'+(y+3)+'">'+fmt(val,0)+'</text>';
+    }).join("");
+    var bands = '<rect class="rush-band" x="'+busPoints[1].x+'" y="14" width="'+(busPoints[3].x-busPoints[1].x)+'" height="202"></rect><text class="rush-label" x="'+((busPoints[1].x+busPoints[3].x)/2)+'" y="25" text-anchor="middle">早高峰</text>'+
+      '<rect class="rush-band evening" x="'+busPoints[8].x+'" y="14" width="'+(busPoints[10].x-busPoints[8].x)+'" height="202"></rect><text class="rush-label evening-label" x="'+((busPoints[8].x+busPoints[10].x)/2)+'" y="25" text-anchor="middle">晚高峰</text>';
+    var labels=hourLabels.map(function(label,index){return '<text class="axis-label" x="'+busPoints[index].x+'" y="233" text-anchor="middle">'+label+'</text>'}).join("");
+    function dots(list, mode){
+      return list.map(function(point,index){
+        var item=snapshot.hourlyPassengerTrend[index];
+        var isDim=state.selectedMode && state.selectedMode!==mode;
+        return '<circle class="trend-dot '+mode+' '+(isDim?"dim ":"")+'" cx="'+point.x+'" cy="'+point.y+'" r="'+(index===2||index===9?4.2:3.2)+'" data-tip="'+tipText(item.time+" · "+mode+" "+fmt(item[mode],1)+"万人次/时")+'"></circle>';
+      }).join("");
+    }
+    document.getElementById("hourlyChart").innerHTML='<svg class="chart-svg" viewBox="0 0 800 240" preserveAspectRatio="none">'+grid+bands+'<path class="trend-line bus '+(state.selectedMode==="地铁"?"dim":"")+'" d="'+linePath(busPoints)+'"></path><path class="trend-line metro '+(state.selectedMode==="公交"?"dim":"")+'" d="'+linePath(metroPoints)+'"></path>'+dots(busPoints,"bus")+dots(metroPoints,"metro")+labels+'</svg>';
+  }
+  function renderMonthly(snapshot){
+    var width=800,height=190,trend=snapshot.monthlyTransactionTrend;
+    var maxAmount=Math.max.apply(null,trend.map(function(item){return item.amount}))*1.2;
+    var maxCount=Math.max.apply(null,trend.map(function(item){return item.count}))*1.2;
+    var amountPoints=points(trend.map(function(item){return item.amount}),width,height,maxAmount);
+    var countPoints=points(trend.map(function(item){return item.count}),width,height,maxCount);
+    var grid=[0,1,2,3].map(function(step){var y=14+(height-14-27)*(step/3);return '<line class="grid-line" x1="38" x2="788" y1="'+y+'" y2="'+y+'"></line>'}).join("");
+    var barWidth=34;
+    var bars=trend.map(function(item,index){
+      var x=amountPoints[index].x-barWidth/2;
+      var y=amountPoints[index].y;
+      var h=190-27-y;
+      var selected=state.month!=="all" && state.month===item.month;
+      return '<rect class="bar-amount '+(selected?"selected":"")+'" x="'+x+'" y="'+y+'" width="'+barWidth+'" height="'+Math.max(3,h)+'" rx="2" data-tip="'+tipText(item.month+"月 · 交易金额 "+fmt(item.amount)+"万元 · 交易笔数 "+fmt(item.count,1)+"万笔")+'"></rect>';
+    }).join("");
+    var line='<path class="amount-line" d="'+linePath(countPoints)+'"></path>';
+    var dots=countPoints.map(function(point,index){
+      var selected=state.month!=="all" && state.month===index+1;
+      return '<circle class="amount-dot" cx="'+point.x+'" cy="'+point.y+'" r="'+(selected?4.5:3)+'" data-tip="'+tipText((index+1)+"月 · 交易笔数 "+fmt(trend[index].count,1)+"万笔 · 金额 "+fmt(trend[index].amount)+"万元")+'"></circle>';
+    }).join("");
+    var labels=trend.map(function(item,index){var selected=state.month!=="all" && state.month===item.month;return '<text class="month-label '+(selected?"selected":"")+'" x="'+amountPoints[index].x+'" y="184">'+item.month+"月"+'</text>'}).join("");
+    document.getElementById("monthlyChart").innerHTML='<svg class="chart-svg month-svg" viewBox="0 0 800 190" preserveAspectRatio="none">'+grid+bars+line+dots+labels+'<line class="month-axis" x1="38" x2="788" y1="163" y2="163"></line><text class="axis-label" x="3" y="19">金额</text><text class="axis-label" x="786" y="19" text-anchor="end">笔数</text></svg>';
+  }
+  function renderMeal(snapshot){
+    var avgTicket=snapshot.kpi.mealServiceCount ? snapshot.kpi.mealAmount/snapshot.kpi.mealServiceCount : 0;
+    document.getElementById("mealMeta").textContent=periodText()+" · 示例服务点";
+    document.getElementById("mealKpis").innerHTML='<div class="meal-kpi"><div class="meal-kpi-label">服务人次</div><div class="meal-kpi-value">'+fmt(snapshot.kpi.mealServiceCount,1)+'<span class="meal-kpi-unit">万人次</span></div></div>'+
+      '<div class="meal-kpi"><div class="meal-kpi-label">服务交易金额</div><div class="meal-kpi-value">'+fmt(snapshot.kpi.mealAmount,1)+'<span class="meal-kpi-unit">万元</span></div></div>'+
+      '<div class="meal-kpi"><div class="meal-kpi-label">平均客单价</div><div class="meal-kpi-value">'+fmt(avgTicket,1)+'<span class="meal-kpi-unit">元</span></div></div>';
+    function mini(items, valueKey, maxValue){
+      return items.map(function(item){
+        var height=Math.max(4,item[valueKey]/maxValue*100);
+        return '<div class="mini-col" data-tip="'+tipText(item.label+" · "+fmt(item[valueKey],1)+"万人次")+'"><b>'+fmt(item[valueKey],1)+'</b><i style="height:'+height+'%"></i><span>'+item.label+'</span></div>';
+      }).join("");
+    }
+    document.getElementById("mealAgeChart").innerHTML=mini(snapshot.mealAgeGroups,"count",Math.max.apply(null,snapshot.mealAgeGroups.map(function(item){return item.count})));
+    document.getElementById("mealPeriodChart").innerHTML=mini(snapshot.mealPeriods,"count",Math.max.apply(null,snapshot.mealPeriods.map(function(item){return item.count})));
+  }
+  function renderRanking(snapshot){
+    var combined=snapshot.hotLines.map(function(item){return {id:item.id,name:item.name,type:item.type,district:item.district,primary:item.passengers,secondary:"客流 "+fmt(item.passengers,1)+"万人次",transactions:item.transactions,amount:item.amount}});
+    snapshot.mealServices.forEach(function(item){combined.push({id:item.id,name:item.name,type:"助老餐厅",district:item.district,primary:item.services,secondary:"服务 "+fmt(item.services,1)+"万人次",services:item.services,amount:item.amount,ticket:item.ticket})});
+    combined.sort(function(a,b){return b.primary-a.primary});
+    var visible=combined.slice(0,7);
+    document.getElementById("rankList").innerHTML=visible.map(function(item,index){
+      var selected=state.selectedEntity===item.id;
+      return '<button class="rank-row '+(selected?"selected":"")+'" data-entity="'+item.id+'" aria-label="查看 '+item.name+' 详情"><span class="rank-no">'+String(index+1).padStart(2,"0")+'</span><span class="rank-main"><span class="rank-name">'+item.name+'</span><span class="rank-sub">'+item.type+" · "+item.district+" · "+item.secondary+'</span></span><span class="rank-value">'+(item.type==="助老餐厅"?fmt(item.services,1):fmt(item.passengers,1))+'<br><small>'+(item.type==="助老餐厅"?"万人次":"万人次")+'</small></span></button>';
+    }).join("");
+    document.querySelectorAll("[data-entity]").forEach(function(row){
+      row.addEventListener("click",function(){state.selectedEntity=row.getAttribute("data-entity");renderRanking(snapshot);});
+    });
+    var selectedItem=combined.filter(function(item){return item.id===state.selectedEntity})[0];
+    var detail=document.getElementById("detailBox");
+    if(!selectedItem){detail.innerHTML="点击线路或助老餐厅，可查看对应运营指标。";return}
+    if(selectedItem.type==="助老餐厅"){
+      detail.innerHTML="<b>"+selectedItem.name+"</b> · "+selectedItem.district+"　服务人次 <b>"+fmt(selectedItem.services,1)+"万</b>　交易金额 <b>"+fmt(selectedItem.amount,1)+"万元</b>　客单价 <b>"+fmt(selectedItem.ticket,1)+"元</b>";
+    }else{
+      detail.innerHTML="<b>"+selectedItem.name+"</b> · "+selectedItem.district+"　客流 <b>"+fmt(selectedItem.passengers,1)+"万</b>　交易笔数 <b>"+fmt(selectedItem.transactions,1)+"万</b>　交易金额 <b>"+fmt(selectedItem.amount,1)+"万元</b>";
+    }
+  }
+  function bindTips(){
+    var tooltip=document.getElementById("tooltip");
+    document.querySelectorAll("[data-tip]").forEach(function(element){
+      element.addEventListener("pointerenter",function(event){tooltip.textContent=element.getAttribute("data-tip");tooltip.classList.add("visible");moveTip(event)});
+      element.addEventListener("pointermove",moveTip);
+      element.addEventListener("pointerleave",function(){tooltip.classList.remove("visible")});
+    });
+    function moveTip(event){
+      var gap=14,pad=12,width=tooltip.offsetWidth,height=tooltip.offsetHeight;
+      var left=Math.min(event.clientX+gap,window.innerWidth-width-pad);
+      var top=Math.min(event.clientY+gap,window.innerHeight-height-pad);
+      tooltip.style.left=Math.max(pad,left)+"px";
+      tooltip.style.top=Math.max(pad,top)+"px";
+    }
+  }
+  function renderAll(){
+    var snapshot=createSnapshot(state.year,state.month);
+    renderKpis(snapshot);renderAge(snapshot);renderModes(snapshot);renderHourly(snapshot);renderMonthly(snapshot);renderMeal(snapshot);renderRanking(snapshot);bindTips();
+  }
+  function syncControls(){
+    document.getElementById("yearFilter").value=String(state.year);
+    document.getElementById("monthFilter").value=String(state.month);
+  }
+  function updateClock(){
+    var now=new Date();
+    var hh=String(now.getHours()).padStart(2,"0"), mm=String(now.getMinutes()).padStart(2,"0"), ss=String(now.getSeconds()).padStart(2,"0");
+    document.getElementById("clockTime").textContent=hh+":"+mm+":"+ss;
+    document.getElementById("clockDate").textContent=now.getFullYear()+"年"+String(now.getMonth()+1).padStart(2,"0")+"月"+String(now.getDate()).padStart(2,"0")+"日 · 实时模拟";
+  }
+  function registerWebMcp(){
+    var api=window.webmcp||window.WebMCP;
+    if(!api)return;
+    var definition={
+      name:"set_dashboard_period",
+      description:"设置城市通集团演示驾驶舱的年度和月份筛选。",
+      inputSchema:{type:"object",properties:{year:{type:"integer",enum:[2024,2025,2026]},month:{anyOf:[{type:"null"},{type:"integer",minimum:1,maximum:12}]}},required:["year","month"]},
+      execute:function(input){
+        var y=Number(input && input.year), raw=input && input.month;
+        var m=raw===null ? "all" : Number(raw);
+        if([2024,2025,2026].indexOf(y)<0 || !(m==="all" || (Number.isInteger(m)&&m>=1&&m<=12)))throw new Error("非法年份或月份");
+        state.year=y;state.month=m;state.selectedMode=null;state.selectedEntity=null;syncControls();renderAll();
+        return {success:true,year:y,month:m==="all"?null:m};
+      }
+    };
+    try{if(typeof api.registerTool==="function")api.registerTool(definition);else if(typeof api.register==="function")api.register(definition)}catch(error){}
+  }
+  document.getElementById("yearFilter").addEventListener("change",function(){state.year=Number(this.value);state.selectedMode=null;state.selectedEntity=null;renderAll()});
+  document.getElementById("monthFilter").addEventListener("change",function(){state.month=this.value==="all"?"all":Number(this.value);state.selectedMode=null;state.selectedEntity=null;renderAll()});
+  renderAll();
+  updateClock();
+  setInterval(updateClock,1000);
+  registerWebMcp();
+})();
+</script>
+</body>
+</html>

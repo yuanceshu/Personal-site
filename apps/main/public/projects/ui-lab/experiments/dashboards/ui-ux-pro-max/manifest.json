@@ -1,0 +1,44 @@
+{
+  "id": "dashboards/ui-ux-pro-max",
+  "title": "UI UX Pro Max",
+  "model": "Luna",
+  "modelVersion": null,
+  "reasoningEffort": null,
+  "skillMode": "skill",
+  "skillName": "UI UX Pro Max",
+  "skillVersion": null,
+  "createdAt": null,
+  "frozenAt": "2026-09-15",
+  "sealedAt": "2026-09-16T01:26:47.515Z",
+  "comparisonLevel": "showcase",
+  "sourceType": "frozen-static-snapshot",
+  "sourceEvidence": "用户确认模型与版本归属；本机实际源码已核对。原始 Prompt 未公开。",
+  "entry": "index.html",
+  "promptSummary": "为城市通集团组织运营总览，呈现交通客流、消费与助老服务等演示指标，提供筛选与排行查看。",
+  "additionalConstraints": [],
+  "references": {
+    "value": "unknown",
+    "note": "未记录"
+  },
+  "imageGeneration": {
+    "value": "unknown",
+    "note": "未记录"
+  },
+  "archiveChanges": [
+    "复制必要文件，固定演示时间与随机序列",
+    "添加离线隔离、冻结标识和就绪通知",
+    "表单动作仅触发本地演示事件，不提交网络表单"
+  ],
+  "limitations": [
+    "页面含内部滚动区域；全页图不展开其折叠或滚动外内容，请进入体验查看。",
+    "历史页面的字号、对比度与交互缺陷保留，不作为实验室外壳质量标准。"
+  ],
+  "files": {
+    "index.html": "15f8b8b73cc2ec42177c75898d0b4639784c7d07e8daf6596fefc6cad9684af2"
+  },
+  "previews": {
+    "projects/ui-lab/previews/dashboards/ui-ux-pro-max/desktop.webp": "f1d7168928f6a784b815fa935304fe5ea6dd151477ebe79abb1448d8a324cf1f",
+    "projects/ui-lab/previews/dashboards/ui-ux-pro-max/mobile.webp": "95b337efd94238b8ae707f807cf6820dba9cdde5448b7de13c1e7449c94f14e3",
+    "projects/ui-lab/previews/dashboards/ui-ux-pro-max/thumbnail.webp": "34f7af1d13ca9684d25cdd0ade3b2464ea53ca061daaa6b9b879ef4af767d6b3"
+  }
+}

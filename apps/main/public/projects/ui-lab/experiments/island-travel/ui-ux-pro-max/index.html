@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><link rel="icon" href="data:,"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'"><script>/* Frozen demonstration boundary. Kept local to every immutable snapshot. */
+(() => {
+  const NativeDate = Date;
+  const epoch = NativeDate.parse('2026-09-15T02:00:00Z');
+  function FrozenDate(...args) {
+    if (!new.target) return new NativeDate(epoch).toString();
+    return Reflect.construct(NativeDate, args.length ? args : [epoch], new.target);
+  }
+  Object.setPrototypeOf(FrozenDate, NativeDate);
+  FrozenDate.prototype = NativeDate.prototype;
+  FrozenDate.now = () => epoch;
+  window.Date = FrozenDate;
+  let seed = 915;
+  Math.random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+  let failed = false;
+  window.addEventListener('error', () => { failed = true; }, true);
+  window.addEventListener('unhandledrejection', () => { failed = true; });
+  const base = new URL('.', location.href);
+  const notify = (type) => {
+    if (window.parent !== window) window.parent.postMessage({ type, path: location.pathname }, '*');
+  };
+  window.addEventListener('load', () => {
+    const label = document.createElement('div');
+    label.id = 'ui-lab-freeze-notice';
+    label.textContent = '冻结交互快照 · 全部为演示数据 · 不代表当前正式产品';
+    label.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;padding:5px 10px;background:#202020;color:#fff;font:11px/1.5 system-ui;text-align:center;pointer-events:none';
+    document.body.append(label);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const imagesOK = [...document.images].every(img => !img.src || (img.complete && img.naturalWidth > 0));
+      notify(failed || !imagesOK ? 'ui-lab:error' : 'ui-lab:ready');
+    }));
+  });
+  document.addEventListener('submit', event => event.preventDefault());
+  // Sandbox blocks native form submission before submit handlers can run.
+  // Dispatch only local events, retaining native constraint validation.
+  function submitDemo(form, submitter) {
+    if (!form.reportValidity()) return;
+    form.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true, submitter }));
+  }
+  document.addEventListener('click', event => {
+    const button = event.target.closest?.('button, input[type="submit"]');
+    if (button?.form && button.type === 'submit') {
+      event.preventDefault();
+      submitDemo(button.form, button);
+    }
+  }, true);
+  document.addEventListener('click', event => {
+    const link = event.target.closest?.('a[href]');
+    if (!link) return;
+    const dest = new URL(link.getAttribute('href'), location.href);
+    if (dest.origin !== base.origin || !dest.pathname.startsWith(base.pathname) || link.target || link.hasAttribute('download')) {
+      event.preventDefault();
+      const label = document.getElementById('ui-lab-freeze-notice');
+      if (label) label.textContent = '冻结快照仅保留版本内页面，请使用外层查看器返回。';
+    }
+  }, true);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') notify('ui-lab:exit');
+    if (event.key === 'Enter' && !event.isComposing && event.target.matches?.('input:not([type="checkbox"]):not([type="radio"])') && event.target.form) {
+      event.preventDefault();
+      submitDemo(event.target.form, null);
+    }
+  });
+})();
+</script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark">
+<meta name="description" content="岛见 · 山海之间，自有去处。UI UX Pro Max 全新独立静态设计稿，仅含本地预设交互。">
+<title>岛见 · 山海之间，自有去处</title>
+<link rel="icon" href="data:,"><link rel="stylesheet" href="style.css"><script defer src="app.js"></script>
+</head>
+<body>
+<a href="#main" class="skip">跳至主要内容</a>
+<header class="site-header">
+ <a class="wordmark" href="#top" aria-label="岛见首页"><svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="19"/><path d="m9 28 10-15 7 10 4-5 6 10M9 32h27"/></svg><span>岛见<small>ISLAND CONCIERGE</small></span></a>
+ <nav aria-label="主导航"><a href="#journeys">选择行程</a><a href="#philosophy">关于岛见</a></nav>
+ <span class="study-label"><i></i>独立静态体验</span>
+</header>
+<main id="main">
+ <section class="hero" id="top" aria-labelledby="hero-title">
+  <img class="hero-image" src="rainforest.webp" alt="晨雾中的热带山谷，深绿山林环抱一条宁静的河流。AI 生成的虚构景观。" width="1672" height="941" fetchpriority="high">
+  <div class="hero-shade"></div>
+  <div class="hero-center"><p class="overline">海南 · 不止一种抵达</p><h1 id="hero-title">山海之间，<br>自有去处。</h1><p class="hero-english">Beyond the everyday.</p><p class="hero-description">不必把每一刻排满。<br>告诉岛见下一站，给沿途留一点时间。</p><a class="explore" href="#search"><span>开启一段旅程</span><span aria-hidden="true">↓</span></a></div>
+  <span class="hero-side">AN INVITATION TO SLOW DOWN</span>
+  <div class="hero-caption"><span>山林之间 / 一次关于出发的想象</span><span>AI 生成景观 · 非实地摄影</span></div>
+ </section>
+ <section class="search-shell container" id="search" aria-labelledby="search-title">
+  <div class="search-top"><h2 id="search-title">这一程，想去哪里？</h2><span>从海口出发，探索海南</span></div>
+  <form class="search-form" id="trip-search">
+   <div class="origin-field"><span class="field-label">出发地</span><div>海口 <span class="field-arrow" aria-hidden="true">↗</span></div></div>
+   <div class="field"><label for="destination">目的地</label><select id="destination" name="destination"><option value="三亚">三亚 · 向海而行</option><option value="琼海">琼海 · 小城慢游</option><option value="文昌">文昌 · 巷陌之间</option></select></div>
+   <div class="field"><label for="period">出发时间</label><select id="period" name="period"><option value="上午">明天 · 上午</option><option value="下午">明天 · 下午</option></select></div>
+   <div class="field guests"><label for="guests">同行人数</label><select id="guests" name="guests"><option value="1">1 位成人</option><option value="2" selected>2 位成人</option><option value="3">3 位成人</option><option value="4">4 位成人</option></select></div>
+   <button class="button gold" type="submit">查找我的行程 <span aria-hidden="true">↗</span></button>
+  </form>
+  <p class="search-note">本地预设体验 · 不调用真实 AI · 不产生订单或支付</p>
+ </section>
+ <section class="journeys container" id="journeys" aria-labelledby="journeys-title">
+  <div class="section-heading"><div><p class="overline">A JOURNEY, AT YOUR PACE</p><h2 id="journeys-title" tabindex="-1">选择一个，<span>刚好的出发。</span></h2></div><p>少一点匆忙，多一点余地。<br>三个时刻，总有一个适合你。</p></div>
+  <div class="journey-layout">
+   <section class="departures" aria-labelledby="departure-title">
+    <div class="route-title"><div><span class="route-small">DEPARTURES</span><h3 id="departure-title">海口 <span aria-hidden="true">⟶</span> <span id="heading-city">三亚</span></h3></div><div class="route-context"><span id="heading-period">明天上午</span><span id="heading-guests">2 位成人 · 单程</span></div></div>
+    <fieldset class="departure-options"><legend class="sr-only">选择出发班次</legend><div id="departure-list"></div></fieldset>
+    <div class="table-note"><span>以上均为虚构班次与票价</span><span>已包含全部模拟费用</span></div>
+    <p class="status" id="result-status" role="status" aria-atomic="true"></p>
+    <div class="concierge-note"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 30h24M11 27V13h18v14M8 13h24M16 13V8h8v5M17 18h6m-6 5h6"/></svg><div><h4>这段路，让自己从容一点。</h4><p>选一个不必赶早的时间，带一本没读完的书。<br>旅行也可以，从上车的那一刻开始。</p></div></div>
+   </section>
+   <aside class="summary" aria-labelledby="summary-title"><div class="summary-top"><h3 id="summary-title">你的下一程</h3><span>YOUR ITINERARY</span></div><p class="summary-date" id="summary-date">明天 · 上午出发</p><div class="station-line"><div><span class="station-dot"></span><strong>海口</strong><small id="from-time">08:30 · 出行站</small></div><div><span class="station-dot end"></span><strong id="summary-city">三亚</strong><small id="to-time">12:00 · 出行站</small></div></div><dl class="summary-details"><div><dt>路上时间</dt><dd id="duration">约 3 小时 30 分</dd></div><div><dt>同行人数</dt><dd id="summary-guests">2 位成人</dd></div><div><dt>单人票价</dt><dd id="unit-price">¥108</dd></div></dl><div class="total-row" role="status" aria-atomic="true"><span>模拟合计</span><strong id="total"><small>¥</small>216<em>.00</em></strong></div><button id="confirm-trip" class="button gold full">确认这段旅程 <span aria-hidden="true">↗</span></button><p class="summary-disclaimer">只体验流程，不收取任何费用。</p></aside>
+  </div>
+ </section>
+ <section class="philosophy container" id="philosophy"><div><p class="overline">THE ART OF GOING SLOW</p><h2>目的地之外，<br>还有<span>旅途本身。</span></h2></div><div class="philosophy-copy"><p>我们喜欢的旅行，不是把地图上的地点逐一打卡，而是经过一片山林时，愿意把目光留在窗外。</p><p>岛见是一个关于海南出行的产品想象。从选择班次到确认行程，让每一步都清楚，也让出发少一点负担。</p><a href="#search" class="text-link">回到出发的地方 <span aria-hidden="true">↗</span></a></div></section>
+</main>
+<footer class="container footer"><a class="footer-brand" href="#top">岛见 <span>ISLAND CONCIERGE</span></a><span>慢一点，世界会更近一点。</span><small>UI UX PRO MAX · STUDY 03<br>虚构品牌 / 独立静态稿</small></footer>
+<dialog id="confirmation" aria-labelledby="confirm-title"><button type="button" class="close-dialog" id="close-dialog" aria-label="关闭行程确认">×</button><p class="overline">YOUR JOURNEY AWAITS</p><h2 id="confirm-title">为下一程，<br>留一个位置。</h2><p id="confirm-subtitle">请确认以下模拟行程。</p><div class="confirm-route"><strong id="confirm-route">海口 ⟶ 三亚</strong><p id="confirm-time"></p><div><span id="confirm-guests"></span><b id="confirm-price"></b></div></div><button class="button gold full" id="complete-demo">完成静态体验 <span aria-hidden="true">↗</span></button><p class="dialog-note" id="dialog-note" role="status">本操作不创建订单，也不产生真实支付。</p></dialog>
+</body></html>

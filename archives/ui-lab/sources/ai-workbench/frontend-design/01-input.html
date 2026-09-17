@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI Solution Lab 静态对照稿：描述问题">
+  <title>01 描述问题｜AI Solution Lab</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <header class="site-header">
+    <a class="brand" href="index.html"><span class="brand-mark">策</span><span>AI Solution Lab</span></a>
+    <span class="edition">STRATEGY DESK · 01 / 03</span>
+    <nav class="header-nav" aria-label="页面导航"><a href="index.html">总览</a><a href="02-confirm.html">下一页 ↗</a></nav>
+  </header>
+
+  <main id="main" class="page-shell">
+    <nav class="process-rail" aria-label="设计进度">
+      <span class="process-step is-current" aria-current="step"><b>01</b>描述问题</span>
+      <span class="process-step"><b>02</b>确认理解</span>
+      <span class="process-step"><b>03</b>方案与原型</span>
+    </nav>
+
+    <section class="input-hero reveal" aria-labelledby="input-title">
+      <div>
+        <p class="eyebrow">Interview note / Start here</p>
+        <h1 id="input-title" class="display display--medium">先说麻烦，<br>再谈<em>方案</em>。</h1>
+        <p class="lede">不用写正式需求。告诉我们谁遇到了什么问题、现在怎样处理，以及你希望发生什么变化。</p>
+      </div>
+      <aside class="margin-brief">
+        <b>写作提示 No. 01</b>
+        <p>具体的人、具体的动作和已经存在的限制，比“做一个智能平台”更有帮助。</p>
+      </aside>
+    </section>
+
+    <div class="input-workspace reveal">
+      <section class="composer sheet" aria-labelledby="composer-title">
+        <div class="sheet-label"><span>需求访谈记录</span><span>Draft / 尚未提交</span></div>
+        <form class="composer-body" onsubmit="event.preventDefault(); location.href='02-confirm.html'">
+          <label id="composer-title" for="problem-input">你想改善哪一件事？</label>
+          <textarea id="problem-input" data-main-input maxlength="3000" placeholder="谁遇到了什么麻烦？现在怎么处理？你希望有什么变化？&#10;&#10;例如：同事总要在几个表格间整理经营数据，我想让大家更快看到变化……"></textarea>
+          <div class="composer-footer">
+            <div class="composer-meta"><span data-count-for="#problem-input">0/3000</span> · 不填写真实姓名、账号或敏感业务数据</div>
+            <button class="button" type="submit">整理这份描述 <span aria-hidden="true">↗</span></button>
+          </div>
+        </form>
+      </section>
+
+      <aside aria-labelledby="examples-title">
+        <div class="sheet-label"><span id="examples-title">场景档案</span><span>选择一份试试看</span></div>
+        <div class="scenario-stack" data-exclusive>
+          <button class="scenario-card" type="button" aria-pressed="false" data-example="analytics">
+            <span class="num">01</span><span><strong>经营分析</strong><small>从分散的指标，到有依据的判断</small></span><span class="tick">↗</span>
+          </button>
+          <button class="scenario-card" type="button" aria-pressed="false" data-example="retail">
+            <span class="num">02</span><span><strong>消费者导购</strong><small>让一个购物想法，找到合适的去处</small></span><span class="tick">↗</span>
+          </button>
+          <button class="scenario-card" type="button" aria-pressed="false" data-example="marketing">
+            <span class="num">03</span><span><strong>营销策划</strong><small>把目标和材料，整理成活动草稿</small></span><span class="tick">↗</span>
+          </button>
+        </div>
+        <div class="state-switches" aria-label="静态状态演示">
+          <button type="button" data-state-demo="loading">模拟处理中</button>
+          <button type="button" data-state-demo="complete">模拟完成</button>
+          <button type="button" data-state-demo="error">模拟错误</button>
+        </div>
+        <div class="feedback-strip" data-feedback data-state="loading" role="status" aria-live="polite">
+          <span data-feedback-icon class="spinner" aria-hidden="true"></span>
+          <span><strong data-feedback-title>正在梳理需求</strong><br><span data-feedback-copy>理解目标 → 标记缺口</span></span>
+          <button class="text-action" type="button" onclick="this.closest('[data-feedback]').classList.remove('is-visible')">关闭</button>
+        </div>
+      </aside>
+    </div>
+
+    <footer class="site-footer"><span>静态视觉实验 · 页面 01</span><span>选择示例只会填入演示文字，不调用模型</span></footer>
+  </main>
+</body>
+</html>

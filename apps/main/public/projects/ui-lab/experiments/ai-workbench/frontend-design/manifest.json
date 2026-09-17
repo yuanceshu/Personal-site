@@ -1,0 +1,50 @@
+{
+  "id": "ai-workbench/frontend-design",
+  "title": "Frontend Design",
+  "model": "Sol",
+  "modelVersion": null,
+  "reasoningEffort": null,
+  "skillMode": "skill",
+  "skillName": "Frontend Design",
+  "skillVersion": null,
+  "createdAt": null,
+  "frozenAt": "2026-09-15",
+  "sealedAt": "2026-09-16T01:26:47.520Z",
+  "comparisonLevel": "showcase",
+  "sourceType": "frozen-static-snapshot",
+  "sourceEvidence": "用户确认模型与版本归属；本机实际源码已核对。原始 Prompt 未公开。",
+  "entry": "01-input.html",
+  "promptSummary": "从业务需求出发，呈现理解、能力判断与可操作原型；各版覆盖的流程阶段不同。",
+  "additionalConstraints": [],
+  "references": {
+    "value": "unknown",
+    "note": "未记录"
+  },
+  "imageGeneration": {
+    "value": "unknown",
+    "note": "未记录"
+  },
+  "archiveChanges": [
+    "复制必要文件，固定演示时间与随机序列",
+    "添加离线隔离、冻结标识和就绪通知",
+    "表单动作仅触发本地演示事件，不提交网络表单"
+  ],
+  "limitations": [
+    "历史页面的字号、对比度与交互缺陷保留，不作为实验室外壳质量标准。"
+  ],
+  "files": {
+    "01-input.html": "ffae0394952900a17ecbbefe6df8cf7872cc651151584a42e26b839b7b041f75",
+    "02-confirm.html": "11a6d400382a35507bec35c8ec25ae5e90cfd24252d89130650274b730b4be07",
+    "03-result-analytics.html": "73dc800cb612707d048d1fc007f7e7872abad972f2765d607e7e0ba803ce2e13",
+    "04-result-retail.html": "dc184e99e2500bfbfa734759255580e0a3eb5d4d84f0fca23a04b6ae075a7ac6",
+    "05-result-marketing.html": "8d29fed968da2a31d4415764c0fe453d776b744600c6b910b298776da70838ea",
+    "assets/app.js": "86d21049e9373aed713db20f2b806b8936b2d8065c075e024ff44b5da520eeff",
+    "assets/styles.css": "d6c356666ce0699db65a3229ad63b41a33fbea64e93ee6cc9aac438fc5831497",
+    "index.html": "3635e86d141a2ae8c9bc75f2335e2c90a2fe0cb0cf66dc0e5534d16db8172772"
+  },
+  "previews": {
+    "projects/ui-lab/previews/ai-workbench/frontend-design/desktop.webp": "9081dd00571c246ad1ad175d160d2ca7808a3049ac790a053037de806495a9b6",
+    "projects/ui-lab/previews/ai-workbench/frontend-design/mobile.webp": "16c0773a20ce450befacae31c7c3a4a6d41e5a7394715939edd917c283d9f296",
+    "projects/ui-lab/previews/ai-workbench/frontend-design/thumbnail.webp": "121f0e835cd2a191184e3ba61d70cc5966de9394697af27df180fcc2a4ef4913"
+  }
+}

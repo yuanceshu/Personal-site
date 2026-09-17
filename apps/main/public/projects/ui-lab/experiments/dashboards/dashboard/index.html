@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><link rel="icon" href="data:,"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'"><script>/* Frozen demonstration boundary. Kept local to every immutable snapshot. */
+(() => {
+  const NativeDate = Date;
+  const epoch = NativeDate.parse('2026-09-15T02:00:00Z');
+  function FrozenDate(...args) {
+    if (!new.target) return new NativeDate(epoch).toString();
+    return Reflect.construct(NativeDate, args.length ? args : [epoch], new.target);
+  }
+  Object.setPrototypeOf(FrozenDate, NativeDate);
+  FrozenDate.prototype = NativeDate.prototype;
+  FrozenDate.now = () => epoch;
+  window.Date = FrozenDate;
+  let seed = 915;
+  Math.random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+  let failed = false;
+  window.addEventListener('error', () => { failed = true; }, true);
+  window.addEventListener('unhandledrejection', () => { failed = true; });
+  const base = new URL('.', location.href);
+  const notify = (type) => {
+    if (window.parent !== window) window.parent.postMessage({ type, path: location.pathname }, '*');
+  };
+  window.addEventListener('load', () => {
+    const label = document.createElement('div');
+    label.id = 'ui-lab-freeze-notice';
+    label.textContent = '冻结交互快照 · 全部为演示数据 · 不代表当前正式产品';
+    label.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;padding:5px 10px;background:#202020;color:#fff;font:11px/1.5 system-ui;text-align:center;pointer-events:none';
+    document.body.append(label);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const imagesOK = [...document.images].every(img => !img.src || (img.complete && img.naturalWidth > 0));
+      notify(failed || !imagesOK ? 'ui-lab:error' : 'ui-lab:ready');
+    }));
+  });
+  document.addEventListener('submit', event => event.preventDefault());
+  // Sandbox blocks native form submission before submit handlers can run.
+  // Dispatch only local events, retaining native constraint validation.
+  function submitDemo(form, submitter) {
+    if (!form.reportValidity()) return;
+    form.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true, submitter }));
+  }
+  document.addEventListener('click', event => {
+    const button = event.target.closest?.('button, input[type="submit"]');
+    if (button?.form && button.type === 'submit') {
+      event.preventDefault();
+      submitDemo(button.form, button);
+    }
+  }, true);
+  document.addEventListener('click', event => {
+    const link = event.target.closest?.('a[href]');
+    if (!link) return;
+    const dest = new URL(link.getAttribute('href'), location.href);
+    if (dest.origin !== base.origin || !dest.pathname.startsWith(base.pathname) || link.target || link.hasAttribute('download')) {
+      event.preventDefault();
+      const label = document.getElementById('ui-lab-freeze-notice');
+      if (label) label.textContent = '冻结快照仅保留版本内页面，请使用外层查看器返回。';
+    }
+  }, true);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') notify('ui-lab:exit');
+    if (event.key === 'Enter' && !event.isComposing && event.target.matches?.('input:not([type="checkbox"]):not([type="radio"])') && event.target.form) {
+      event.preventDefault();
+      submitDemo(event.target.form, null);
+    }
+  });
+})();
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>城市通集团数据驾驶舱 · 运营分析后台</title>
+<style>
+:root{
+  --bg:#111a21;
+  --sidebar:#0b1319;
+  --surface:#19242c;
+  --surface-raised:#202e37;
+  --surface-soft:#152129;
+  --line:rgba(191,214,222,.13);
+  --line-strong:rgba(104,222,208,.42);
+  --text:#eef4f3;
+  --muted:#8ea4aa;
+  --dim:#60757c;
+  --accent:#68ded0;
+  --bus:#68ded0;
+  --metro:#a5a8ff;
+  --gold:#e8be72;
+  --success:#9ed47b;
+  --danger:#f38e83;
+  --radius:8px;
+  --shadow:0 12px 28px rgba(0,0,0,.2);
+  --ease:cubic-bezier(.22,.8,.24,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text);font-family:"Avenir Next","PingFang SC","Microsoft YaHei",sans-serif}
+body{overflow:hidden}
+button,input,select{font:inherit}
+button{color:inherit}
+.shell{height:100vh;display:grid;grid-template-columns:236px minmax(0,1fr)}
+.sidebar{height:100vh;position:relative;display:flex;flex-direction:column;padding:22px 15px 16px;background:var(--sidebar);border-right:1px solid var(--line)}
+.side-brand{display:flex;align-items:center;gap:10px;padding:0 8px 23px;border-bottom:1px solid var(--line)}
+.side-mark{width:35px;height:35px;display:grid;place-items:center;border-radius:9px;background:var(--accent);color:#102027;font-size:18px;font-weight:800}
+.side-brand strong{font-size:15px;letter-spacing:.7px}.side-brand small{display:block;margin-top:3px;color:var(--dim);font-size:9px;letter-spacing:1.2px}
+.nav-label{margin:24px 10px 8px;color:var(--dim);font-size:9px;letter-spacing:1.6px}
+.nav{display:flex;flex-direction:column;gap:4px}.nav-link{display:flex;align-items:center;gap:10px;height:39px;padding:0 11px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--muted);text-decoration:none;font-size:11px;cursor:pointer;transition:background-color 180ms ease,color 180ms ease,border-color 180ms ease,transform 160ms var(--ease)}.nav-link.active{background:rgba(104,222,208,.11);border-color:rgba(104,222,208,.25);color:var(--accent)}.nav-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.nav-link:active{transform:scale(.98)}.nav-symbol{width:19px;height:19px;display:grid;place-items:center;border:1px solid currentColor;border-radius:5px;font-size:8px;opacity:.8}
+.side-footer{margin-top:auto;padding:13px 10px;border-top:1px solid var(--line);color:var(--dim);font-size:9px;line-height:1.6}.side-footer b{display:block;color:var(--gold);font-weight:500}
+.workspace{min-width:0;display:grid;grid-template-rows:74px minmax(0,1fr)}
+.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 27px;background:rgba(17,26,33,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top-title{font-size:18px;font-weight:750;letter-spacing:.5px}.top-title small{display:block;margin-top:5px;color:var(--muted);font-size:9px;font-weight:400;letter-spacing:0}
+.top-actions{display:flex;align-items:center;gap:10px}.search{width:180px;height:32px;display:flex;align-items:center;gap:7px;padding:0 10px;background:var(--surface-soft);border:1px solid var(--line);border-radius:6px;color:var(--muted)}.search span{font-size:14px;opacity:.7}.search input{width:100%;border:0;outline:0;background:transparent;color:var(--text);font-size:10px}.search input::placeholder{color:var(--dim)}
+.period{display:flex;align-items:center;gap:6px;padding:4px 7px;background:var(--surface-soft);border:1px solid var(--line);border-radius:6px}.period label{color:var(--muted);font-size:9px}.period select{min-width:60px;border:0;outline:0;color:var(--text);background:transparent;font-size:10px}.period select:focus{outline:1px solid var(--accent);border-radius:3px}
+.live{display:flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid rgba(158,212,123,.2);border-radius:5px;color:var(--success);font-size:9px;white-space:nowrap}.live i{width:6px;height:6px;border-radius:50%;background:var(--success)}
+.content{min-height:0;overflow:auto;padding:20px 27px 16px;background:radial-gradient(circle at 58% -10%,rgba(55,117,117,.12),transparent 32%),var(--bg)}
+.content-inner{min-height:100%;display:grid;grid-template-rows:88px minmax(286px,1fr) minmax(228px,.82fr);gap:14px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}.kpi{position:relative;display:flex;flex-direction:column;justify-content:center;padding:12px 15px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.kpi:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}.kpi:nth-child(2):before{background:var(--bus)}.kpi:nth-child(3):before{background:var(--metro)}.kpi:nth-child(4):before{background:var(--gold)}.kpi-label{color:var(--muted);font-size:10px}.kpi-value{margin-top:7px;font-size:25px;line-height:1;font-weight:800;font-variant-numeric:tabular-nums}.kpi-unit{margin-left:4px;color:var(--muted);font-size:9px;font-weight:400}.kpi-note{display:flex;align-items:center;gap:5px;margin-top:7px;color:var(--dim);font-size:8px}.delta{color:var(--success)}.delta.down{color:var(--danger)}
+.analysis-grid{min-height:0;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(292px,.8fr);gap:14px}.panel{min-height:0;overflow:hidden;padding:14px 15px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}.panel-title{font-size:12px;font-weight:700}.panel-title small{display:block;margin-top:4px;color:var(--muted);font-size:9px;font-weight:400}.panel-meta{color:var(--muted);font-size:9px;white-space:nowrap}.chart-panel{display:flex;flex-direction:column}.chart-wrap{position:relative;min-height:0;flex:1}.chart-svg{display:block;width:100%;height:100%;overflow:visible}.grid-line{stroke:rgba(185,211,218,.12);stroke-width:1}.axis-label{fill:#6f858b;font-size:9px}.rush-band{fill:rgba(104,222,208,.08);stroke:rgba(104,222,208,.14);stroke-width:1}.rush-band.evening{fill:rgba(165,168,255,.08);stroke:rgba(165,168,255,.14)}.rush-label{fill:var(--bus);font-size:9px}.rush-label.evening-label{fill:var(--metro)}.trend-line{fill:none;stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round;transition:opacity 180ms ease}.trend-line.bus{stroke:var(--bus)}.trend-line.metro{stroke:var(--metro)}.trend-line.dim{opacity:.17}.trend-dot{stroke:var(--surface);stroke-width:2;cursor:pointer}.trend-dot.bus{fill:var(--bus)}.trend-dot.metro{fill:var(--metro)}.trend-dot.dim{opacity:.17}.chart-note{height:17px;display:flex;align-items:end;justify-content:space-between;color:var(--dim);font-size:8px}.legend{display:flex;gap:12px;color:var(--muted);font-size:9px}.legend span{display:flex;align-items:center;gap:5px}.legend i{width:7px;height:7px;border-radius:50%}.legend .bus{background:var(--bus)}.legend .metro{background:var(--metro)}
+.snapshot{display:flex;flex-direction:column}.snapshot-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:0}.snapshot-block{min-width:0}.block-label{display:flex;justify-content:space-between;margin:2px 0 8px;color:var(--muted);font-size:9px}.age-list{display:flex;flex-direction:column;gap:7px}.age-row{display:grid;grid-template-columns:55px 1fr 36px;gap:7px;align-items:center;color:var(--soft);font-size:8px}.age-track{height:5px;border-radius:1px;background:#25373e;overflow:hidden}.age-fill{height:100%;display:block;background:var(--accent);border-radius:1px}.age-num{text-align:right;color:var(--text);font-size:8px}.mode-breakdown{display:flex;flex-direction:column;gap:8px}.mode-row{padding:8px;border:1px solid var(--line);border-radius:5px;background:var(--surface-soft);cursor:pointer;text-align:left;transition:border-color 180ms ease,background-color 180ms ease,transform 160ms var(--ease)}.mode-row.selected{border-color:var(--accent);background:rgba(104,222,208,.1)}.mode-row.metro.selected{border-color:var(--metro);background:rgba(165,168,255,.09)}.mode-row:active{transform:scale(.985)}.mode-top{display:flex;justify-content:space-between;font-size:10px;font-weight:700}.mode-top b{font-size:9px;color:var(--accent)}.metro .mode-top b{color:var(--metro)}.mode-bottom{display:flex;justify-content:space-between;margin-top:5px;color:var(--muted);font-size:8px}.mode-bottom strong{color:var(--text);font-size:9px}
+.bottom-grid{min-height:0;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px}.monthly-panel{display:flex;flex-direction:column}.bar-amount{fill:rgba(232,190,114,.58);cursor:pointer;transition:fill 180ms ease,filter 180ms ease}.bar-amount.selected{fill:var(--gold);filter:drop-shadow(0 0 4px rgba(232,190,114,.4))}.amount-line{fill:none;stroke:var(--success);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.amount-dot{fill:var(--success);stroke:var(--surface);stroke-width:2;cursor:pointer}.month-label{fill:#6f858b;font-size:9px;text-anchor:middle}.month-label.selected{fill:var(--gold);font-weight:700}.month-axis{stroke:var(--line);stroke-width:1}
+.ranking-panel{display:flex;flex-direction:column}.rank-content{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 1.1fr;gap:11px;flex:1}.rank-list{display:flex;flex-direction:column;gap:4px;min-height:0;overflow:auto}.rank-row{width:100%;display:grid;grid-template-columns:21px 1fr auto;gap:7px;align-items:center;padding:5px 6px;border:1px solid transparent;border-radius:5px;background:var(--surface-soft);cursor:pointer;text-align:left;transition:transform 160ms var(--ease),border-color 180ms ease,background-color 180ms ease}.rank-row.selected{border-color:var(--accent);background:rgba(104,222,208,.1)}.rank-no{width:17px;height:17px;display:grid;place-items:center;background:#2b3b43;color:var(--muted);font-size:8px}.rank-row:nth-child(-n+3) .rank-no{color:var(--gold);background:rgba(232,190,114,.13)}.rank-name{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}.rank-sub{display:block;margin-top:2px;color:var(--muted);font-size:8px}.rank-value{text-align:right;color:var(--accent);font-size:9px;white-space:nowrap}.rank-value small{color:var(--muted);font-size:8px}.detail{min-height:0;padding:10px;border-left:2px solid var(--gold);border-radius:4px;background:rgba(232,190,114,.06);color:var(--muted);font-size:9px;line-height:1.65}.detail b{color:var(--text)}.events{margin-top:9px;padding-top:8px;border-top:1px solid var(--line)}.events-title{margin-bottom:5px;color:var(--muted);font-size:8px}.event{display:grid;grid-template-columns:36px 1fr auto;gap:7px;padding:4px 0;border-bottom:1px solid rgba(191,214,222,.07);color:var(--soft);font-size:8px}.event time{color:var(--dim)}.event b{color:var(--text);font-weight:500}.event span:last-child{color:var(--gold)}
+#tooltip{position:fixed;z-index:20;max-width:230px;padding:7px 9px;background:rgba(10,19,25,.96);border:1px solid rgba(104,222,208,.5);border-radius:5px;box-shadow:0 10px 25px rgba(0,0,0,.25);color:var(--text);font-size:9px;line-height:1.5;pointer-events:none;opacity:0;visibility:hidden;transform:translateY(4px);transition:opacity 150ms ease,transform 150ms ease,visibility 0s linear 150ms}#tooltip.visible{opacity:1;visibility:visible;transform:translateY(0);transition:opacity 150ms ease,transform 150ms ease}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (hover:hover) and (pointer:fine){.nav-link:hover,.mode-row:hover,.rank-row:hover{border-color:var(--line-strong);transform:translateX(2px)}.bar-amount:hover{fill:var(--gold)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;scroll-behavior:auto!important}}
+@media(max-width:1120px){.shell{grid-template-columns:210px minmax(0,1fr)}.topbar{padding:0 17px}.content{padding:14px 17px}.search{width:140px}.kpi-value{font-size:21px}}
+@media(max-width:930px){body{overflow:auto}.shell{height:auto;min-height:100vh;display:block}.sidebar{height:auto;min-height:0;padding:13px 15px;display:block}.side-brand{padding-bottom:11px;border-bottom:0}.nav-label,.side-footer{display:none}.nav{display:flex;flex-direction:row;overflow:auto;margin-top:11px}.nav-link{min-width:max-content;height:34px}.workspace{min-height:980px;display:block}.topbar{position:relative;height:auto;min-height:70px;flex-wrap:wrap;padding:11px 15px}.top-actions{margin-left:auto}.content{overflow:visible}.content-inner{grid-template-rows:auto auto auto}.kpis{grid-template-columns:repeat(2,1fr)}.analysis-grid,.bottom-grid{grid-template-columns:1fr;min-height:430px}.ranking-panel{min-height:300px}.monthly-panel{min-height:260px}}
+@media(max-width:620px){.topbar{display:block}.top-actions{margin-top:12px;flex-wrap:wrap}.search{flex:1}.period{flex:1}.content{padding:11px}.kpis{grid-template-columns:1fr}.snapshot-grid{grid-template-columns:1fr}.rank-content{grid-template-columns:1fr}.detail{margin-top:8px}.workspace{min-height:1300px}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" data-od-id="sidebar-navigation">
+    <div class="side-brand"><div class="side-mark" aria-hidden="true">城</div><div><strong>城市通集团</strong><small>OPERATIONS CENTER</small></div></div>
+    <div class="nav-label">运营视图</div>
+    <nav class="nav" aria-label="主导航">
+      <a class="nav-link active" href="#overview" data-nav><span class="nav-symbol">01</span>综合总览</a>
+      <a class="nav-link" href="#bus" data-nav><span class="nav-symbol">02</span>公交运营</a>
+      <a class="nav-link" href="#metro" data-nav><span class="nav-symbol">03</span>地铁运营</a>
+      <a class="nav-link" href="#meal" data-nav><span class="nav-symbol">04</span>助老餐厅</a>
+      <a class="nav-link" href="#lines" data-nav><span class="nav-symbol">05</span>线路分析</a>
+      <a class="nav-link" href="#transactions" data-nav><span class="nav-symbol">06</span>交易明细</a>
+      <a class="nav-link" href="#settings" data-nav><span class="nav-symbol">07</span>系统设置</a>
+    </nav>
+    <div class="side-footer"><b>演示环境 · 数据在线模拟</b>不含个人姓名、身份证号及卡号<br>适合方案汇报与交互演示</div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar" data-od-id="topbar">
+      <div class="top-title">综合服务驾驶舱<small>城市出行与民生服务运营分析 · <span id="periodLabel">2026年全年</span></small></div>
+      <div class="top-actions">
+        <label class="search" aria-label="搜索线路或服务点"><span>⌕</span><input id="searchBox" type="search" placeholder="搜索线路 / 服务点"></label>
+        <div class="period" data-od-id="period-filter"><label for="yearFilter">年度</label><select id="yearFilter" aria-label="选择年度"><option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option></select><label for="monthFilter">月份</label><select id="monthFilter" aria-label="选择月份"><option value="all" selected>全年</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select></div>
+        <div class="live"><i></i>运营中 · <span id="topClock">09:49:00</span></div>
+      </div>
+    </header>
+    <main class="content" data-od-id="main-analytics">
+      <div class="content-inner">
+        <section class="kpis" id="kpis" aria-label="核心指标" data-od-id="kpi-cards"></section>
+        <section class="analysis-grid">
+          <section class="panel chart-panel" data-od-id="primary-peak-chart"><div class="panel-head"><div class="panel-title">全天客流峰值趋势<small>公交 / 地铁 · 万人次 / 小时 · 早晚高峰窗口已标注</small></div><div class="legend"><span><i class="bus"></i>公交</span><span><i class="metro"></i>地铁</span></div></div><div class="chart-wrap" id="hourlyChart"></div><div class="chart-note"><span>统计口径：平均日客流</span><span>数据为方案演示模拟值</span></div></section>
+          <section class="panel snapshot" data-od-id="snapshot-structure"><div class="panel-head"><div class="panel-title">客流结构<small id="snapshotMeta">2026年全年</small></div><span class="panel-meta">点击公交 / 地铁联动</span></div><div class="snapshot-grid"><div class="snapshot-block"><div class="block-label"><span>乘车人年龄</span><span>万人次</span></div><div class="age-list" id="ageList"></div></div><div class="snapshot-block"><div class="block-label"><span>交通方式</span><span>占比 / 交易</span></div><div class="mode-breakdown" id="modeBody"></div></div></div></section>
+        </section>
+        <section class="bottom-grid">
+          <section class="panel monthly-panel" data-od-id="monthly-transaction-chart"><div class="panel-head"><div class="panel-title">月度交易走势<small>金额柱形 · 笔数折线</small></div><span class="panel-meta" id="monthlyMeta">金额：万元 · 笔数：万笔</span></div><div class="chart-wrap" id="monthlyChart"></div></section>
+          <section class="panel ranking-panel" data-od-id="ranking-and-events"><div class="panel-head"><div class="panel-title">热门线路 / 服务点<small>按客流或服务人次排序</small></div><span class="panel-meta">点击行查看详情</span></div><div class="rank-content"><div class="rank-list" id="rankList"></div><div><div class="detail" id="detailBox">选择一条线路或助老餐厅，查看区县、客流、交易及服务指标。</div><div class="events"><div class="events-title">最近运营动态</div><div id="eventList"></div></div></div></div></section>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+<div id="tooltip" role="status" aria-live="polite"></div>
+<script>
+(function(){
+  "use strict";
+  var state={year:2026,month:"all",selectedMode:null,selectedEntity:null,query:""};
+  var monthSeason=[.84,.78,.93,.96,1.02,1.06,1.10,1.08,1.04,1,.96,.91],yearFactor={2024:.86,2025:.94,2026:1};
+  var hourLabels=["06:00","07:00","08:00","09:00","10:00","12:00","14:00","16:00","17:00","18:00","19:00","21:00"],busHours=[5.2,10.8,15.6,11.2,8.8,9.5,8.3,9.9,12.8,15.1,10.6,6.1],metroHours=[3.3,8.9,18.4,13.3,8.1,8.7,7.6,9.8,16.8,19.3,12.6,4.7];
+  var ageDefs=[["18岁以下",.06],["18—30岁",.28],["31—45岁",.31],["46—60岁",.19],["61—70岁",.10],["70岁以上",.06]],mealAgeDefs=[["60—69岁",.36],["70—79岁",.43],["80岁以上",.21]],periodDefs=[["早餐",.18],["午餐",.53],["晚餐",.29]];
+  var lines=[["B1","BRT B1 示范线","公交","观山湖—云岩",112,86,324],["B52","公交 52 路（示例）","公交","南明—花溪",96,74,268],["M1","地铁 1 号线（示例）","地铁","小河—观山湖",138,121,452],["M2","地铁 2 号线（示例）","地铁","白云—南明",105,92,345],["S1","地铁 S1 线（示例）","地铁","双龙—贵阳",82,69,228]],meals=[["meal1","和悦助老餐厅（示例）","云岩区",5.4,21.6,4],["meal2","花溪长者食堂（示例）","花溪区",4.6,18,3.9],["meal3","观山湖社区餐厅（示例）","观山湖区",4.1,17.2,4.2],["meal4","暖心助餐点（示例）","南明区",3.5,13.3,3.8]];
+  function r(v,d){var p=Math.pow(10,d||0);return Math.round(v*p)/p}function f(v,d){var n=d===undefined?0:d;return Number(v).toLocaleString("zh-CN",{minimumFractionDigits:n,maximumFractionDigits:n})}function s(v,x,d){return r(v*x,d)}function period(){return state.year+"年"+(state.month==="all"?"全年":state.month+"月")}function esc(v){return String(v).replace(/"/g,"&quot;")}
+  function makeSnapshot(year,month){
+    var yf=yearFactor[year],picked=month==="all"?1:monthSeason[month-1],all=month==="all",passenger=all?s(2058*yf,1):s(171.5*yf*picked*30,1),busShare=all?.58:.56+((month%3)-1)*.01,amount=all?Math.round(30240*yf):Math.round(30240*yf*picked/12),busTx=all?Math.round(1698*yf):Math.round(1698*yf*picked/12),metroTx=all?Math.round(1282*yf):Math.round(1282*yf*picked/12),mealCount=all?s(32.8*yf,1):s(32.8*yf*picked/12,1),mealAmount=all?s(128.6*yf,1):s(128.6*yf*picked/12,1),factor=(all?.98:picked)*yf;
+    var hourly=hourLabels.map(function(label,i){return{time:label,bus:s(busHours[i]*factor,1),metro:s(metroHours[i]*factor,1)}}),peak=Math.max.apply(null,hourly.map(function(x){return x.bus+x.metro})),age=ageDefs.map(function(x){return{label:x[0],share:x[1],count:s(passenger*x[1],1)}}),mode=[{name:"公交",share:busShare,transactions:busTx,amount:Math.round(amount*busShare)},{name:"地铁",share:1-busShare,transactions:metroTx,amount:Math.round(amount*(1-busShare))}];
+    var ages=mealAgeDefs.map(function(x){return{label:x[0],count:s(mealCount*x[1],1)}}),periods=periodDefs.map(function(x){return{label:x[0],count:s(mealCount*x[1],1)}}),hot=lines.map(function(x,i){var q=(all?1:picked)*yf*(1+i*.035);return{id:x[0],name:x[1],type:x[2],district:x[3],passengers:s(x[4]*q,1),transactions:s(x[5]*q,1),amount:s(x[6]*q,1)}}).sort(function(a,b){return b.passengers-a.passengers}),mealRows=meals.map(function(x,i){var q=(all?1:picked)*yf*(1+i*.025);return{id:x[0],name:x[1],district:x[2],services:s(x[3]*q,1),amount:s(x[4]*q,1),ticket:r(x[5]*(1+(year-2024)*.025),1)}});
+    return{kpi:{passenger:passenger,bus:busTx,metro:metroTx,amount:amount,meals:mealCount,peak:r(peak,1),mealAmount:mealAmount},age:age,mode:mode,hourly:hourly,monthly:monthSeason.map(function(x,i){return{month:i+1,amount:s(2570*x*yf,1),count:s(292*x*yf,1)}}),mealAge:ages,periods:periods,hot:hot,mealRows:mealRows};
+  }
+  function renderKpis(x){var cards=[["综合客流量",f(x.kpi.passenger,1),"万人次","较上期 +6.8%",""],["出行交易金额",f(x.kpi.amount),"万元","较上期 +4.2%","gold"],["最高峰小时",f(x.kpi.peak,1),"万人次/时","08:00 通勤窗口","metro"],["助老餐厅服务",f(x.kpi.meals,1),"万人次","午餐服务占 53%","gold"]];document.getElementById("kpis").innerHTML=cards.map(function(c,i){return'<div class="kpi '+c[4]+'"><div class="kpi-label">'+c[0]+'</div><div class="kpi-value">'+c[1]+'<span class="kpi-unit">'+c[2]+'</span></div><div class="kpi-note"><span class="delta">'+(i<2?"↑ ":"")+'</span>'+c[3]+'</div></div>'}).join("")}
+  function renderAge(x){var max=Math.max.apply(null,x.age.map(function(a){return a.count}));document.getElementById("ageList").innerHTML=x.age.map(function(a){return'<div class="age-row" data-tip="'+esc(a.label+"："+f(a.count,1)+"万人次，占比 "+f(a.share*100,1)+"%")+'"><span>'+a.label+'</span><span class="age-track"><i class="age-fill" style="width:'+a.count/max*100+'%"></i></span><span class="age-num">'+f(a.count,1)+'</span></div>'}).join("")}
+  function renderModes(x){document.getElementById("modeBody").innerHTML=x.mode.map(function(m){var selected=state.selectedMode===m.name;return'<button class="mode-row '+(m.name==="地铁"?"metro ":"")+(selected?"selected":"")+'" data-mode="'+m.name+'" aria-label="筛选'+m.name+'"><div class="mode-top"><span>'+m.name+'</span><b>'+f(m.share*100,1)+'%</b></div><div class="mode-bottom"><span>交易 <strong>'+f(m.transactions)+'万笔</strong></span><span>金额 <strong>'+f(m.amount)+'万</strong></span></div></button>'}).join("");document.querySelectorAll("[data-mode]").forEach(function(el){el.addEventListener("click",function(){var m=el.getAttribute("data-mode");state.selectedMode=state.selectedMode===m?null:m;renderAll()})})}
+  function pts(vals,w,h,max){var l=38,rgt=12,t=14,b=24;return vals.map(function(v,i){return{x:l+(w-l-rgt)*(i/(vals.length-1)),y:t+(h-t-b)*(1-v/max)}})}function path(ps){return ps.map(function(p,i){return(i?"L":"M")+r(p.x,1)+" "+r(p.y,1)}).join(" ")}
+  function renderHourly(x){var w=800,h=240,all=x.hourly.map(function(a){return a.bus+a.metro}),max=Math.ceil(Math.max.apply(null,all)*1.18),bp=pts(x.hourly.map(function(a){return a.bus}),w,h,max),mp=pts(x.hourly.map(function(a){return a.metro}),w,h,max),grid=[0,1,2,3].map(function(i){var y=14+(h-38)*i/3;return'<line class="grid-line" x1="38" x2="788" y1="'+y+'" y2="'+y+'"></line><text class="axis-label" x="3" y="'+(y+3)+'">'+f(max*(1-i/3),0)+'</text>'}).join(""),bands='<rect class="rush-band" x="'+bp[1].x+'" y="14" width="'+(bp[3].x-bp[1].x)+'" height="202"></rect><text class="rush-label" x="'+((bp[1].x+bp[3].x)/2)+'" y="25" text-anchor="middle">早高峰</text><rect class="rush-band evening" x="'+bp[8].x+'" y="14" width="'+(bp[10].x-bp[8].x)+'" height="202"></rect><text class="rush-label evening-label" x="'+((bp[8].x+bp[10].x)/2)+'" y="25" text-anchor="middle">晚高峰</text>',labels=hourLabels.map(function(a,i){return'<text class="axis-label" x="'+bp[i].x+'" y="233" text-anchor="middle">'+a+'</text>'}).join("");
+    function dots(ps,key,mode){return ps.map(function(p,i){var dim=state.selectedMode&&state.selectedMode!==(mode==="bus"?"公交":"地铁"),a=x.hourly[i];return'<circle class="trend-dot '+mode+' '+(dim?"dim":"")+'" cx="'+p.x+'" cy="'+p.y+'" r="'+(i===2||i===9?4.2:3.1)+'" data-tip="'+esc(a.time+" · "+(mode==="bus"?"公交":"地铁")+" "+f(a[key],1)+"万人次/时")+'"></circle>'}).join("")}
+    document.getElementById("hourlyChart").innerHTML='<svg class="chart-svg" viewBox="0 0 800 240" preserveAspectRatio="none">'+grid+bands+'<path class="trend-line bus '+(state.selectedMode==="地铁"?"dim":"")+'" d="'+path(bp)+'"></path><path class="trend-line metro '+(state.selectedMode==="公交"?"dim":"")+'" d="'+path(mp)+'"></path>'+dots(bp,"bus","bus")+dots(mp,"metro","metro")+labels+'</svg>'}
+  function renderMonthly(x){var w=800,h=190,t=x.monthly,maxA=Math.max.apply(null,t.map(function(a){return a.amount}))*1.2,maxC=Math.max.apply(null,t.map(function(a){return a.count}))*1.2,ap=pts(t.map(function(a){return a.amount}),w,h,maxA),cp=pts(t.map(function(a){return a.count}),w,h,maxC),grid=[0,1,2,3].map(function(i){var y=14+(h-41)*i/3;return'<line class="grid-line" x1="38" x2="788" y1="'+y+'" y2="'+y+'"></line>'}).join(""),bars=t.map(function(a,i){var sel=state.month!=="all"&&state.month===a.month;return'<rect class="bar-amount '+(sel?"selected":"")+'" x="'+(ap[i].x-13)+'" y="'+ap[i].y+'" width="26" height="'+Math.max(3,190-27-ap[i].y)+'" rx="2" data-tip="'+esc(a.month+"月 · 交易金额 "+f(a.amount)+"万元 · 交易笔数 "+f(a.count,1)+"万笔")+'"></rect>'}).join(""),dots=cp.map(function(p,i){var sel=state.month!=="all"&&state.month===i+1;return'<circle class="amount-dot" cx="'+p.x+'" cy="'+p.y+'" r="'+(sel?4.5:3)+'" data-tip="'+esc((i+1)+"月 · 交易笔数 "+f(t[i].count,1)+"万笔 · 金额 "+f(t[i].amount)+"万元")+'"></circle>'}).join(""),labels=t.map(function(a,i){return'<text class="month-label '+(state.month!=="all"&&state.month===a.month?"selected":"")+'" x="'+ap[i].x+'" y="184">'+a.month+'月</text>'}).join("");document.getElementById("monthlyChart").innerHTML='<svg class="chart-svg" viewBox="0 0 800 190" preserveAspectRatio="none">'+grid+bars+'<path class="amount-line" d="'+path(cp)+'"></path>'+dots+labels+'<line class="month-axis" x1="38" x2="788" y1="163" y2="163"></line></svg>'}
+ function renderRanking(x){var rows=x.hot.map(function(a){return{id:a.id,name:a.name,type:a.type,district:a.district,primary:a.passengers,passengers:a.passengers,secondary:"客流 "+f(a.passengers,1)+"万人次",transactions:a.transactions,amount:a.amount}});x.mealRows.forEach(function(a){rows.push({id:a.id,name:a.name,type:"助老餐厅",district:a.district,primary:a.services,secondary:"服务 "+f(a.services,1)+"万人次",services:a.services,amount:a.amount,ticket:a.ticket})});rows.sort(function(a,b){return b.primary-a.primary});var q=state.query.toLowerCase(),visible=rows.filter(function(a){return!q||(a.name+a.type+a.district).toLowerCase().indexOf(q)>-1}).slice(0,7);document.getElementById("rankList").innerHTML=visible.length?visible.map(function(a,i){return'<button class="rank-row '+(state.selectedEntity===a.id?"selected":"")+'" data-entity="'+a.id+'" aria-label="查看 '+a.name+' 详情"><span class="rank-no">'+String(i+1).padStart(2,"0")+'</span><span><span class="rank-name">'+a.name+'</span><span class="rank-sub">'+a.type+" · "+a.district+" · "+a.secondary+'</span></span><span class="rank-value">'+f(a.primary,1)+'<br><small>万人次</small></span></button>'}).join(""):'<div class="detail">没有匹配的线路或服务点。</div>';document.querySelectorAll("[data-entity]").forEach(function(el){el.addEventListener("click",function(){state.selectedEntity=el.getAttribute("data-entity");renderAll()})});var selected=rows.filter(function(a){return a.id===state.selectedEntity})[0],detail=document.getElementById("detailBox");if(!selected){detail.innerHTML="选择一条线路或助老餐厅，查看区县、客流、交易及服务指标。"}else if(selected.type==="助老餐厅"){detail.innerHTML="<b>"+selected.name+"</b><br>"+selected.district+"<br>服务人次 <b>"+f(selected.services,1)+"万</b><br>交易金额 <b>"+f(selected.amount,1)+"万元</b> · 客单价 <b>"+f(selected.ticket,1)+"元</b>"}else{detail.innerHTML="<b>"+selected.name+"</b><br>"+selected.district+"<br>客流 <b>"+f(selected.passengers,1)+"万</b><br>交易 <b>"+f(selected.transactions,1)+"万笔</b> · 金额 <b>"+f(selected.amount,1)+"万元</b>"}}
+  function renderEvents(x){var rows=[["08:42","地铁 1 号线（示例）","进站交易","6.4 万元"],["08:36","BRT B1 示范线","公交交易","2.0 万元"],["12:08","和悦助老餐厅（示例）","助餐服务","4.0 万元"],["18:16","地铁 2 号线（示例）","出站交易","5.1 万元"]];document.getElementById("eventList").innerHTML=rows.map(function(a){return'<div class="event"><time>'+a[0]+'</time><b>'+a[1]+'</b><span>'+a[3]+'</span></div>'}).join("")}
+  function tips(){var tip=document.getElementById("tooltip");document.querySelectorAll("[data-tip]").forEach(function(el){el.addEventListener("pointerenter",function(e){tip.textContent=el.getAttribute("data-tip");tip.classList.add("visible");move(e)});el.addEventListener("pointermove",move);el.addEventListener("pointerleave",function(){tip.classList.remove("visible")})});function move(e){var p=12,w=tip.offsetWidth,h=tip.offsetHeight;tip.style.left=Math.max(p,Math.min(e.clientX+14,window.innerWidth-w-p))+"px";tip.style.top=Math.max(p,Math.min(e.clientY+14,window.innerHeight-h-p))+"px"}}
+  function renderAll(){var x=makeSnapshot(state.year,state.month);document.getElementById("periodLabel").textContent=period();document.getElementById("snapshotMeta").textContent=period();document.getElementById("monthlyMeta").textContent=period()+" · 金额：万元 · 笔数：万笔";renderKpis(x);renderAge(x);renderModes(x);renderHourly(x);renderMonthly(x);renderRanking(x);renderEvents(x);tips()}
+  function clock(){var d=new Date(),p=function(x){return String(x).padStart(2,"0")};document.getElementById("topClock").textContent=p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds())}
+  function sync(){document.getElementById("yearFilter").value=state.year;document.getElementById("monthFilter").value=state.month}
+  function register(){var api=window.webmcp||window.WebMCP;if(!api)return;var def={name:"set_dashboard_period",description:"设置城市通集团演示驾驶舱的年度和月份筛选。",inputSchema:{type:"object",properties:{year:{type:"integer",enum:[2024,2025,2026]},month:{anyOf:[{type:"null"},{type:"integer",minimum:1,maximum:12}]}},required:["year","month"]},execute:function(input){var y=Number(input&&input.year),raw=input&&input.month,m=raw===null?"all":Number(raw);if([2024,2025,2026].indexOf(y)<0||!(m==="all"||(Number.isInteger(m)&&m>=1&&m<=12)))throw new Error("非法年份或月份");state.year=y;state.month=m;state.selectedMode=null;state.selectedEntity=null;sync();renderAll();return{success:true,year:y,month:m==="all"?null:m}}};try{if(typeof api.registerTool==="function")api.registerTool(def);else if(typeof api.register==="function")api.register(def)}catch(e){}}
+  document.getElementById("yearFilter").addEventListener("change",function(){state.year=Number(this.value);state.selectedMode=null;state.selectedEntity=null;renderAll()});document.getElementById("monthFilter").addEventListener("change",function(){state.month=this.value==="all"?"all":Number(this.value);state.selectedMode=null;state.selectedEntity=null;renderAll()});document.getElementById("searchBox").addEventListener("input",function(){state.query=this.value.trim();renderAll()});document.querySelectorAll("[data-nav]").forEach(function(el){el.addEventListener("click",function(e){e.preventDefault();document.querySelectorAll("[data-nav]").forEach(function(item){item.classList.remove("active")});el.classList.add("active")})});renderAll();clock();setInterval(clock,1000);register();
+})();
+</script>
+</body>
+</html>
