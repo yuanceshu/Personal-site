@@ -6,10 +6,6 @@ type SiteHeaderProps = {
 };
 
 export function SiteHeader({ projectLabel }: SiteHeaderProps) {
-  const jingmiansenUrl =
-    process.env.JINGMIANSEN_SITE_URL?.replace(/\/$/, "") ??
-    "http://localhost:3001";
-
   return (
     <header className="site-header">
       <div className="site-header__inner page-shell">
@@ -28,10 +24,7 @@ export function SiteHeader({ projectLabel }: SiteHeaderProps) {
           ) : (
             <>
               <Link href="#work">作品</Link>
-              <a href={jingmiansenUrl} referrerPolicy="no-referrer">
-                静眠森
-              </a>
-              <Link href="#about">认识我</Link>
+              <Link href="/thoughts">AI 思记</Link>
             </>
           )}
         </nav>

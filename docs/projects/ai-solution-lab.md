@@ -7,7 +7,7 @@
 读取根规则、全站技术手册、长期定位、仓库架构/路线图/代码决策、06 实验作品接入规划、本作品 README/AGENTS/V1.1/决策记录和 apps/main/AGENTS.md。
 
 - Next.js 16.3.1 App Router、React 19.2.8、TypeScript 沿用现状，无框架冲突。
-- 原稿目录为独立项目示意；按 06 规划具体化为主站 `/works/ai-solution-lab`，与静眠森、课程分享平级，不放进 demos。
+- 原稿目录为独立项目示意；按内容信息架构归入“AI × 实验”，技术上具体化为主站 `/works/ai-solution-lab`，不放进 demos。
 - 04 Apple 规范已标为旧 MVP 历史，不将其中“排除通用 AI 工具”等范围误当全站禁令。
 - 原稿依赖均是候选。仅新增 Zod 4，满足运行时模型输出校验及组件结构约束；手写校验会重复类型契约。CSS 与 SVG 足以满足首版，不装 Tailwind、shadcn、图表或状态库。Zod 随主站锁文件管理。
 - 实验服务采用 FastAPI/Pydantic + OpenAI-compatible 客户端，不引入 Agno，新增服务为实际模型需求，不复用静眠森提示词、数据、密钥或数据库。无持久化需求，不建数据库。

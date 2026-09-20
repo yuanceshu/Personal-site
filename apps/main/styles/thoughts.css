@@ -1,0 +1,170 @@
+.thoughts-page {
+  background: var(--canvas);
+}
+
+/* Hero */
+
+.thoughts-hero {
+  padding-block: clamp(4rem, 8vw, 7rem) clamp(2.5rem, 5vw, 4rem);
+}
+
+.thoughts-hero__topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  color: var(--tertiary);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+}
+
+.thoughts-hero h1 {
+  margin: 1.5rem 0 0;
+  font-size: clamp(2.35rem, 5vw, 3.9rem);
+  font-weight: 650;
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+}
+
+.thoughts-hero__intro {
+  max-width: 34rem;
+  margin: 1.75rem 0 0;
+  color: var(--secondary);
+  font-size: 1.0625rem;
+  line-height: 1.9;
+  text-wrap: pretty;
+}
+
+/* 精选文章 */
+
+.thoughts-list {
+  display: grid;
+  gap: 1.5rem;
+  padding-bottom: clamp(3rem, 6vw, 5rem);
+}
+
+.thought-card {
+  display: block;
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  border-radius: var(--radius-medium);
+  background: var(--paper);
+  box-shadow: 0 0 0 0.0625rem rgba(29, 29, 31, 0.04), var(--shadow-float);
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform 180ms ease-out, box-shadow 180ms ease-out;
+}
+
+.thought-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  color: var(--tertiary);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+}
+
+.thought-card__theme {
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-size: 0.6875rem;
+  font-weight: 550;
+  letter-spacing: 0.04em;
+}
+
+.thought-card h2 {
+  margin: 0.9rem 0 0;
+  font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -0.03em;
+}
+
+.thought-card__excerpt {
+  margin: 0.75rem 0 0;
+  color: var(--secondary);
+  font-size: 0.9375rem;
+  line-height: 1.8;
+}
+
+.thought-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  color: var(--blue);
+  font-size: 0.875rem;
+  font-weight: 550;
+}
+
+.thought-card__link > span {
+  display: inline-block;
+  transition: transform 180ms ease-out;
+}
+
+/* 公众号引导区 */
+
+.thoughts-follow {
+  padding-block: clamp(3rem, 6vw, 5rem) clamp(4rem, 7vw, 6rem);
+}
+
+.thoughts-follow__title {
+  margin: 1rem 0 0;
+  font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.thoughts-follow__intro {
+  max-width: 34rem;
+  margin: 1rem 0 0;
+  color: var(--secondary);
+  font-size: 0.9375rem;
+  line-height: 1.8;
+}
+
+.thoughts-follow .public-account {
+  margin-top: 2.5rem;
+}
+
+/* 交互与响应式 */
+
+@media (hover: hover) and (pointer: fine) {
+  .thought-card:hover {
+    transform: translateY(-0.2rem);
+    box-shadow: 0 0 0 0.0625rem rgba(29, 29, 31, 0.05), 0 1.75rem 4.5rem rgba(32, 38, 44, 0.12);
+  }
+
+  .thought-card:hover .thought-card__link > span {
+    transform: translate(0.15rem, -0.15rem);
+  }
+}
+
+.thought-card:active {
+  opacity: 0.8;
+}
+
+@media (max-width: 720px) {
+  .thoughts-hero {
+    padding-block: 3rem 2rem;
+  }
+
+  .thoughts-hero__topline {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thought-card,
+  .thought-card__link > span {
+    transition: none;
+  }
+
+  .thought-card:hover {
+    transform: none;
+  }
+}

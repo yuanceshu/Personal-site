@@ -241,8 +241,8 @@ test("320px, reduced motion and peer home entry", async ({ page }) => {
     ).toBeVisible();
   }
   await page.goto("/");
-  await expect(page.locator('.home-lab-entry[href="/works/ai-solution-lab"]')).toBeVisible();
-  await page.locator('.home-lab-entry[href="/works/ai-solution-lab"]').click();
+  await expect(page.getByRole("link", { name: "AI 工作台", exact: true })).toHaveAttribute("href", path);
+  await page.getByRole("link", { name: "AI 工作台", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(path));
   await page.getByLabel("你想解决什么问题？").focus();
   await page.keyboard.press("Tab");

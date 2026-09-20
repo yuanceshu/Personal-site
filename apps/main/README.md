@@ -13,6 +13,7 @@
 /works/ui-lab  UI 实验室（3组10版）
 /works/ui-lab/[experiment]  双版本截图对照
 /works/ui-lab/[experiment]/[variant]  单版本冻结交互查看器
+/works/ai-life-comics  小麦子的生活漫画
 ```
 
 主站通过 `JINGMIANSEN_SITE_URL` 提供静眠森单向外链，并把历史 `/works/jingmiansen/*` 地址永久 308 到独立站。链接设置 `referrerPolicy="no-referrer"`；主站不再包含静眠森页面、素材、聊天 API 或 Host 判断代理。

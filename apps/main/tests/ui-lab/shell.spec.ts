@@ -12,7 +12,8 @@ async function ratios(page: Page) {
 }
 test("main website entry, three groups, ten options, no running previews", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("navigation",{name:"桌面主页导航"}).getByRole("link",{name:"UI 实验室"}).click();
+  await expect(page.getByRole("link",{name:"UI 实验室",exact:true})).toHaveAttribute("href",lab);
+  await page.getByRole("link",{name:"UI 实验室",exact:true}).click();
   await expect(page.locator(".site-header__name")).toHaveText("PERSONAL LAB");
   await expect(page.locator(".site-header__name")).not.toContainText("袁策书");
   await expect(page.locator(".site-header__context")).toHaveText("作品 / UI LAB");
@@ -32,7 +33,7 @@ test("main website entry, three groups, ten options, no running previews", async
   }
   await page.setViewportSize({width:375,height:812});
   await page.goto("/");
-  await page.locator('.home-lab-entry[href="/works/ui-lab"]').click();
+  await page.getByRole("link",{name:"UI 实验室",exact:true}).click();
   await expect(page).toHaveURL(new RegExp(`${lab}$`));
 });
 test("pair swap, reload, share query, back/forward and invalid recovery", async ({ page }) => {

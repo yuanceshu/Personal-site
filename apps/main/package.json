@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "test:content": "tsx --test tests/content/*.test.ts",
+    "test:home:browser": "playwright test --config=tests/home/playwright.config.ts",
     "test:lab": "tsx --test tests/ai-solution-lab/*.test.ts",
     "test:lab:browser": "playwright test --config=tests/ai-solution-lab/playwright.config.ts",
     "test:travel": "tsx --test tests/island-travel/*.test.ts",
