@@ -75,12 +75,12 @@ test("普通模块排版、间距与实验卡对齐", async ({ page }) => {
   const body = await readType(normalSections.map((id) => `#${id} .home-card__lines`).join(", "));
   expect(new Set(eyebrow.map((value) => JSON.stringify(value)))).toEqual(new Set([JSON.stringify({ fontSize: "14px", lineHeight: "21px", fontWeight: "400" })]));
   expect(new Set(sectionTitles.map((value) => JSON.stringify(value)))).toEqual(new Set([JSON.stringify({ fontSize: "24px", lineHeight: "31.2px", fontWeight: "600" })]));
-  expect(new Set(body.map((value) => JSON.stringify(value)))).toEqual(new Set([JSON.stringify({ fontSize: "16px", lineHeight: "28px", fontWeight: "400" })]));
+  expect(new Set(body.map((value) => JSON.stringify(value)))).toEqual(new Set([JSON.stringify({ fontSize: "14px", lineHeight: "24.5px", fontWeight: "400" })]));
 
   const miniTitles = await readType(".home-mini__body h3");
   const miniBody = await readType(".home-mini__body > p");
   expect(new Set(miniTitles.map((value) => JSON.stringify(value)))).toEqual(new Set([JSON.stringify({ fontSize: "18px", lineHeight: "26.1px", fontWeight: "600" })]));
-  expect(new Set(miniBody.map((value) => JSON.stringify(value)))).toEqual(new Set([JSON.stringify({ fontSize: "16px", lineHeight: "28px", fontWeight: "400" })]));
+  expect(new Set(miniBody.map((value) => JSON.stringify(value)))).toEqual(new Set([JSON.stringify({ fontSize: "14px", lineHeight: "24.5px", fontWeight: "400" })]));
 
   const bento = page.locator(".home-bento");
   await expect(bento).toHaveCSS("column-gap", "24px");
