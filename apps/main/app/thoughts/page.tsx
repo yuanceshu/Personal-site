@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { publicAccountName, thoughts } from "@/content/thoughts";
 
 export const metadata: Metadata = {
-  title: "AI 思记 · 袁策书",
+  title: "AI 思记",
   description:
     "AI 产品经理的一线观察与随笔：学习复盘、效率反思、展会见闻。",
 };

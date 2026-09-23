@@ -1,4 +1,5 @@
 import { getWork, type WorkCategory } from "@/content/projects/catalog";
+import { thoughts } from "@/content/thoughts";
 
 export type HomeSection = {
   id: string;
@@ -52,6 +53,22 @@ export const homeSections: readonly HomeSection[] = [
       "不定期分享，朴素输出。",
     ],
   },
+];
+
+/** 首页只展示已收录文章的短标题，原文信息沿用思记目录。 */
+export const recentThoughts = [
+  { ...thoughts[0], shortTitle: "个人 AI 复盘：过去如何学，现在如何用？" },
+  { ...thoughts[1], shortTitle: "效率越高，人越累？" },
+  { ...thoughts[2], shortTitle: "散场以后，我还想继续追赶" },
+] as const;
+
+/** Hero 导航保持已确认的阅读顺序；Bento 数据仍沿用 main 的顺序与结构。 */
+export const homeHeroSections: readonly HomeSection[] = [
+  homeSections[0],
+  homeSections[1],
+  homeSections[2],
+  homeSections[4],
+  homeSections[3],
 ];
 
 type Experiment = {

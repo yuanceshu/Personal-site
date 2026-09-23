@@ -5,14 +5,14 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { demos } from "@/content/projects/demos/catalog";
 import "@/styles/projects/demos/collection.css";
 
-export const metadata: Metadata = { title: "行业 Demo 集 | 袁策书", description: "把 AI 放进具体的行业任务里。从问题出发，体验完整的产品流程。" };
+export const metadata: Metadata = { title: "行业 Demo 集", description: "把 AI 放进具体的行业任务里。从问题出发，体验完整的产品流程。" };
 export default function DemosPage() {
   return (
     <div className="demo-collection">
       <SiteHeader projectLabel="作品 / 行业 Demo 集" />
       <main className="collection-shell">
         <section className="collection-intro">
-          <div><p className="collection-kicker">袁策书的产品实验 / INDUSTRY DEMOS</p><h1>想法，<span>走进现场。</span></h1></div>
+          <div><p className="collection-kicker">产品实验 / INDUSTRY DEMOS</p><h1>想法，<span>走进现场。</span></h1></div>
           <div className="collection-intro-note"><span aria-hidden="true">↘</span><p>不只谈 AI 能做什么。<br />把它放进具体任务，<br />做成你能亲手体验的产品。</p></div>
         </section>
         <div className="collection-divider"><span>THE COLLECTION <i>/</i> 行业 Demo 集</span><span>{String(demos.length).padStart(2, "0")} 件可体验作品</span></div>
@@ -33,7 +33,7 @@ export default function DemosPage() {
         ))}
         <aside className="collection-note"><span>在这里，<br /><em>体验先于解释。</em></span><div><p>从问题出发，走到一个可用的答案。<br />每个实验都保留完整流程，也写清能力的边界。</p><small>所有业务数据与交易均为模拟，不连接客户生产系统。</small></div></aside>
       </main>
-      <footer className="collection-footer collection-shell"><span>袁策书 / 持续试验，持续留下作品。</span><Link href="/">回到个人作品站 ↗</Link></footer>
+      <footer className="collection-footer collection-shell"><span>PERSONAL LAB / 持续试验，持续留下作品。</span><Link href="/">回到个人作品站 ↗</Link></footer>
     </div>
   );
 }

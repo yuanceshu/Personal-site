@@ -2,7 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiteMark } from "@/components/brand/SiteMark";
 import { SiteHeader } from "@/components/SiteHeader";
-import { getHomeWork, homeSections, homeWorkIds, experiments, type HomeSection } from "@/content/home";
+import { getHomeWork, homeSections, homeHeroSections, homeWorkIds, experiments, recentThoughts, type HomeSection } from "@/content/home";
+import { demos } from "@/content/projects/demos/catalog";
 import "../styles/home.css";
 
 /** 卡内板块标题：弱化的前缀标签 + 突出的中文主标题，保留完整可访问名称 */
@@ -49,20 +50,25 @@ export default function Home() {
           <div className="morning-hero__inner page-shell">
             <div className="morning-brand">
               <SiteMark className="morning-brand__mark" tone="light" />
-              <span>袁策书</span>
               <span className="morning-brand__label">PERSONAL LAB</span>
             </div>
             <div className="morning-copy">
               <p className="morning-copy__greeting">你好，很高兴你能来。</p>
-              <h1 id="home-title">
-                <span>这里，我把好奇心</span>
-                <span>变成了一些真实存在的东西。</span>
+              <p className="morning-copy__identity">
+                <span className="morning-copy__line">我在金融行业做<strong className="morning-copy__identity-key">产品和售前</strong>，INFJ，</span>
+                <span className="morning-copy__line">喜欢 <strong className="morning-copy__identity-key">AI 与心理学</strong>。</span>
+              </p>
+              <h1 className="morning-copy__purpose" id="home-title">
+                <span className="morning-copy__line">这里，我把<strong className="morning-copy__motivation-key">好奇心</strong>，</span>
+                <span className="morning-copy__line">变成了一些<strong className="morning-copy__motivation-key">真实存在</strong>的东西。</span>
               </h1>
-              <p className="morning-copy__identity">我在金融行业做产品和售前，INFJ，喜欢 AI 与心理学。</p>
-              <p className="morning-copy__invitation">它记录我工作、学习、实验留下的痕迹。不追光，只生长。愿我们岁岁成长，一路同行。</p>
+              <p className="morning-copy__invitation">
+                <span className="morning-copy__line">它记录我工作、学习、实验留下的痕迹。</span>
+                <span className="morning-copy__line morning-copy__invitation-next">不追光，只生长。愿我们岁岁成长，一路同行。</span>
+              </p>
             </div>
             <ul className="morning-index" aria-label="接下来的内容">
-              {homeSections.map((section, index) => (
+              {homeHeroSections.map((section, index) => (
                 <li key={section.id}>
                   <a href={`#${section.id}`} aria-label={section.label}>
                     <span className="morning-index__number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
@@ -74,26 +80,41 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <a className="morning-scroll-indicator" href="#work" aria-label="继续浏览作品">
-              <span className="morning-scroll-indicator__line" aria-hidden="true" />
-              <span className="morning-scroll-indicator__chevron" aria-hidden="true" />
-            </a>
           </div>
         </section>
 
         <SiteHeader />
         <div className="home-works page-shell" id="work">
           <div className="home-bento">
-            <Link id="industry" className="home-card home-bento__industry" href={industryWork.href} aria-labelledby="industry-title">
+            <section id="industry" className="home-card home-bento__industry" aria-labelledby="industry-title">
               <div className="home-card__image home-bento__industry-image">
-                <Image src="/projects/demos/island-travel/hero-screenshot.jpg" alt="岛见智能出行的首屏界面：山海之间的行程规划入口" fill sizes="(max-width: 800px) 100vw, (max-width: 1280px) 58vw, 700px" />
+                <Image src="/home/morning/industry-scenes-people.webp" alt="" fill sizes="(max-width: 800px) 100vw, (max-width: 1280px) 58vw, 700px" />
               </div>
-              <div className="home-card__body">
-                <SectionTag section={industrySection} id="industry-title" />
-                <SectionLines lines={industrySection.lines} />
-                <span className="home-entry">探索行业 Demo <span aria-hidden="true">↗</span></span>
+              <div className="home-card__body home-bento__industry-body">
+                <div>
+                  <SectionTag section={industrySection} id="industry-title" />
+                  <SectionLines lines={industrySection.lines} />
+                </div>
+                <div className="home-bento__industries">
+                  <ul aria-label="可体验的行业 Demo">
+                    {demos.map((demo) => (
+                      <li key={demo.id}>
+                        <Link href={demo.href}>
+                          <span>{demo.tags[0]}<small>{demo.title.split(" · ")[0]}</small></span>
+                          <span aria-hidden="true">↗</span>
+                        </Link>
+                      </li>
+                    ))}
+                    <li>
+                      <Link className="home-bento__industry-more" href={industryWork.href}>
+                        <span>探索更多案例</span>
+                        <span aria-hidden="true">↗</span>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
               </div>
-            </Link>
+            </section>
 
             <section id="experiments" className="home-card home-bento__experiments" aria-labelledby="experiments-title">
               <div className="home-card__body home-bento__experiments-intro">
@@ -144,20 +165,32 @@ export default function Home() {
             </Link>
 
             <div id="thoughts" className="home-card home-bento__thoughts" aria-labelledby="thoughts-title">
-              <Link className="home-card__body" href="/thoughts" aria-labelledby="thoughts-title">
+              <div className="home-card__body">
                 <SectionTag section={thoughtsSection} id="thoughts-title" />
                 <SectionLines lines={thoughtsSection.lines} />
-                <span className="home-entry">读几篇试试 <span aria-hidden="true">↗</span></span>
-              </Link>
-              <div className="home-bento__thoughts-account">
-                <Image src="/profile/wechat-official-account-qr-home.png" alt="小袁AI感雾公众号二维码" width={72} height={72} />
-                <span>小袁AI感雾</span>
+                <p className="home-bento__thoughts-label">最近写下</p>
+                <ul className="home-bento__thoughts-list" aria-label="最近写下的思考">
+                  {recentThoughts.map((thought) => (
+                    <li key={thought.url}>
+                      <a href={thought.url} target="_blank" rel="noopener noreferrer" aria-label={thought.title}>
+                        {thought.shortTitle}<span aria-hidden="true">↗</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+                <div className="home-bento__thoughts-footer">
+                  <Link className="home-entry" href="/thoughts">读几篇试试 <span aria-hidden="true">↗</span></Link>
+                  <div className="home-bento__thoughts-account">
+                    <Image src="/profile/wechat-official-account-qr-home.png" alt="小袁AI感雾公众号二维码" width={72} height={72} />
+                    <span>小袁AI感雾</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </main>
-      <footer className="site-footer page-shell"><span>PERSONAL LAB</span><span>持续学习，也持续留下痕迹。</span></footer>
+      <footer className="site-footer page-shell"><span>袁策书 / PERSONAL LAB</span><span>持续学习，也持续留下痕迹。</span></footer>
     </div>
   );
 }

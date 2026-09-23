@@ -2,6 +2,12 @@
 
 状态：首版已接入主站，待 GitHub → Vercel Production 发布。
 
+Read when：修改食智助手的三类场景、本地检索、内容边界、视觉方向或验收。
+
+Do not read when：修改其他行业 Demo、共享实验服务或主站公共页面。
+
+Source of truth：本文档负责首版体验与公开边界；演示知识、路由和检索行为以当前代码和测试为准。
+
 ## 边界
 
 这是行业 Demo 集下的二级作品，前端路由位于 `apps/main/app/works/demos/restaurant-ai/`，不建立独立 App 或独立 Vercel Project。公开路径为 `/works/demos/restaurant-ai`。

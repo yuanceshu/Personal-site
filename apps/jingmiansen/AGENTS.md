@@ -8,17 +8,20 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# 静眠森独立 App 规则
+# 静眠森 Web App 规则
 
-## 职责与路由
+## 作用域
 
-本目录只承载静眠森网页与 `/api/jingmiansen/chat`。正式页面路由固定为 `/`、`/xing-yue-xiang-hu`、`/witch-train`、`/rainy-night-cafe`；不要重新加入主站首页、Project 000、现实身份信息或返回主站入口。
+本目录只承载静眠森网页和 `/api/jingmiansen/chat`；不承载主站、Project 000、现实身份信息或返回主站入口。静态浏览不得依赖角色服务可用。
 
-## 内容与安全
+## 按需读取
 
-修改人物、故事、文案或角色交互前，读取 `../../../../01_资料库/资料_静眠森/AGENTS.md` 及任务对应文档。不得自行补写设定，也不得把原始 Word、未公开资料、现实姓名、主站域名、API Key、Agent URL 或 Secret 放进页面、客户端 bundle 或公开素材。
+- 普通布局、样式或组件：只读相关源码和测试。
+- 人物、故事、文案或角色交互：读取 `../../../../01_资料库/资料_静眠森/AGENTS.md` 后，只读它路由的直接来源。
+- API、会话、隐私或服务安全：同时读取对应安全规范。
+- 跨 App 路由、服务调用或部署拓扑：读取 `../../docs/00_架构说明.md`。
 
-浏览器只能通过本 App 的聊天 Route Handler 访问角色服务。角色范围固定为 `lingmian | felica | marina`；静态浏览不能依赖 Agent 服务可用。
+不得自行补写设定，也不得把原始 Word、未公开资料、现实姓名、主站域名、API Key、Agent URL 或 Secret 放进页面、客户端 bundle 或公开素材。浏览器只能通过本 App 的 Route Handler 访问角色服务。
 
 ## 检查
 
@@ -28,4 +31,4 @@ npm run typecheck
 npm run build
 ```
 
-涉及 Next.js API、路由、元数据或配置时，先读取本目录 `node_modules/next/dist/docs/` 的对应 Next 16 文档。
+涉及 Next.js API、路由、元数据或配置时，读取本目录 `node_modules/next/dist/docs/` 中直接相关的 Next 16 文档。
