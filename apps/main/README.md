@@ -52,3 +52,7 @@ npm run build
 真实 AI 通过 `/api/experiments/island-travel/chat` 访问实验服务，配置沿用 `.env.example` 的 `EXPERIMENT_AGENT_URL` 与 `EXPERIMENT_AGENT_TOKEN`。本地无模型可主动切换演示模式；没有静默兜底。订单仅在当前页面内，不保存个人资料。
 
 `npm run test:travel` 验证业务、契约和代理；`npm run test:travel:browser` 需要 localhost:3000 与本机 Chrome。生产限流使用 `.env.example` 中三个 `ISLAND_RATE_*` 服务端变量；生产构建在本地运行也不会绕过缺配置检查。开发模式 localhost 才使用本进程计数。详细边界见[岛见实现记录](../../docs/projects/island-travel.md)。
+
+## 食智助手
+
+四条 `/works/demos/restaurant-ai` 页面由主站承载；实时 Agent 经 `/api/experiments/restaurant-ai/chat` 转发到实验服务的 `/works/restaurant-ai/chat`。本地沿用 `EXPERIMENT_AGENT_URL` 和 `EXPERIMENT_AGENT_TOKEN`，实验服务沿用 `LLM_*` MiniMax 配置。页面可查看明确标注的预置样例。公网实时调用要求主站配置独立的 `RESTAURANT_RATE_REDIS_URL`、`RESTAURANT_RATE_REDIS_TOKEN` 和 `RESTAURANT_RATE_SALT`；缺少配置时关闭实时调用。全部门店、经营与财务数据都是虚构演示内容。

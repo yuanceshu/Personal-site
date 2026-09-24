@@ -14,6 +14,7 @@
     "test:lab:browser": "playwright test --config=tests/ai-solution-lab/playwright.config.ts",
     "test:travel": "tsx --test tests/island-travel/*.test.ts",
     "test:travel:browser": "playwright test --config=tests/island-travel/playwright.config.ts",
+    "test:restaurant": "tsx --test tests/restaurant-ai/*.test.ts",
     "test:ui-lab": "tsx --test tests/ui-lab/*.test.ts",
     "test:ui-lab:browser": "playwright test --config=tests/ui-lab/playwright.config.ts"
   },

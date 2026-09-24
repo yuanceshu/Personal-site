@@ -1,6 +1,6 @@
 # 实验作品服务
 
-当前实现 AI 场景诊断工作台与岛见行程理解，使用 FastAPI/Pydantic 和显式模型调用。没有 Agno、业务数据库、账号或任务队列。分别见[工作台实现文档](../../docs/projects/ai-solution-lab.md)与[岛见实现记录](../../docs/projects/island-travel.md)；岛见接口尚未部署。
+当前实现 AI 场景诊断工作台、岛见行程理解与食智助手。工作台和岛见使用显式模型调用；食智助手的独立模块使用 Agno 工具 Agent。没有业务数据库、账号或任务队列。分别见[工作台实现文档](../../docs/projects/ai-solution-lab.md)、[岛见实现记录](../../docs/projects/island-travel.md)和[食智助手规格](../../docs/projects/restaurant-ai.md)。
 
 ## 本地启动
 
@@ -54,6 +54,8 @@ EXPERIMENT_AGENT_TOKEN=与实验服务 Preview 完全一致的凭据
 - `GET /healthz`：公开、仅返回状态。
 - `POST /works/ai-solution-lab/generate`：Bearer 凭据必需，请求最多 32 KiB。
 - `POST /works/island-travel/chat`：独立行程理解契约，同样要求 Bearer 和 32 KiB 上限；不接收或处理订单、乘客身份、票价和支付。
+- `POST /works/restaurant-ai/chat`：三类餐饮 Agent 共用的受限入口，返回安全状态与最终结果的 SSE；只读虚构资料，操作仅生成演示草案。
+- `GET /works/restaurant-ai/status`：同样需要 Bearer Token，仅返回实时模型配置是否齐备，供页面切换样例模式。
 - 无公开 OpenAPI、管理或任意模型执行接口。
 - `analyze` 输入 `{stage,input}`，输出需求 `Brief`。
 - `diagnose` 输入 `{stage,brief,selectedCapabilities}`，输出 `Diagnosis`；非空能力选择必须严格保留。

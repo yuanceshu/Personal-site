@@ -29,7 +29,7 @@ class Conditions(StrictModel):
     @field_validator("origin", "destination")
     @classmethod
     def no_numeric_identity(cls, value):
-        if value and re.search(r"\d{7,}", value):
+        if value and re.search(r"\d{7,}|家庭地址|家住|我家在|住在|小区|门牌号|号楼", value):
             raise ValueError("sensitive input")
         return value
 
@@ -49,7 +49,7 @@ class Message(StrictModel):
                 return match.group()
 
         without_dates = re.sub(r"(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)", allow_date, value)
-        if re.search(r"\d{7,}", re.sub(r"[\s+()（）-]", "", without_dates)):
+        if re.search(r"\d{7,}", re.sub(r"[\s+()（）-]", "", without_dates)) or re.search(r"家庭地址|家住|我家在|住在|小区|门牌号|号楼", value):
             raise ValueError("sensitive input")
         return value
 
@@ -66,7 +66,7 @@ class ChatRequest(StrictModel):
 
 
 class Interpretation(StrictModel):
-    intent: Literal["search_trips", "clarify", "list_orders", "faq", "select_trip", "unsupported"]
+    intent: Literal["search_trips", "clarify", "list_orders", "request_refund", "request_reschedule", "request_invoice", "request_product", "request_door_plan", "request_support", "request_reminder", "faq", "select_trip", "unsupported"]
     conditions: Conditions
     reply: str = Field(default="", max_length=400)
     faq: Literal["passenger", "luggage", "arrival", "payment"] | None = None

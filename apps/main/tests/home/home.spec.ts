@@ -101,7 +101,7 @@ test("普通模块排版、间距与实验卡对齐", async ({ page }) => {
 });
 
 for (const [width, height] of [[320, 812], [390, 844], [768, 1000], [1024, 768], [1280, 900], [1440, 1000], [844, 390]]) {
-  test(`${width}×${height} 构图、完整首屏与 200% 文字`, async ({ page }) => {
+  test(`${width}×${height} 构图、自然高度与 200% 文字`, async ({ page }) => {
     await page.setViewportSize({ width, height });
     await page.goto("/");
     const hero = page.locator(".morning-hero");
@@ -113,11 +113,56 @@ for (const [width, height] of [[320, 812], [390, 844], [768, 1000], [1024, 768],
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       const heroBox = await hero.boundingBox();
       const indexBox = await page.getByRole("list", { name: "接下来的内容" }).boundingBox();
-      expect(heroBox!.height).toBeGreaterThanOrEqual(height);
+      if (width <= 720) {
+        await expect(hero.locator(".morning-hero__inner")).toHaveCSS("min-height", "0px");
+      } else {
+        expect(heroBox!.height).toBeGreaterThanOrEqual(height);
+      }
       expect(indexBox!.y + indexBox!.height).toBeLessThanOrEqual(heroBox!.y + heroBox!.height);
     }
   });
 }
+
+test("手机宽度下介绍按内容排列，五个目录入口纵向左对齐", async ({ page }) => {
+  for (const width of [320, 360, 375, 390, 393, 412, 430]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/");
+    const metrics = await page.evaluate(() => {
+      const rect = (selector: string) => document.querySelector(selector)!.getBoundingClientRect();
+      const links = [...document.querySelectorAll<HTMLElement>(".morning-index a")].map((link) => link.getBoundingClientRect());
+      return {
+        documentWidth: document.documentElement.scrollWidth,
+        heroBottom: rect(".morning-hero").bottom,
+        brandBottom: rect(".morning-brand").bottom,
+        greetingTop: rect(".morning-copy__greeting").top,
+        identityBottom: rect(".morning-copy__identity").bottom,
+        purposeTop: rect(".morning-copy__purpose").top,
+        invitationBottom: rect(".morning-copy__invitation").bottom,
+        indexTop: rect(".morning-index").top,
+        indexBottom: rect(".morning-index").bottom,
+        links: links.map(({ x, right, height }) => ({ x, right, height })),
+      };
+    });
+    expect(metrics.documentWidth).toBe(width);
+    expect(metrics.brandBottom).toBeLessThan(metrics.greetingTop);
+    expect(metrics.identityBottom).toBeLessThan(metrics.purposeTop);
+    expect(metrics.invitationBottom).toBeLessThan(metrics.indexTop);
+    expect(metrics.indexBottom).toBeLessThanOrEqual(metrics.heroBottom);
+    expect(metrics.links).toHaveLength(5);
+    expect(new Set(metrics.links.map(({ x }) => x)).size).toBe(1);
+    for (const { right, height } of metrics.links) {
+      expect(right).toBeLessThanOrEqual(width);
+      expect(height).toBeGreaterThanOrEqual(44);
+    }
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const [index, id] of sectionIds.entries()) {
+    await page.goto("/");
+    await page.locator(".morning-index a").nth(index).click();
+    await expect(page).toHaveURL(new RegExp(`#${id}$`));
+  }
+});
 
 test("辅助偏好与首屏图片失败仍可阅读", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce", contrast: "more" });

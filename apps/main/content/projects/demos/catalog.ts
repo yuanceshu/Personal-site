@@ -7,9 +7,9 @@ export const demos = [{
   href: "/works/demos/island-travel",
 }, {
   id: "restaurant-ai",
-  title: "食智助手 · 餐饮知识服务",
-  subtitle: "让餐饮企业的知识真正用起来。",
-  description: "同一套企业知识，分别服务顾客、门店运营人员和财务人员。体验本地知识检索、答案来源与连续追问。",
-  tags: ["餐饮行业", "企业知识库", "对话式服务"],
+  title: "食智助手 · 餐饮 Agent 工作台",
+  subtitle: "让餐饮服务继续往前走。",
+  description: "三个餐饮 Agent 分别为顾客、运营和财务查阅演示资料、解释数据并准备待确认草案。",
+  tags: ["餐饮行业", "Agent 工作流", "虚构演示"],
   href: "/works/demos/restaurant-ai",
 }] as const;

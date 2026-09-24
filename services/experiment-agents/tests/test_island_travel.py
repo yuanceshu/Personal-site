@@ -19,6 +19,8 @@ RESULT = {"intent": "search_trips", "conditions": {"origin": "海口", "destinat
     {"message": "138 0000 0000"}, {"message": "110101199001010000"},
     {"message": "hi", "conditions": {"date": "2026-02-30"}},
     {"message": "hi", "conditions": {"quantity": 6}},
+    {"message": "从公共地点出发", "conditions": {"origin": "某某小区"}},
+    {"message": "我家在某某小区"},
     {"message": "hi", "passenger": {}},
     {"message": "hi", "history": [{"role": "user", "content": "x"}] * 17},
 ])
@@ -31,6 +33,13 @@ def test_date_text_allowed_but_phone_still_rejected():
     assert ChatRequest(message="2026-09-15从海口去三亚").message
     with pytest.raises(ValidationError):
         ChatRequest(message="2026-09-15 手机138-0000-0000")
+
+
+@pytest.mark.parametrize("intent", ["request_refund", "request_reschedule", "request_invoice", "request_product", "request_door_plan", "request_support", "request_reminder"])
+def test_after_sales_intents_accept_no_transaction_fields(intent):
+    assert ChatResponse(**{**RESULT, "intent": intent}).intent == intent
+    with pytest.raises(ValidationError):
+        ChatResponse(**{**RESULT, "intent": intent, "amount": 1})
 
 
 def test_api_auth_validation_and_fixed_response():

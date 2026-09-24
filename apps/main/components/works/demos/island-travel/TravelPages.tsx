@@ -1,19 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { dateLabel, missingCondition, statusLabels, type PaymentResult } from "@/lib/works/island-travel/domain";
 import { travelRoot, useTravel } from "./TravelProvider";
 import { Arrow, EmptyState, IslandMark, QueryForm, StepHeading, TripList, TripSummary } from "./TravelUI";
+import { OrderHistory, OrderServices } from "./OrderServices";
+import { DoorPlanSection } from "./DoorPlan";
+import { productKindLabels, productSourceWarning, productStatusLabels } from "@/lib/works/island-travel/products";
 
 function Concierge() {
   const t = useTravel();
   const input = useRef<HTMLTextAreaElement>(null);
-  return <section className="concierge" aria-label="出行对话">
+  return <section id="travel-concierge" className="concierge" aria-label="出行对话">
     <div className="concierge-header"><IslandMark /><div><p className="overline">AT YOUR SERVICE</p><h2>和岛见聊聊</h2></div><button className="quiet-button" onClick={() => { t.newJourney(); input.current?.focus(); }}>新行程</button></div>
     <p className="mode-caption">{t.mode === "live" ? "真实 AI 理解 · 模拟行程" : "演示模式 · 规则理解，不调用 AI"}</p>
+    {t.chatContextId && <div className="chat-context" role="status">当前订单：{t.chatContextId} · 对话只提供页面入口，不会提交交易、工单或提醒。<button className="quiet-button" type="button" onClick={t.clearChatContext}>清除关联</button></div>}
     <div className="chat-log" role="log" aria-label="聊天记录" aria-live="polite">
-      {t.messages.map(message => <article className={`chat-message chat-message--${message.role}`} key={message.id}><span>{message.role === "user" ? "你" : "岛见"}{message.mode === "demo" ? " · 演示" : ""}</span><p>{message.text}</p>{message.orders && <Link className="text-link" href={`${travelRoot}/orders`}>查看我的演示订单 <Arrow /></Link>}</article>)}
+      {t.messages.map(message => <article className={`chat-message chat-message--${message.role}`} key={message.id}><span>{message.role === "user" ? "你" : "岛见"}{message.mode === "demo" ? " · 演示" : ""}</span><p>{message.text}</p>{message.link && <Link className="text-link" href={message.link.href}>{message.link.label} <Arrow /></Link>}</article>)}
     </div>
     {t.messages.length === 1 && <div className="chat-suggestions">{["明天上午从海口去三亚", "改成下午，2人", "模拟支付怎么体验？"].map((example, i) => <button key={example} disabled={t.busy} onClick={() => void t.send(example)}><small>0{i + 1}</small>{example}<Arrow /></button>)}</div>}
     {t.busy && <div className="travel-wait" role="status"><span className="waiting-dot" />正在理解你的出行计划…<button className="quiet-button" onClick={t.cancel}>取消</button></div>}
@@ -35,8 +39,10 @@ export function PlanningPage() {
         {!t.trips.length && <div className="travel-empty compact"><IslandMark /><h3>{t.queried ? missingCondition(t.conditions) ? "还差一点出发的信息。" : "给计划，留一点调整的余地。" : "每一程，都从一个念头开始。"}</h3><p>{t.queried ? "请补全出发地、目的地和日期，或试试其他日期、时段与人数。" : "支持海口至三亚、琼海、文昌、儋州，以及三亚、琼海至海口。"}</p></div>}
         <div className="table-note"><span>虚构班次 · 余票按本次体验计算</span><span>单程 / 不可真实乘车</span></div>
         <div className="journey-reminder"><p className="overline">A LITTLE ROOM TO BREATHE</p><p>不必急着抵达。<br /><span>让路上的时间，也成为旅行的一部分。</span></p></div>
+        <div className="travel-product-discovery"><div><span className="overline">BEYOND THE TICKET</span><h2>把车站之外，也纳入计划。</h2><p>探索车站接驳、景区直通车与包车。全部为虚构演示服务，分别确认与支付。</p></div><Link className="quiet-button" href={`${travelRoot}/products`} onClick={() => t.setProductQuery("")}>查看交通产品 <Arrow /></Link></div>
       </section><Concierge />
     </div>
+    <DoorPlanSection />
   </div>;
 }
 
@@ -77,7 +83,7 @@ export function OrderPage({ id }: { id: string }) {
     previousStatus.current = order?.status;
   }, [order?.status]);
   return <div className="container inner-content">
-    <StepHeading eyebrow="03 / YOUR JOURNEY AWAITS" title={order?.status === "ticketed" ? "下一段风景，等你启程。" : "再一步，就可以出发。"} description="这是一段完整的模拟购票体验，不产生任何真实扣款。" step={3} back="/orders" backLabel="查看全部订单" />
+    <StepHeading eyebrow="03 / YOUR JOURNEY AWAITS" title={order?.status === "ticketed" ? "下一段风景，等你启程。" : order?.status === "refunded" ? "这一程，已妥善收尾。" : "再一步，就可以出发。"} description="这是一段完整的模拟购票体验，不产生任何真实扣款。" step={3} back="/orders" backLabel="查看全部订单" />
     {!order ? <EmptyState title="这张订单不在当前会话中。">订单不会跨页面刷新或设备保存。你可以重新规划行程，或返回我的订单查看本次记录。</EmptyState> : <div className="checkout-grid">
       <section className="payment-panel" aria-label="模拟支付与出票"><div className="order-heading"><div><p className="overline">{order.id}</p><h2 ref={result} tabIndex={-1}>{statusLabels[order.status]}</h2></div><span className="status-badge">模拟交易</span></div>
         {(order.status === "pending" || order.status === "payment_failed") && <>
@@ -87,8 +93,13 @@ export function OrderPage({ id }: { id: string }) {
         </>}
         {order.status === "payment_unknown" && <div className="order-result"><div className="result-symbol">?</div><h3>先确认，不重复支付。</h3><p>支付结果暂时未知。主动查单后，本演示将恢复为支付成功并完成出票。</p><button className="button gold" onClick={() => t.transact(order.id, "query")}>主动查询支付结果 <Arrow /></button></div>}
         {order.status === "ticketing_failed" && <div className="order-result"><div className="result-symbol">!</div><h3>已支付，等一张票。</h3><p>模拟出票暂未完成。重试出票即可，已经支付的订单无需再付款。</p><button className="button gold" onClick={() => t.transact(order.id, "retry_ticket")}>重试出票 <Arrow /></button></div>}
-        {order.status === "ticketed" && <div className="order-result success"><div className="result-symbol"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" fill="none" stroke="currentColor" strokeWidth="1.3" /></svg></div><h3>这一程，安排好了。</h3><p role="status">模拟支付与出票已完成，不会再次支付。<br />这张演示车票不能用于真实乘车。</p><div className="travel-ticket"><IslandMark /><p>岛见 · 演示车票<small>DEMO TICKET / NOT VALID FOR TRAVEL</small></p><span>{order.id}</span></div><Link className="button gold" href={`${travelRoot}/plan`}>继续查询班次 <Arrow /></Link></div>}
+        {order.status === "ticketed" && <div className="order-result success"><div className="result-symbol"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" fill="none" stroke="currentColor" strokeWidth="1.3" /></svg></div><h3>这一程，安排好了。</h3><p role="status">模拟支付与出票已完成，不会再次支付。<br />这张演示车票不能用于真实乘车。</p><div className="travel-ticket"><IslandMark /><p>岛见 · 演示车票<small>DEMO TICKET / NOT VALID FOR TRAVEL</small></p><span>{order.id}</span></div>{order.reschedule && <p className="journey-notice">改签处理中。原票保持有效，请从下方“订单服务”继续处理。</p>}<div className="order-next-actions"><Link className="button gold" href={`${travelRoot}/journeys/${order.id}`}>查看我的行程 <Arrow /></Link></div></div>}
+        {order.status === "refunded" && <div className="order-result"><h3>演示退票已完成。</h3><p role="status">凭证失效、行程取消，对应座位已释放。不会发生真实退款。</p><Link className="button gold" href={`${travelRoot}/journeys/${order.id}`}>查看已取消行程 <Arrow /></Link></div>}
         {t.flowError && <p className="travel-error" role="alert">{t.flowError}</p>}
+        <OrderServices order={order} />
+        <div className="order-help-links"><Link className="text-link" href={`${travelRoot}/orders/${order.id}/support`}>演示客服工单 {t.supportTickets.filter(ticket => ticket.orderId === order.id).length ? `(${t.supportTickets.filter(ticket => ticket.orderId === order.id).length})` : ""} <Arrow /></Link><button className="quiet-button" type="button" onClick={() => t.openConcierge(order.id)}>与岛见聊这张订单 <Arrow /></button></div>
+        {t.productOrders.filter(product => product.sourceTicketId === order.id).map(product => <div className="journey-notice" key={product.id}><p>关联交通服务：<Link className="text-link" href={`${travelRoot}/orders/${product.id}`}>{product.id} · {product.offer.title} <Arrow /></Link></p><p>{productSourceWarning(product, t.orders) ?? "车票与服务目前关联；产品单独结算，不随车票自动更改。"}</p></div>)}
+        <OrderHistory order={order} />
         <div className="order-panel-bottom"><span>{order.quantity} 位演示乘客 · 仅本次会话有效</span><Link href={`${travelRoot}/orders`} className="text-link">查看全部订单 <Arrow /></Link></div>
       </section><TripSummary trip={order.trip} quantity={order.quantity}><p className="summary-caption">沿途的风景，<br /><em>值得慢一点。</em></p></TripSummary>
     </div>}
@@ -96,11 +107,16 @@ export function OrderPage({ id }: { id: string }) {
 }
 
 export function OrdersPage() {
-  const { orders, newJourney } = useTravel();
+  const { orders, orderIds, productOrders, newJourney } = useTravel();
+  const [filter, setFilter] = useState<"all" | "tickets" | "products" | "after_sales">("all");
+  const tickets = orders.map(order => ({ kind: "ticket" as const, order }));
+  const products = productOrders.map(order => ({ kind: "product" as const, order }));
+  const visible = (filter === "products" ? products : filter === "tickets" ? tickets : filter === "after_sales" ? tickets.filter(({ order }) => order.reschedule || order.events.some(event => event.type === "refund" || event.type === "reschedule")) : [...tickets, ...products]).sort((a, b) => orderIds.indexOf(a.order.id) - orderIds.indexOf(b.order.id));
   return <div className="container inner-content">
     <StepHeading eyebrow="YOUR JOURNEY COLLECTION" title="每一程，都在这里。" description="查看本次体验里的行程，继续还未完成的安排。刷新页面后，这些记录会清空。" back="/plan" />
-    <div className="orders-toolbar"><p>{orders.length.toString().padStart(2, "0")} 段演示行程</p><button className="quiet-button" onClick={newJourney}>规划新行程 <Arrow /></button></div>
-    {!orders.length ? <EmptyState title="还没有订单。">选择一趟班次，开始你的第一段演示行程。无需提供真实个人资料。</EmptyState> : <div className="orders-list">{[...orders].reverse().map(order => <Link className="order-row" key={order.id} href={`${travelRoot}/orders/${order.id}`}><div className="order-date"><strong>{order.trip.date.slice(8)}</strong><span>{order.trip.date.slice(0, 7).replace("-", " / ")}</span></div><div className="order-route"><span className="route-small">{order.id} / ONE WAY</span><h2>{order.trip.origin} <span>⟶</span> {order.trip.destination}</h2><p>{order.trip.depart} — {order.trip.arrive} · {order.quantity} 人</p></div><span className={`status-badge status-${order.status}`}>{statusLabels[order.status]}</span><div className="order-price"><strong><small>¥</small>{order.amount}</strong><span>模拟合计</span></div><Arrow /></Link>)}</div>}
+    <div className="orders-toolbar"><p>{String(orders.length + productOrders.length).padStart(2, "0")} 笔演示订单</p><button className="quiet-button" onClick={newJourney}>规划新行程 <Arrow /></button></div>
+    {!!(orders.length + productOrders.length) && <div className="orders-filters" role="group" aria-label="订单筛选"><button type="button" aria-pressed={filter === "all"} onClick={() => setFilter("all")}>全部</button><button type="button" aria-pressed={filter === "tickets"} onClick={() => setFilter("tickets")}>车票</button><button type="button" aria-pressed={filter === "products"} onClick={() => setFilter("products")}>交通产品</button><button type="button" aria-pressed={filter === "after_sales"} onClick={() => setFilter("after_sales")}>售后</button></div>}
+    {!orders.length && !productOrders.length ? <EmptyState title="还没有订单。">选择一趟班次或交通产品，开始第一段演示行程。无需提供真实个人资料。</EmptyState> : !visible.length ? <div className="travel-empty compact"><IslandMark /><h2>这个分类还没有订单。</h2><p>车票、交通产品与车票售后会分别显示在这里。</p></div> : <div className="orders-list">{[...visible].reverse().map(item => item.kind === "ticket" ? <Link className="order-row" key={item.order.id} href={`${travelRoot}/orders/${item.order.id}`}><div className="order-date"><strong>{item.order.trip.date.slice(8)}</strong><span>{item.order.trip.date.slice(0, 7).replace("-", " / ")}</span></div><div className="order-route"><span className="route-small">{item.order.id} / 车票</span><h2>{item.order.trip.origin} <span>⟶</span> {item.order.trip.destination}</h2><p>{item.order.trip.depart} — {item.order.trip.arrive} · {item.order.quantity} 人</p></div><span className={`status-badge status-${item.order.status}`}>{item.order.reschedule ? "改签处理中" : statusLabels[item.order.status]}</span><div className="order-price"><strong><small>¥</small>{item.order.amount}</strong><span>模拟合计</span></div><Arrow /></Link> : <Link className="order-row" key={item.order.id} href={`${travelRoot}/orders/${item.order.id}`}><div className="order-date"><strong>{item.order.offer.date.slice(8)}</strong><span>{item.order.offer.date.slice(0, 7).replace("-", " / ")}</span></div><div className="order-route"><span className="route-small">{item.order.id} / {productKindLabels[item.order.offer.kind]}</span><h2>{item.order.offer.from} <span>⟶</span> {item.order.offer.to}</h2><p>{item.order.offer.depart} — {item.order.offer.arrive} · {item.order.quantity} 人</p></div><span className="status-badge">{productStatusLabels[item.order.status]}</span><div className="order-price"><strong><small>¥</small>{(item.order.amountCents / 100).toFixed(2)}</strong><span>模拟合计</span></div><Arrow /></Link>)}</div>}
     <div className="orders-closing"><span>THE NEXT CHAPTER</span><p>下一次出发，<em>也从这里开始。</em></p><Link className="text-link" href={travelRoot}>回到山海之间 <Arrow /></Link></div>
   </div>;
 }

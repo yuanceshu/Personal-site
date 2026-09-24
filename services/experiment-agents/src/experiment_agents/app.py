@@ -3,12 +3,15 @@ import contextlib
 import secrets
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi.responses import StreamingResponse
 from fastapi.exceptions import RequestValidationError
 from .config import Settings
 from .works.ai_solution_lab.schemas import LabRequest, LabResponse
 from .works.ai_solution_lab.workflow import WorkflowError, run_stage
 from .works.island_travel.schemas import ChatRequest, ChatResponse
 from .works.island_travel.workflow import TravelError, interpret
+from .works.restaurant_ai.schemas import ChatRequest as RestaurantChatRequest
+from .works.restaurant_ai.workflow import stream_chat as restaurant_stream_chat
 
 
 async def until_disconnect(request: Request):
@@ -54,7 +57,7 @@ class RequestBoundary:
                 headers={"Cache-Control": "no-store"},
             )(scope, receive, send)
 
-        if scope["path"] not in {"/works/ai-solution-lab/generate", "/works/island-travel/chat"}:
+        if scope["path"] not in {"/works/ai-solution-lab/generate", "/works/island-travel/chat", "/works/restaurant-ai/chat", "/works/restaurant-ai/status"}:
             return await reject(404, "not_found")
         headers = dict(scope["headers"])
         if not self.token or not secrets.compare_digest(
@@ -128,6 +131,20 @@ def create_app(settings: Settings | None = None, runner=run_stage, travel_runner
             return JSONResponse({"error": error.code}, status_code=error.status)
         except Exception:
             return JSONResponse({"error": "interpretation_failed"}, status_code=502)
+
+    @app.post("/works/restaurant-ai/chat")
+    async def restaurant_chat(payload: RestaurantChatRequest):
+        if not settings.configured:
+            return JSONResponse({"error": "model_unavailable"}, status_code=503)
+        return StreamingResponse(
+            restaurant_stream_chat(payload, settings),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
+        )
+
+    @app.get("/works/restaurant-ai/status")
+    async def restaurant_status():
+        return {"live": settings.configured}
 
     return app
 

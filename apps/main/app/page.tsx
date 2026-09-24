@@ -60,11 +60,11 @@ export default function Home() {
               </p>
               <h1 className="morning-copy__purpose" id="home-title">
                 <span className="morning-copy__line">这里，我把<strong className="morning-copy__motivation-key">好奇心</strong>，</span>
-                <span className="morning-copy__line">变成了一些<strong className="morning-copy__motivation-key">真实存在</strong>的东西。</span>
+                <span className="morning-copy__line">变成了一些<span className="morning-copy__unbroken"><strong className="morning-copy__motivation-key">真实存在</strong>的东西</span>。</span>
               </h1>
               <p className="morning-copy__invitation">
                 <span className="morning-copy__line">它记录我工作、学习、实验留下的痕迹。</span>
-                <span className="morning-copy__line morning-copy__invitation-next">不追光，只生长。愿我们岁岁成长，一路同行。</span>
+                <span className="morning-copy__line morning-copy__invitation-next">不追光，只生长。<span className="morning-copy__unbroken">愿我们岁岁成长</span>，<span className="morning-copy__unbroken">一路同行</span>。</span>
               </p>
             </div>
             <ul className="morning-index" aria-label="接下来的内容">

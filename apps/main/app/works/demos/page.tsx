@@ -19,9 +19,9 @@ export default function DemosPage() {
         {demos.map((demo, index) => (
           <Link href={demo.href} className="collection-work" key={demo.id}>
             <div className="collection-art">
-              {demo.id === "island-travel" ? <Image src="/projects/demos/island-travel/coast-editorial.webp" alt="虚构海岸公路的 AI 创作场景" fill sizes="(max-width: 760px) 100vw, 90vw" preload /> : <div className="collection-art-placeholder" aria-hidden="true"><span>食智助手</span><small>餐饮知识服务 · 三个真实工作场景</small></div>}
+              {demo.id === "island-travel" ? <Image src="/projects/demos/island-travel/coast-editorial.webp" alt="虚构海岸公路的 AI 创作场景" fill sizes="(max-width: 760px) 100vw, 90vw" preload /> : <div className="collection-art-placeholder" aria-hidden="true"><span>食智助手</span><small>三种餐饮任务 · 虚构演示数据</small></div>}
               <div className="collection-art-top"><span>01 / ISLAND TRAVEL</span><span>交通出行 · 交互体验</span></div>
-              <div className="collection-art-title"><span>{demo.id === "island-travel" ? "岛见" : "食智助手"}</span><p>{demo.id === "island-travel" ? "去见一面。也见一座岛。" : "让餐饮企业的知识真正用起来。"}</p></div>
+              <div className="collection-art-title"><span>{demo.id === "island-travel" ? "岛见" : "食智助手"}</span><p>{demo.id === "island-travel" ? "去见一面。也见一座岛。" : "让数据、判断与操作有据可依。"}</p></div>
               <span className="collection-arrow" aria-hidden="true">↗</span>
               <small className="collection-image-note">{demo.id === "island-travel" ? "AI 创作示意 · 非真实线路照片" : "虚拟知识库 · 无外部业务连接"}</small>
             </div>
