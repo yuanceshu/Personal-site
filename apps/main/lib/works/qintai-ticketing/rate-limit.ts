@@ -35,7 +35,7 @@ redis.call('EXPIRE', KEYS[1], 600)
 return {1, 0}`;
 
 export function qintaiRateConfigured() {
-  const base = process.env.QINTAI_RATE_REDIS_URL ?? process.env.REDIS_URL;
+  const base = process.env.QINTAI_RATE_REDIS_URL ?? process.env.KV_REST_API_URL;
   const token = process.env.QINTAI_RATE_REDIS_TOKEN ?? process.env.KV_REST_API_TOKEN;
   return (
     process.env.VERCEL !== "1" ||
@@ -61,7 +61,7 @@ export async function checkQintaiRate(request: Request, scope: "chat" | "merchan
     localRequests.push(now);
     return;
   }
-  const base = process.env.QINTAI_RATE_REDIS_URL ?? process.env.REDIS_URL;
+  const base = process.env.QINTAI_RATE_REDIS_URL ?? process.env.KV_REST_API_URL;
   const token = process.env.QINTAI_RATE_REDIS_TOKEN ?? process.env.KV_REST_API_TOKEN;
   const salt = process.env.QINTAI_RATE_SALT;
   const ip = request.headers.get("x-vercel-forwarded-for")?.trim();

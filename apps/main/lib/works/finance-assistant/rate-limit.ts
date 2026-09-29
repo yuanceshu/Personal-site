@@ -19,7 +19,7 @@ redis.call('EXPIRE', KEYS[1], 600)
 return {1, 0}`;
 
 export function financeRateConfigured() {
-  const base = process.env.FINANCE_RATE_REDIS_URL ?? process.env.REDIS_URL;
+  const base = process.env.FINANCE_RATE_REDIS_URL ?? process.env.KV_REST_API_URL;
   const token = process.env.FINANCE_RATE_REDIS_TOKEN ?? process.env.KV_REST_API_TOKEN;
   return process.env.VERCEL !== "1" || Boolean(base?.startsWith("https://") && token && process.env.FINANCE_RATE_SALT);
 }
@@ -33,7 +33,7 @@ export async function checkFinanceRate(request: Request) {
     localRequests.push(now);
     return;
   }
-  const base = process.env.FINANCE_RATE_REDIS_URL ?? process.env.REDIS_URL;
+  const base = process.env.FINANCE_RATE_REDIS_URL ?? process.env.KV_REST_API_URL;
   const token = process.env.FINANCE_RATE_REDIS_TOKEN ?? process.env.KV_REST_API_TOKEN;
   const salt = process.env.FINANCE_RATE_SALT;
   const ip = request.headers.get("x-vercel-forwarded-for")?.trim();
