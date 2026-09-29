@@ -1,0 +1,11 @@
+{
+  "id": "hospital-location-imaging-center-001",
+  "title": "医学影像中心路线提示",
+  "category": "location",
+  "keywords": ["CT室在哪里", "CT室在哪", "影像中心在哪里", "医学影像中心", "二楼"],
+  "content": "从普外科签到区返回扶梯口，乘扶梯或电梯前往2楼，沿影像中心指引到达二楼医学影像中心 CT 登记台。",
+  "source": "明川市中心医院 Demo Mock",
+  "source_url": "mock://mingchuan-hospital/locations/imaging-center",
+  "review_date": "2026-09-28",
+  "version": "1.0"
+}

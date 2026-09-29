@@ -12,6 +12,14 @@ from .works.island_travel.schemas import ChatRequest, ChatResponse
 from .works.island_travel.workflow import TravelError, interpret
 from .works.restaurant_ai.schemas import ChatRequest as RestaurantChatRequest
 from .works.restaurant_ai.workflow import stream_chat as restaurant_stream_chat
+from .works.linquan.schemas import ChatRequest as LinquanChatRequest, ChatResponse as LinquanChatResponse
+from .works.linquan.workflow import LinquanError, explain as linquan_explain
+from .works.qintai_ticketing.schemas import ChatRequest as QintaiChatRequest
+from .works.qintai_ticketing.workflow import stream_chat as qintai_stream_chat
+from .works.medical_ai.schemas import ChatRequest as MedicalChatRequest, ChatResponse as MedicalChatResponse
+from .works.medical_ai.workflow import MedicalError, explain as medical_explain
+from .works.finance_assistant.schemas import ChatRequest as FinanceChatRequest, ChatResponse as FinanceChatResponse
+from .works.finance_assistant.workflow import run_chat as finance_run_chat
 
 
 async def until_disconnect(request: Request):
@@ -57,7 +65,18 @@ class RequestBoundary:
                 headers={"Cache-Control": "no-store"},
             )(scope, receive, send)
 
-        if scope["path"] not in {"/works/ai-solution-lab/generate", "/works/island-travel/chat", "/works/restaurant-ai/chat", "/works/restaurant-ai/status"}:
+        if scope["path"] not in {
+            "/works/ai-solution-lab/generate",
+            "/works/island-travel/chat",
+            "/works/restaurant-ai/chat",
+            "/works/restaurant-ai/status",
+            "/works/linquan/chat",
+            "/works/qintai-ticketing/chat",
+            "/works/qintai-ticketing/merchant",
+            "/works/qintai-ticketing/status",
+            "/works/medical-ai/chat",
+            "/works/finance-assistant/chat",
+        }:
             return await reject(404, "not_found")
         headers = dict(scope["headers"])
         if not self.token or not secrets.compare_digest(
@@ -145,6 +164,76 @@ def create_app(settings: Settings | None = None, runner=run_stage, travel_runner
     @app.get("/works/restaurant-ai/status")
     async def restaurant_status():
         return {"live": settings.configured}
+
+    @app.post("/works/linquan/chat", response_model=LinquanChatResponse)
+    async def linquan_chat(payload: LinquanChatRequest, request: Request):
+        try:
+            async with asyncio.timeout(17):
+                return await run_connected(request, linquan_explain(payload, settings))
+        except TimeoutError:
+            return JSONResponse({"error": "timeout"}, status_code=504)
+        except (LinquanError, WorkflowError) as error:
+            return JSONResponse({"error": error.code}, status_code=error.status)
+        except Exception:
+            return JSONResponse({"error": "explanation_failed"}, status_code=502)
+
+    # 琴台票务：顾客侧与运营侧共用同一个 Agno 工具 Agent + SSE，只经主站代理调用。
+    async def qintai_response(payload: QintaiChatRequest):
+        if not settings.configured:
+            return JSONResponse({"error": "model_unavailable"}, status_code=503)
+        return StreamingResponse(
+            qintai_stream_chat(payload, settings),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
+        )
+
+    @app.post("/works/qintai-ticketing/chat")
+    async def qintai_chat(payload: QintaiChatRequest):
+        if payload.role != "customer":
+            return JSONResponse({"error": "invalid_request"}, status_code=422)
+        return await qintai_response(payload)
+
+    @app.post("/works/qintai-ticketing/merchant")
+    async def qintai_merchant(payload: QintaiChatRequest):
+        if payload.role != "merchant":
+            return JSONResponse({"error": "invalid_request"}, status_code=422)
+        return await qintai_response(payload)
+
+    @app.get("/works/qintai-ticketing/status")
+    async def qintai_status():
+        return {"live": settings.configured}
+
+    @app.post("/works/medical-ai/chat", response_model=MedicalChatResponse)
+    async def medical_chat(payload: MedicalChatRequest, request: Request):
+        try:
+            async with asyncio.timeout(17):
+                return await run_connected(request, medical_explain(payload, settings))
+        except TimeoutError:
+            return JSONResponse({"error": "timeout"}, status_code=504)
+        except (MedicalError, WorkflowError) as error:
+            return JSONResponse({"error": error.code}, status_code=error.status)
+        except Exception:
+            return JSONResponse({"error": "explanation_failed"}, status_code=502)
+
+    @app.post("/works/finance-assistant/chat", response_model=FinanceChatResponse)
+    async def finance_chat(payload: FinanceChatRequest, request: Request):
+        tool_url = request.headers.get("x-finance-tool-url")
+        tool_token = request.headers.get("x-finance-tool-token")
+        if not tool_url or not tool_token:
+            return JSONResponse({"error": "tool_unavailable"}, status_code=503)
+        try:
+            async with asyncio.timeout(58):
+                return await run_connected(request, finance_run_chat(payload, settings, tool_url, tool_token))
+        except TimeoutError:
+            return JSONResponse({"error": "timeout"}, status_code=504)
+        except WorkflowError as error:
+            return JSONResponse({"error": error.code}, status_code=error.status)
+        except RuntimeError as error:
+            if str(error) == "model_unavailable":
+                return JSONResponse({"error": "model_unavailable"}, status_code=503)
+            return JSONResponse({"error": "finance_agent_failed"}, status_code=502)
+        except Exception:
+            return JSONResponse({"error": "finance_agent_failed"}, status_code=502)
 
     return app
 

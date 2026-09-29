@@ -1,6 +1,6 @@
 # 实验作品服务
 
-当前实现 AI 场景诊断工作台、岛见行程理解与食智助手。工作台和岛见使用显式模型调用；食智助手的独立模块使用 Agno 工具 Agent。没有业务数据库、账号或任务队列。分别见[工作台实现文档](../../docs/projects/ai-solution-lab.md)、[岛见实现记录](../../docs/projects/island-travel.md)和[食智助手规格](../../docs/projects/restaurant-ai.md)。
+当前实现 AI 场景诊断工作台、岛见行程理解、食智助手、林泉景区伴游、琴台票务双端工具 Agent、明川医院就医助手和云川财务智能体。工作台、岛见、林泉和医疗 Demo 使用显式模型调用；食智助手、琴台票务和财务助手使用 Agno 工具 Agent。没有业务数据库、账号或任务队列。医疗 Demo 的业务 Tool、Safety 和状态机留在主站，实验服务只根据结构化证据润色回答。
 
 ## 本地启动
 
@@ -56,6 +56,12 @@ EXPERIMENT_AGENT_TOKEN=与实验服务 Preview 完全一致的凭据
 - `POST /works/island-travel/chat`：独立行程理解契约，同样要求 Bearer 和 32 KiB 上限；不接收或处理订单、乘客身份、票价和支付。
 - `POST /works/restaurant-ai/chat`：三类餐饮 Agent 共用的受限入口，返回安全状态与最终结果的 SSE；只读虚构资料，操作仅生成演示草案。
 - `GET /works/restaurant-ai/status`：同样需要 Bearer Token，仅返回实时模型配置是否齐备，供页面切换样例模式。
+- `POST /works/linquan/chat`：受限回答解释入口；路线、活动、服务和业务 Tool 已由主站确定性执行，服务只依据结构化结果润色回答。
+- `POST /works/qintai-ticketing/chat`：顾客购票侧受限入口，返回安全状态与最终结果的 SSE；模型只在请求投影上工作，锁座等写操作由主站浏览器确定性执行。
+- `POST /works/qintai-ticketing/merchant`：运营工作台受限入口，契约与上一条相同；改价、补货与活动只产出待确认提案，不直接写穿库存。
+- `GET /works/qintai-ticketing/status`：受限状态探测，仅返回实时模型配置是否齐备。
+- `POST /works/finance-assistant/chat`：Agno 财务 Agent 入口；六个 Finance Tool 通过主站服务端内部接口执行，服务不保存财务数据或会话。
+- `POST /works/medical-ai/chat`：受限医疗回答解释入口；主站已确定性执行就医状态、Tool、Safety、知识和报告逻辑，服务不执行医疗业务动作、不提供诊断。
 - 无公开 OpenAPI、管理或任意模型执行接口。
 - `analyze` 输入 `{stage,input}`，输出需求 `Brief`。
 - `diagnose` 输入 `{stage,brief,selectedCapabilities}`，输出 `Diagnosis`；非空能力选择必须严格保留。

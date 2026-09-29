@@ -1,0 +1,11 @@
+{
+  "id": "medical-abdominal-pain-001",
+  "title": "腹痛基础就医知识",
+  "category": "symptom",
+  "keywords": ["腹痛", "肚子疼", "腹部疼痛", "腹部不适"],
+  "content": "腹痛是胸部到腹股沟之间区域出现的疼痛。疼痛强弱不一定能反映原因，医生通常还需要了解疼痛位置、开始时间、变化情况以及伴随症状。突然出现的尖锐腹痛、腹部明显压痛或僵硬、呕血或便血、呼吸困难等情况，需要尽快接受现场医疗评估。以上信息不能单独用于确定疾病诊断。",
+  "source": "MedlinePlus Medical Encyclopedia",
+  "source_url": "https://medlineplus.gov/ency/article/003120.htm",
+  "review_date": "2026-01-13",
+  "version": "1.0"
+}

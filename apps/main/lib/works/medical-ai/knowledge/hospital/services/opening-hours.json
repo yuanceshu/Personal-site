@@ -1,0 +1,11 @@
+{
+  "id": "hospital-opening-hours-001",
+  "title": "门诊开放时间",
+  "category": "service",
+  "keywords": ["门诊几点开门", "医院几点开门", "门诊时间", "开放时间"],
+  "content": "明川市中心医院 Demo 门诊开放时间为每天 08:00–17:30。节假日和特殊安排以院方当日通知为准。",
+  "source": "明川市中心医院 Demo Mock",
+  "source_url": "mock://mingchuan-hospital/services/opening-hours",
+  "review_date": "2026-09-28",
+  "version": "1.0"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "medical-ct-001",
+  "title": "CT 检查基础说明",
+  "category": "examination",
+  "keywords": ["CT", "CT检查", "CT是什么", "计算机断层扫描", "腹部CT"],
+  "content": "CT 使用 X 射线生成身体横断面图像。检查时通常需要平躺在检查床上进入扫描设备，并在扫描时保持不动，单次扫描通常只需几分钟。部分检查会使用造影剂，是否需要造影剂或检查前禁食取决于具体检查安排；如有造影剂反应史或肾脏问题，应提前告知医务人员。",
+  "source": "MedlinePlus Medical Encyclopedia",
+  "source_url": "https://medlineplus.gov/ency/article/003330.htm",
+  "review_date": "2024-07-15",
+  "version": "1.0"
+}

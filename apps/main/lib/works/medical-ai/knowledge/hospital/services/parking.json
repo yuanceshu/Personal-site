@@ -1,0 +1,11 @@
+{
+  "id": "hospital-parking-001",
+  "title": "停车收费说明",
+  "category": "service",
+  "keywords": ["停车怎么收费", "停车费", "停车收费", "停车场"],
+  "content": "明川市中心医院 Demo 停车场按小时计费：5元/小时，当日最高30元。入口和出口均设有收费提示，具体以现场标牌为准。",
+  "source": "明川市中心医院 Demo Mock",
+  "source_url": "mock://mingchuan-hospital/services/parking",
+  "review_date": "2026-09-28",
+  "version": "1.0"
+}

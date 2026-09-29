@@ -15,8 +15,14 @@
     "test:travel": "tsx --test tests/island-travel/*.test.ts",
     "test:travel:browser": "playwright test --config=tests/island-travel/playwright.config.ts",
     "test:restaurant": "tsx --test tests/restaurant-ai/*.test.ts",
+    "test:finance-assistant": "tsx --test tests/finance-assistant/*.test.ts",
     "test:ui-lab": "tsx --test tests/ui-lab/*.test.ts",
-    "test:ui-lab:browser": "playwright test --config=tests/ui-lab/playwright.config.ts"
+    "test:ui-lab:browser": "playwright test --config=tests/ui-lab/playwright.config.ts",
+    "test:linquan": "tsx --test tests/linquan/*.test.ts",
+    "test:linquan:browser": "playwright test --config=tests/linquan/playwright.config.ts",
+    "test:qintai": "tsx --test tests/qintai-ticketing/*.test.ts",
+    "test:qintai:browser": "playwright test --config=tests/qintai-ticketing/playwright.config.ts",
+    "test:medical-ai": "tsx --test tests/medical-ai/*.test.ts"
   },
   "dependencies": {
     "next": "16.3.1",

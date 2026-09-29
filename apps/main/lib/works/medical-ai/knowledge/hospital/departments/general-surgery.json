@@ -1,0 +1,11 @@
+{
+  "id": "hospital-department-general-surgery-001",
+  "title": "普外科科室信息",
+  "category": "department",
+  "keywords": ["普外科", "外科", "腹痛科室"],
+  "content": "明川市中心医院 Demo 的普外科位于门诊楼3楼，右侧扶梯到达3楼后左转，沿走廊直行约30米即可看到普外科签到区。该科室可对腹痛、腹部急症等情况进行进一步评估。",
+  "source": "明川市中心医院 Demo Mock",
+  "source_url": "mock://mingchuan-hospital/departments/general-surgery",
+  "review_date": "2026-09-28",
+  "version": "1.0"
+}

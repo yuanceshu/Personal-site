@@ -1,0 +1,2 @@
+import type { FinancialDailyRecord } from './types'; import type { z } from 'zod'; import { filters } from './schemas/common';
+export function applyFinancialFilters(records:FinancialDailyRecord[],input:z.infer<typeof filters>,range:{start:string;end:string}){return records.filter(r=>r.date>=range.start&&r.date<=range.end&&(!input.companyIds||input.companyIds.includes(r.companyId))&&(!input.channels||input.channels.includes(r.channel))&&(!input.categories||input.categories.includes(r.category)));}

@@ -1,0 +1,10 @@
+import { z } from 'zod';
+export const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '日期必须为 YYYY-MM-DD').refine((value) => { const date = new Date(`${value}T00:00:00Z`); return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value; }, '日期不是有效的日历日期');
+export const metricCode = z.enum(['salesAmount','transactionAmount','refundAmount','netSalesAmount','orderCount','refundRate','avgOrderValue']);
+export const channel = z.enum(['银联','支付宝','微信支付','宝信']);
+export const category = z.enum(['数码产品','家用电器','办公用品','企业服务']);
+export const companyId = z.enum(['C001','C002','C003']);
+export const timeRange = z.object({preset:z.enum(['yesterday','current_week','previous_week','current_month','previous_month','current_year']).optional(),start:dateString.optional(),end:dateString.optional()}).refine(v => (v.preset ? !v.start && !v.end : !!v.start && !!v.end), '时间范围需为 preset 或 start/end');
+export const filters = z.object({companyIds:z.array(companyId).optional(),channels:z.array(channel).optional(),categories:z.array(category).optional()}).default({});
+export type MetricCode=z.infer<typeof metricCode>; export type TimeRange=z.infer<typeof timeRange>;
+export const moneyMetricCodes = new Set<MetricCode>(['salesAmount','transactionAmount','refundAmount','netSalesAmount','avgOrderValue']);

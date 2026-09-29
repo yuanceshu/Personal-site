@@ -26,8 +26,8 @@ test("首页下拉菜单由交互打开，滚动不选中栏目", async ({ page 
   }
   await navigation.getByRole("button", { name: "行业", exact: true }).hover();
   const links = page.locator("#home-navigation-industry").getByRole("link");
-  await expect(links).toHaveText(["岛见↗", "食智助手↗", "探索更多案例↗"]);
-  for (const [index, href] of ["/works/demos/island-travel", "/works/demos/restaurant-ai", "/works/demos"].entries()) {
+  await expect(links).toHaveText(["岛见↗", "食智助手↗", "林泉↗", "琴台票务↗", "云川财务智能体↗", "明川医院↗", "探索更多案例↗"]);
+  for (const [index, href] of ["/works/demos/island-travel", "/works/demos/restaurant-ai", "/works/demos/linquan", "/works/demos/qintai-ticketing", "/works/demos/finance-assistant", "/works/demos/medical-ai", "/works/demos"].entries()) {
     await expect(links.nth(index)).toHaveAttribute("href", href);
   }
   await navigation.getByRole("button", { name: "创造", exact: true }).hover();
@@ -103,5 +103,5 @@ test("行业原文、分栏比例与更多案例颜色", async ({ page }) => {
   });
   expect(ratio).toBeCloseTo(0.575, 3);
   await expect(page.locator(".home-bento__industry-more")).toHaveCSS("color", "rgb(0, 113, 227)");
-  await expect(page.locator(".home-bento__industries li")).toHaveCount(3);
+  await expect(page.locator(".home-bento__industries li")).toHaveCount(7);
 });

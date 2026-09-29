@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { getWork, getWorksByCategory, works } from "../../content/projects/catalog";
+import { demos } from "../../content/projects/demos/catalog";
 
 test("work metadata has unique ids and valid parent relationships", () => {
   assert.equal(new Set(works.map((work) => work.id)).size, works.length);
@@ -15,6 +16,10 @@ test("current content categories map to stable work entities", () => {
     "demos",
     "island-travel",
     "restaurant-ai",
+    "linquan",
+    "finance-assistant",
+    "medical-ai",
+    "qintai-ticketing",
   ]);
   assert.deepEqual(getWorksByCategory("teaching").map((work) => work.id), ["project-000"]);
   assert.deepEqual(getWorksByCategory("experiment").map((work) => work.id), [
@@ -24,4 +29,16 @@ test("current content categories map to stable work entities", () => {
   ]);
   assert.deepEqual(getWorksByCategory("creation").map((work) => work.id), ["jingmiansen"]);
   assert.equal(getWork("jingmiansen").linkType, "standalone-app");
+});
+
+test("every industry demo entry explains its usable capabilities", () => {
+  assert.equal(demos.length, 6);
+  for (const demo of demos) {
+    assert.ok(demo.audience);
+    assert.ok(demo.cover.label);
+    assert.ok(demo.featureGroups.length >= 2);
+    assert.ok(demo.featureGroups.every((group) => group.label && group.items.length >= 2));
+    assert.ok(demo.featureGroups.flatMap((group) => group.items).length >= 4);
+    assert.match(demo.href, /^\/works\/demos\//);
+  }
 });

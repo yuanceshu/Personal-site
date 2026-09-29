@@ -1,0 +1,11 @@
+{
+  "id": "hospital-ct-process-001",
+  "title": "腹部 CT 院内流程",
+  "category": "examination_process",
+  "keywords": ["CT室", "CT 检查", "腹部CT", "医学影像中心", "检查流程"],
+  "content": "明川市中心医院 Demo 的腹部 CT 检查在二楼医学影像中心完成。缴费后请前往影像中心 CT 登记台，出示缴费结果并按现场安排取号。具体检查准备以医务人员当日通知为准。",
+  "source": "明川市中心医院 Demo Mock",
+  "source_url": "mock://mingchuan-hospital/examinations/ct-process",
+  "review_date": "2026-09-28",
+  "version": "1.0"
+}

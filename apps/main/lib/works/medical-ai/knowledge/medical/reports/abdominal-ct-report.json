@@ -1,0 +1,11 @@
+{
+  "id": "medical-report-ct-001",
+  "title": "如何阅读腹部 CT 报告",
+  "category": "report",
+  "keywords": ["腹部CT报告", "CT报告", "影像报告", "Findings", "Impression", "不确定"],
+  "content": "影像报告中的 Findings 通常记录观察到的详细表现，Impression 通常概括最重要的发现。报告中的“考虑”“可能”“提示”“不能排除”以及“需结合临床”等措辞表示仍有不确定性，患者应把报告交给医生结合症状和检查结果判断。",
+  "source": "RadiologyInfo.org",
+  "source_url": "https://www.radiologyinfo.org/en/info/article-abdo-pelvic-ct-report",
+  "review_date": "2025-02-03",
+  "version": "1.0"
+}

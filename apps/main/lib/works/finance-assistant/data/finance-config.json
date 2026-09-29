@@ -1,0 +1,95 @@
+{
+  "demoAsOfDate": "2026-09-28",
+  "companies": [
+    {
+      "id": "C001",
+      "name": "华东子公司"
+    },
+    {
+      "id": "C002",
+      "name": "华南子公司"
+    },
+    {
+      "id": "C003",
+      "name": "华北子公司"
+    }
+  ],
+  "channels": [
+    "银联",
+    "支付宝",
+    "微信支付",
+    "宝信"
+  ],
+  "categories": [
+    "数码产品",
+    "家用电器",
+    "办公用品",
+    "企业服务"
+  ],
+  "metrics": [
+    {
+      "code": "salesAmount",
+      "name": "销售额",
+      "unit": "CNY"
+    },
+    {
+      "code": "transactionAmount",
+      "name": "交易额",
+      "unit": "CNY"
+    },
+    {
+      "code": "refundAmount",
+      "name": "退款金额",
+      "unit": "CNY"
+    },
+    {
+      "code": "netSalesAmount",
+      "name": "净销售额",
+      "unit": "CNY"
+    },
+    {
+      "code": "orderCount",
+      "name": "订单数",
+      "unit": "count"
+    },
+    {
+      "code": "refundRate",
+      "name": "退款率",
+      "unit": "ratio"
+    },
+    {
+      "code": "avgOrderValue",
+      "name": "客单价",
+      "unit": "CNY"
+    }
+  ],
+  "anomalyRules": [
+    {
+      "code": "SALES_DROP",
+      "dropRate": 0.25,
+      "baselineDays": 7
+    },
+    {
+      "code": "REFUND_RATE",
+      "threshold": 0.05
+    },
+    {
+      "code": "RECON_DIFF",
+      "thresholdCents": 1
+    },
+    {
+      "code": "LARGE_TXN",
+      "thresholdCents": 10000000
+    },
+    {
+      "code": "CHANNEL_DROP",
+      "dropRate": 0.25,
+      "baselineDays": 7
+    }
+  ],
+  "reconciliation": {
+    "amountToleranceCents": 1,
+    "maxRecordsPerSide": 4,
+    "maxDateDifferenceDays": 1
+  }
+}

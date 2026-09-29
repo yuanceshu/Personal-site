@@ -10,6 +10,10 @@
 /works/ai-solution-lab  AI 场景诊断工作台
 /works/demos  行业 Demo 集
 /works/demos/island-travel  岛见智能出行
+/works/demos/linquan  林泉智能伴游
+/works/demos/qintai-ticketing  琴台票务 · 武汉演出票务
+/works/demos/finance-assistant  云川财务智能体
+/works/demos/medical-ai  明川医院 AI 就医助手
 /works/ui-lab  UI 实验室（3组10版）
 /works/ui-lab/[experiment]  双版本截图对照
 /works/ui-lab/[experiment]/[variant]  单版本冻结交互查看器
@@ -56,3 +60,25 @@ npm run build
 ## 食智助手
 
 四条 `/works/demos/restaurant-ai` 页面由主站承载；实时 Agent 经 `/api/experiments/restaurant-ai/chat` 转发到实验服务的 `/works/restaurant-ai/chat`。本地沿用 `EXPERIMENT_AGENT_URL` 和 `EXPERIMENT_AGENT_TOKEN`，实验服务沿用 `LLM_*` MiniMax 配置。页面可查看明确标注的预置样例。公网实时调用要求主站配置独立的 `RESTAURANT_RATE_REDIS_URL`、`RESTAURANT_RATE_REDIS_TOKEN` 和 `RESTAURANT_RATE_SALT`；缺少配置时关闭实时调用。全部门店、经营与财务数据都是虚构演示内容。
+
+## 林泉
+
+`/works/demos/linquan` 是主站行业 Demo 集中的景区智能伴游作品。路线、景点、活动、服务点、自然任务和模拟业务 Tool 在主站服务端确定性执行；可选的实时 Agent 只解释已执行结果，经 `/api/experiments/linquan/chat` 代理到实验服务，未配置或失败时继续使用规则回答。VisitorContext 与聊天历史仅保存在浏览器 localStorage，不使用 GPS、账号、数据库或真实景区系统。
+
+实时 Agent 复用 `EXPERIMENT_AGENT_URL` 与 `EXPERIMENT_AGENT_TOKEN`。公开环境还需要独立的 `LINQUAN_RATE_REDIS_URL`、`LINQUAN_RATE_REDIS_TOKEN` 和 `LINQUAN_RATE_SALT`；缺少限流配置时不开放实时模型调用，规则 Demo 仍可用。详细行为与验收边界见[林泉实现记录](../../docs/projects/linquan.md)。
+
+## 云川财务智能体
+
+`/works/demos/finance-assistant` 直接承载原财务助手 Demo 的经营总览、智能分析、渠道对账和异常监测工作台。原有 TypeScript Finance Tool、Schema、虚构数据与结果卡片迁移到 `lib/works/finance-assistant`；页面保留原工作台 UI/UX。对话经 `/api/experiments/finance-assistant/chat` 代理到实验服务的 Agno Agent，Agent 只能调用六个确定性 Finance Tool，金额和对账关系由主站服务端计算。Tool 内部接口需要服务间 Token，浏览器不会获得凭据；未配置实验服务时，静态总览与对账页面仍可用。Vercel 公开环境还需要 `FINANCE_RATE_REDIS_URL`、`FINANCE_RATE_REDIS_TOKEN` 和 `FINANCE_RATE_SALT`，缺少配置时关闭实时模型调用。
+
+## 明川医院 AI 就医助手
+
+`/works/demos/medical-ai` 复用独立 Demo 已验证的就医旅程、Visit Context、业务 Tool、Medical/Hospital Knowledge、Safety Rules、Triage 和报告解释。状态保存在浏览器 localStorage，并在每次请求中恢复和返回，不依赖 Vercel 实例内存。确定性业务逻辑留在主站；回答润色经 `/api/experiments/medical-ai/chat` 转发到实验服务的 `/works/medical-ai/chat`，共用 `LLM_*` MiniMax 配置。
+
+公网实时调用要求独立的 `MEDICAL_RATE_REDIS_URL`、`MEDICAL_RATE_REDIS_TOKEN` 和 `MEDICAL_RATE_SALT`；缺少配置时仍可体验规则 Demo。所有医院、患者、号源、费用、路线、检查和报告数据均为虚构演示内容。详细边界见[医疗 Demo 实现记录](../../docs/projects/medical-ai.md)。
+
+## 琴台票务
+
+`/works/demos/qintai-ticketing` 是主站行业 Demo 集中的武汉演出票务作品，分顾客购票侧与运营工作台两侧。库存、锁座、候补、改价、补货与活动护栏都在浏览器上用确定性 TypeScript 引擎执行；待审批提案同样只在浏览器内暂存与应用。可选的实时 Agent 只读当次界面投影、只产出待确认草案，经 `/api/experiments/qintai-ticketing/chat`（顾客侧）与 `/api/experiments/qintai-ticketing/merchant`（运营侧）代理到实验服务，未配置或失败时继续使用确定性回答。会话、锁座与聊天历史仅保存在浏览器 localStorage，不使用账号、数据库或真实票务系统。
+
+实时 Agent 复用 `EXPERIMENT_AGENT_URL` 与 `EXPERIMENT_AGENT_TOKEN`。公开环境还需要独立的 `QINTAI_RATE_REDIS_URL`、`QINTAI_RATE_REDIS_TOKEN` 和 `QINTAI_RATE_SALT`；缺少限流配置时不开放实时模型调用，确定性 Demo 仍可用。演出、票档、订单与经营数据均为虚构演示内容。详细行为与验收边界见[琴台票务实现记录](../../docs/projects/qintai-ticketing.md)。

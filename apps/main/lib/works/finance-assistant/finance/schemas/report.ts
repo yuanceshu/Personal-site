@@ -1,0 +1,5 @@
+import { z } from 'zod'; import { filters, timeRange } from './common'; import { queryOutput } from './query'; import { compareOutput } from './comparison'; import { varianceOutput } from './variance'; import { anomalyOutput } from './anomaly'; import { companyId, channel, category } from './common'; import { issueType, matchType } from './reconciliation';
+export const reportInput=z.object({timeRange,filters,title:z.string().optional()});
+export const reportOutput=z.object({title:z.string(),range:z.object({start:z.string(),end:z.string()}),overview:queryOutput,comparison:compareOutput,companyBreakdown:queryOutput,channelStructure:queryOutput,varianceDrivers:varianceOutput,anomalies:anomalyOutput});
+export const sessionContext=z.object({lastMetric:z.string().optional(),lastTimeRange:timeRange.optional(),lastCompanyId:companyId.optional(),lastChannel:channel.optional(),lastCategory:category.optional(),lastIntent:z.string().optional(),lastReconciliationIssueType:issueType.optional(),lastReconciliationMatchType:matchType.optional()});
+export type ReportInput=z.infer<typeof reportInput>; export type ReportOutput=z.infer<typeof reportOutput>;

@@ -1,0 +1,11 @@
+{
+  "id": "hospital-location-general-surgery-001",
+  "title": "普外科路线提示",
+  "category": "location",
+  "keywords": ["普外科在哪", "普外科怎么走", "普外科位置", "门诊楼3楼"],
+  "content": "从门诊大厅出发，直行至服务台，从右侧扶梯前往3楼；出扶梯后左转，沿走廊直行约30米，右侧即可看到普外科签到区。",
+  "source": "明川市中心医院 Demo Mock",
+  "source_url": "mock://mingchuan-hospital/locations/general-surgery",
+  "review_date": "2026-09-28",
+  "version": "1.0"
+}
