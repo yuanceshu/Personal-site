@@ -27,8 +27,8 @@ export async function checkLinquanRate(request: Request) {
     localRequests.push(now);
     return;
   }
-  const base = process.env.LINQUAN_RATE_REDIS_URL;
-  const token = process.env.LINQUAN_RATE_REDIS_TOKEN;
+  const base = process.env.LINQUAN_RATE_REDIS_URL ?? process.env.REDIS_URL;
+  const token = process.env.LINQUAN_RATE_REDIS_TOKEN ?? process.env.KV_REST_API_TOKEN;
   const salt = process.env.LINQUAN_RATE_SALT;
   const ip = request.headers.get("x-vercel-forwarded-for")?.trim();
   if (process.env.VERCEL !== "1" || !ip || !isIP(ip) || !base?.startsWith("https://") || !token || !salt) throw new LinquanRateError(503);
