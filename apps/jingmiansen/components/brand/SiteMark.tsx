@@ -8,7 +8,7 @@ type SiteMarkProps = Omit<ComponentProps<typeof Image>, "src" | "alt"> & {
 export function SiteMark({ tone = "dark", style, ...props }: SiteMarkProps) {
   return (
     <Image
-      src={`/brand/site-mark-${tone}.png?v=20260913`}
+      src={`/brand/site-mark-${tone}.webp?v=20260913`}
       alt=""
       aria-hidden="true"
       width={202}

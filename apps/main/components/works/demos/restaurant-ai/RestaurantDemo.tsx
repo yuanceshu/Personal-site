@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { resultSchema, type ChatResult, type RestaurantRole } from "@/lib/works/restaurant-ai/schema";
+import { DemoCollectionLink } from "@/components/works/demos/navigation/demo-collection-link";
 
 type DemoModule = RestaurantRole | "home";
 type Message = {
@@ -75,10 +76,12 @@ function sampleMessages(role: RestaurantRole): Message[] {
 
 function Header({ active }: { active?: RestaurantRole }) {
   return <header className="r-header">
-    <Link href="/works/demos" className="r-back">← 行业 Demo 集</Link>
+    <span className="r-header-spacer" aria-hidden="true" />
     <Link href="/works/demos/restaurant-ai" className="r-brand"><span className="r-brand-mark">食</span><span>食智助手<small>YUEWEI · AGENT STUDIO</small></span></Link>
-    <span className="r-header-note">虚构餐饮集团 · 产品演示</span>
-    {active && <Link href="/works/demos/restaurant-ai" className="r-top-home">场景总览 ↗</Link>}
+    <div className="r-header-actions">
+      {active ? <Link href="/works/demos/restaurant-ai" className="r-top-home">场景总览 ↗</Link> : <span className="r-header-note">虚构餐饮集团 · 产品演示</span>}
+      <DemoCollectionLink className="r-back" />
+    </div>
   </header>;
 }
 

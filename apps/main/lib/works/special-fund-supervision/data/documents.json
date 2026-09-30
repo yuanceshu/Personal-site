@@ -1,0 +1,7 @@
+[
+  {"id":"DOC-A01","projectId":"PRJ-A","type":"application","name":"产业数字化升级项目专项资金申请书","status":"已提交","content":"申报单位：企业 A；项目总投资：268 万元；申请专项补贴：68 万元；项目建设周期：2025 年 10 月至 2026 年 5 月；项目已经完成建设并投入使用。","extractedFields":{"declaredInvestment":2680000,"requestedSubsidy":680000}},
+  {"id":"DOC-A02","projectId":"PRJ-A","type":"company-profile","name":"企业基本资料","status":"已提交","content":"企业成立时间：2022-08-15；经营状态：正常。","extractedFields":{"establishedDate":"2022-08-15","operatingStatus":"正常"}},
+  {"id":"DOC-A03","projectId":"PRJ-A","type":"contract","name":"项目建设合同","status":"已提交","content":"合同编号：HT-A-2025-031；甲方：企业 A；乙方：服务商甲；合同金额：218 万元；签署日期：2025-10-15。","extractedFields":{"contractAmount":2180000}},
+  {"id":"DOC-A04","projectId":"PRJ-A","type":"invoice","name":"项目发票","status":"已提交","content":"发票 3 张，金额分别为 80 万元、76 万元、60 万元，合计 216 万元。","extractedFields":{"invoiceTotal":2160000,"invoiceCount":3}},
+  {"id":"DOC-B01","projectId":"PRJ-B","type":"application","name":"项目运行情况说明","status":"已提交","content":"项目正式运行日期：2026-01-15；截至 2026-07-15 累计运行 6 个月；累计有效业务量 12,800 次；设备平均利用率 81%。","extractedFields":{"declaredRuntimeMonths":6,"declaredBusinessVolume":12800,"declaredUtilization":0.81}}
+]

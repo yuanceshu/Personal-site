@@ -39,6 +39,10 @@ test("every industry demo entry explains its usable capabilities", () => {
     assert.ok(demo.featureGroups.length >= 2);
     assert.ok(demo.featureGroups.every((group) => group.label && group.items.length >= 2));
     assert.ok(demo.featureGroups.flatMap((group) => group.items).length >= 4);
+    assert.ok(demo.collection.category);
+    assert.ok(demo.collection.description);
+    assert.equal(demo.collection.features.length, 6);
+    assert.match(demo.collection.image, /^\/projects\/demos\/collection\/.+\.jpg$/);
     assert.match(demo.href, /^\/works\/demos\//);
   }
 });

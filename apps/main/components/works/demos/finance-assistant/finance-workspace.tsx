@@ -7,6 +7,7 @@ import ChatPanel, { type ChatHandle } from './chat-panel';
 import { AnomalyList, ComparisonResult, MetricResult, QueryTable, ReconciliationResult, SectionHead, TrendChart, VarianceResult } from './result-blocks';
 import Icon, { type IconName } from './ui/icons';
 import { date, ratio } from './ui/display';
+import { DemoCollectionLink } from '@/components/works/demos/navigation/demo-collection-link';
 
 type ViewKey = 'overview' | 'analysis' | 'reconcile' | 'anomaly';
 const nav: { key: ViewKey; label: string; note: string; icon: IconName }[] = [
@@ -16,16 +17,16 @@ const nav: { key: ViewKey; label: string; note: string; icon: IconName }[] = [
   { key: 'anomaly', label: '异常监测', note: 'Watchlist', icon: 'alert' },
 ];
 
-function Brand() { return <div className="brand"><span className="brand-mark"><i /><i /><i /></span><div><b>云川</b><small>商业集团</small></div></div>; }
+function Brand({ onHome }: { onHome: () => void }) { return <button type="button" className="brand" aria-label="云川财务智能体首页" onClick={onHome}><span className="brand-mark"><i /><i /><i /></span><span><b>云川</b><small>商业集团</small></span></button>; }
 
 function Sidebar({ active, onSelect, onNewChat, data }: { active: ViewKey; onSelect: (key: ViewKey) => void; onNewChat: () => void; data: WorkspaceData }) {
   const anomalyCount = data.anomalies.items.length;
-  return <aside className="sidebar"><Brand /><button className="workspace-switcher"><span className="workspace-dot" />集团财务部<Icon name="chevron" /></button><button className="new-chat" onClick={onNewChat}><Icon name="plus" />新建分析会话</button><nav className="primary-nav" aria-label="主要导航"><p>工作台</p>{nav.map(item => <button key={item.key} className={`nav-item ${active === item.key ? 'active' : ''}`} onClick={() => onSelect(item.key)}><Icon name={item.icon} /><span><b>{item.label}</b><small>{item.note}</small></span>{item.key === 'anomaly' && anomalyCount > 0 && <em>{anomalyCount}</em>}</button>)}</nav><div className="sidebar-bottom"><div className="data-health"><span className="pulse" /><div><b>数据连接正常</b><small>截至 {date(data.referenceDate)}</small></div></div><div className="profile"><span>林</span><div><b>林知行</b><small>财务负责人</small></div><Icon name="menu" /></div></div></aside>;
+  return <aside className="sidebar"><Brand onHome={() => onSelect('analysis')} /><button className="workspace-switcher"><span className="workspace-dot" />集团财务部<Icon name="chevron" /></button><button className="new-chat" onClick={onNewChat}><Icon name="plus" />新建分析会话</button><nav className="primary-nav" aria-label="主要导航"><p>工作台</p>{nav.map(item => <button key={item.key} className={`nav-item ${active === item.key ? 'active' : ''}`} onClick={() => onSelect(item.key)}><Icon name={item.icon} /><span><b>{item.label}</b><small>{item.note}</small></span>{item.key === 'anomaly' && anomalyCount > 0 && <em>{anomalyCount}</em>}</button>)}</nav><div className="sidebar-bottom"><div className="data-health"><span className="pulse" /><div><b>数据连接正常</b><small>截至 {date(data.referenceDate)}</small></div></div><div className="profile"><span>林</span><div><b>林知行</b><small>财务负责人</small></div><Icon name="menu" /></div></div></aside>;
 }
 
 function Header({ active, data }: { active: ViewKey; data: WorkspaceData }) {
   const labels: Record<ViewKey, string> = { overview: '经营总览', analysis: '智能分析', reconcile: '渠道对账', anomaly: '异常监测' };
-  return <header className="topbar"><div className="breadcrumbs"><span>工作台</span><b>/</b><strong>{labels[active]}</strong></div><div className="topbar-actions"><span className="date-chip"><Icon name="calendar" />数据更新于 {date(data.referenceDate)}</span><button className="top-icon" aria-label="帮助"><Icon name="help" /></button></div></header>;
+  return <header className="topbar"><div className="breadcrumbs"><span>工作台</span><b>/</b><strong>{labels[active]}</strong></div><div className="topbar-center"><span className="date-chip"><Icon name="calendar" />数据更新于 {date(data.referenceDate)}</span></div><div className="topbar-actions"><button className="top-icon" aria-label="帮助"><Icon name="help" /></button><DemoCollectionLink className="collection-back" /></div></header>;
 }
 
 function SnapshotCards({ snapshot }: { snapshot: DashboardSnapshot }) {
@@ -52,8 +53,8 @@ function AnomalyView({ data, onAsk }: { data: WorkspaceData; onAsk: (prompt: str
 }
 
 export default function FinanceWorkspace({ data }: { data: WorkspaceData }) {
-  const [active, setActive] = useState<ViewKey>('overview'); const chatRef = useRef<ChatHandle>(null);
+  const [active, setActive] = useState<ViewKey>('analysis'); const chatRef = useRef<ChatHandle>(null);
   const ask = (prompt: string) => { setActive('analysis'); window.setTimeout(() => chatRef.current?.ask(prompt), 0); };
   const newChat = () => { setActive('analysis'); window.setTimeout(() => chatRef.current?.reset(), 0); };
-  return <main className="app-shell"><Sidebar active={active} onSelect={setActive} onNewChat={newChat} data={data} /><section className="workspace"><Header active={active} data={data} />{active === 'overview' && <Overview data={data} onAsk={ask} />}{active === 'analysis' && <AnalysisView chatRef={chatRef} onAsk={ask} />}{active === 'reconcile' && <ReconcileView data={data} onAsk={ask} />}{active === 'anomaly' && <AnomalyView data={data} onAsk={ask} />}</section></main>;
+  return <main className="app-shell"><Sidebar active={active} onSelect={setActive} onNewChat={newChat} data={data} /><section className="workspace"><Header active={active} data={data} />{active === 'overview' && <Overview data={data} onAsk={ask} />}<div hidden={active !== 'analysis'}><AnalysisView chatRef={chatRef} onAsk={ask} /></div>{active === 'reconcile' && <ReconcileView data={data} onAsk={ask} />}{active === 'anomaly' && <AnomalyView data={data} onAsk={ask} />}</section></main>;
 }

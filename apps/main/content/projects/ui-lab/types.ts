@@ -12,8 +12,8 @@ export type UiVariant = {
   createdAt: string | null; frozenAt: string;
   promptSummary: string; additionalConstraints: string[];
   references: Disclosure; imageGeneration: Disclosure;
-  sourceType: "frozen-static-snapshot"; sourceEvidence: string;
-  entryUrl: string; desktopPreview: Preview; mobilePreview: Preview;
+  sourceType: "frozen-static-snapshot" | "static-image"; sourceEvidence: string;
+  entryUrl: string | null; desktopPreview: Preview; mobilePreview: Preview | null;
   thumbnail: string; previewState: string; viewportMode: "fluid" | "desktop-only";
   supportedViewports: string[]; limitations: string[];
   interactionSummary: string[]; assetDisclosure: string; archiveChanges: string[];

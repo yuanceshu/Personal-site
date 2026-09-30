@@ -5,6 +5,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChatDrawer } from "@/components/works/demos/qintai-ticketing/chat/chat-drawer";
+import { DemoCollectionLink } from "@/components/works/demos/navigation/demo-collection-link";
 import { OPERATOR_NAME, useQintai } from "@/components/works/demos/qintai-ticketing/provider";
 
 const BASE = "/works/demos/qintai-ticketing/merchant";
@@ -31,16 +32,16 @@ export function MerchantShell({ children }: { children: React.ReactNode }) {
     <div className="q-app q-app--merchant">
       <header className="q-topbar">
         <div className="q-topbar-inner">
-          <Link className="q-back" href="/works/demos">← <span>行业 Demo 集</span></Link>
-          <span className="q-brand">
+          <Link className="q-brand" href="/works/demos/qintai-ticketing" aria-label="琴台票务首页">
             <span className="q-brand-mark" aria-hidden>琴</span>
             <span className="q-brand-type">琴台票务<small>{merchant.promoterName}</small></span>
-          </span>
+          </Link>
           <span className="q-topbar-side">
             <button type="button" className="q-ghost-button" onClick={() => setDrawer("merchant", !chatOpen)} aria-expanded={chatOpen}>
               运营助手 <em>AI</em>
             </button>
             <span className="q-demo-badge">运营台 · 模拟数据</span>
+            <DemoCollectionLink className="q-back" />
           </span>
         </div>
       </header>

@@ -14,7 +14,7 @@
 /works/demos/qintai-ticketing  琴台票务 · 武汉演出票务
 /works/demos/finance-assistant  云川财务智能体
 /works/demos/medical-ai  明川医院 AI 就医助手
-/works/ui-lab  UI 实验室（3组10版）
+/works/ui-lab  UI 实验室（8组19个桌面案例）
 /works/ui-lab/[experiment]  双版本截图对照
 /works/ui-lab/[experiment]/[variant]  单版本冻结交互查看器
 /works/ai-life-comics  小麦子的生活漫画

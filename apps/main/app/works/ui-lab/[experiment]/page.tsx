@@ -1,8 +1,9 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { experiments, getExperiment, skillLabel } from "@/content/projects/ui-lab/experiments";
+import { experiments, getExperiment, modelLabel, skillLabel } from "@/content/projects/ui-lab/experiments";
 import { Comparison } from "@/components/works/ui-lab/Comparison";
+import { StaticCase } from "@/components/works/ui-lab/StaticCase";
 
 export function generateStaticParams() { return experiments.map(e=>({experiment:e.slug})); }
 export const dynamicParams = false;
@@ -18,12 +19,14 @@ export default async function ExperimentPage({ params }: { params: Promise<{expe
     <section className="uil-experiment-heading">
       <div className="uil-title-row"><h1>{e.title}</h1><span className="uil-badge">视觉展示</span></div>
       <p>{e.briefSummary}</p>
-      <details className="uil-information"><summary>实验说明 · {e.variants[0].model} · {e.variants.length} 个版本</summary>
+      <details className="uil-information"><summary>实验说明 · {[...new Set(e.variants.map(modelLabel))].join(" / ")} · {e.variants.length} 个桌面案例</summary>
         <p>{e.comparisonNote}</p><p>设计方法：{[...new Set(e.variants.map(skillLabel))].join(" / ")}。</p>
-        <p>对照画布只加载代表状态截图，不同时运行两个前端。每个版本可单独进入冻结体验，版本条件与归档调整在页面下方和查看器中公开。</p>
-        <p>历史页面的原有手机适配、字号与操作限制按原貌保留，不为对比而重做。预览中的内部滚动和未展开内容需要进入体验查看。</p>
+        <p>对照画布只加载桌面截图，不同时运行两个前端。截图案例不提供手机图或交互快照。</p>
+        <p>预览中的内部滚动和未展开内容按截图原貌保留。</p>
       </details>
     </section>
-    <Suspense fallback={<p className="uil-loading" role="status">正在恢复对照组合…</p>}><Comparison experiment={e} /></Suspense>
+    {e.variants.length === 1
+      ? <StaticCase experiment={e} variants={e.variants} />
+      : <Suspense fallback={<p className="uil-loading" role="status">正在恢复对照组合…</p>}><Comparison experiment={e} /></Suspense>}
   </>;
 }

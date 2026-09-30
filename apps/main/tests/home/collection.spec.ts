@@ -11,16 +11,20 @@ const demos = [
 
 test("合集入口清楚展示六个 Demo 的能力清单", async ({ page }) => {
   await page.goto("/works/demos");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(/先找到你的问题，\s*再进入一个答案。/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(/把 AI 放进真实场景\s*亲眼看见它如何工作/);
   const cards = page.locator(".demo-card");
   await expect(cards).toHaveCount(demos.length);
   for (const [title, href] of demos) {
     const card = cards.filter({ hasText: title });
     await expect(card).toHaveCount(1);
-    await expect(card.getByRole("heading", { name: "你可以体验" })).toBeVisible();
-    await expect(card.locator(".demo-card-feature-group li").first()).toBeVisible();
-    await expect(card.getByRole("link", { name: /进入.*完整体验/ })).toHaveAttribute("href", href);
+    await expect(card.getByText("可体验功能")).toBeVisible();
+    await expect(card.locator(".demo-card-features li").first()).toBeVisible();
+    await expect(card.getByRole("link", { name: /进入.*Demo/ })).toHaveAttribute("href", href);
+    await expect(card.locator("img")).toBeVisible();
   }
+  await expect(page.getByRole("link", { name: "全部" })).toHaveAttribute("href", "#demo-grid");
+  await expect(page.getByRole("navigation", { name: "Demo 场景导航" }).getByRole("link")).toHaveCount(7);
+  await expect(page.getByRole("link", { name: /没有合适的场景/ })).toHaveAttribute("href", "/works/ai-solution-lab");
   await expect(page.getByRole("link", { name: /打开 AI 工作台/ })).toHaveAttribute("href", "/works/ai-solution-lab");
   await page.setViewportSize({ width: 320, height: 900 });
   await expect(page.locator("body")).toHaveCSS("overflow-x", "visible");

@@ -21,6 +21,7 @@ Source of truth：本文负责作品边界与验收；数据、Schema、引擎�
 ## 体验与能力
 
 - 顾客可以检索演出、查看票档余量与费用拆分、锁座（8 分钟倒计时）、管理票夹、售罄时加入候补并处理回流票。
+- 顾客侧助手以右侧常驻栏显示，持续读取当前页面的票档、费用与规则；运营侧助手仍以可收起抽屉显示。
 - 运营侧可以查看排期与 pacing 进度、改价、释放库存和建立活动；所有改动先生成待审批提案，再在待审批列表应用。
 
 确定性引擎常量：`HOLD_TTL_S=480`、`OFFER_CLAIM_WINDOW_S=600`、`MAX_TICKETS_PER_EVENT=8`、`BARCODE_ROTATION_S=60`、`max_items_per_change=25`、`max_price_delta_pct=20`、`max_promotion_discount_pct=50`、`max_restock_quantity=500`、`max_campaign_budget=10000`。

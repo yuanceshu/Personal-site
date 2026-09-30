@@ -11,7 +11,7 @@ function variant(group: string, slug: string, skill: string | null, model: strin
   const id = `${group}/${slug}`;
   const images = previewMap[id];
   return {
-    id, slug, title: skill || "裸跑", model, modelVersion: null, reasoningEffort: null,
+    id, slug, title: skill || "裸跑", model, modelVersion: "5.6", reasoningEffort: null,
     skillMode: skill ? "skill" : "bare", skillName: skill, skillVersion: null,
     createdAt: null, frozenAt: "2026-09-15", promptSummary: summary, additionalConstraints: [],
     references: unknown, imageGeneration: unknown,
@@ -20,16 +20,41 @@ function variant(group: string, slug: string, skill: string | null, model: strin
     desktopPreview: images.desktop, mobilePreview: images.mobile,
     thumbnail: `/projects/ui-lab/previews/${id}/thumbnail.webp`,
     previewState: group === "dashboards" ? "初始总览 · 2026 年 / 全年；各版保留实际演示口径" : group === "ai-workbench" ? "经营分析结果 · 固定医院示例；功能与迭代条件不同" : "初始页面 · 未主动操作班次或弹窗；保留原版默认状态",
-    viewportMode: "fluid", supportedViewports: ["1440px 桌面", "375px 手机原貌"],
+    viewportMode: "desktop-only", supportedViewports: ["1440px 桌面"],
     limitations: [
-      ...(images.mobile.overflow ? ["原版在375px存在横向溢出，手机图只记录视口可见宽度；未修补布局。"] : []),
-      ...(images.desktop.innerScroll || images.mobile.innerScroll ? ["页面含内部滚动区域；全页图不展开其折叠或滚动外内容，请进入体验查看。"] : []),
+      ...(images.desktop.innerScroll ? ["页面含内部滚动区域；全页图不展开其折叠或滚动外内容，请进入体验查看。"] : []),
       "历史页面的字号、对比度与交互缺陷保留，不作为实验室外壳质量标准。",
     ],
     interactionSummary: interaction, assetDisclosure: "沿用原版本地素材与系统字体声明；素材生成过程未记录。全部业务数据为演示。",
     archiveChanges: ["复制必要文件，固定演示时间与随机序列", "添加离线隔离、冻结标识和就绪通知", "表单动作仅触发本地演示事件，不提交网络表单"],
     observations: Object.fromEntries(dimensions.map((name, i) => [name, observations[i]])),
     status: readyIds.includes(id) ? "ready" : "incomplete", ...extra,
+  };
+}
+function imageVariant(group: string, slug: string, model: string, image: string, title = "裸跑"): UiVariant {
+  const id = `${group}/${slug}`;
+  const imageSizes: Record<string, [number, number]> = {
+    "scenic-agent/astra-6": [2877, 3032], "scenic-agent/sol-6": [2878, 1452],
+    "finance-agent/sol-6": [2869, 1927], "performance-merchant/sol-6": [2876, 1444],
+    "performance-merchant/luna-6": [2874, 1458], "performance-user/luna-6": [2880, 1450],
+    "performance-user/sol-6-a": [2880, 1440], "performance-user/sol-6-b": [2878, 1444],
+    "medical-guide/astra-6": [2879, 2492],
+  };
+  const [width, height] = imageSizes[id] ?? [1440, 1000];
+  return {
+    id, slug, title, model, modelVersion: "6", reasoningEffort: null,
+    skillMode: "bare", skillName: null, skillVersion: null, createdAt: "2026-09-28", frozenAt: "2026-09-30",
+    promptSummary: "以截图记录一次 UI 生成结果。原始 Prompt 未公开。", additionalConstraints: [],
+    references: unknown, imageGeneration: unknown,
+    sourceType: "static-image", sourceEvidence: "用户提供的 6 代模型截图；原始 Prompt 未公开。",
+    entryUrl: null,
+    desktopPreview: { src: image, width, height, viewport: { width, height }, overflow: false, innerScroll: 1 },
+    mobilePreview: null, thumbnail: image, previewState: "用户提供的桌面截图 · 默认状态",
+    viewportMode: "desktop-only", supportedViewports: ["桌面截图"],
+    limitations: ["仅提供桌面截图，没有对应手机图或可操作快照。"],
+    interactionSummary: [], assetDisclosure: "截图为用户提供的实验结果；业务内容按原图展示。",
+    archiveChanges: ["保留原始截图比例", "不补造手机布局或交互"],
+    observations: Object.fromEntries(dimensions.map(name => [name, "未记录"])), status: "ready",
   };
 }
 const dashBrief = "为城市通集团组织运营总览，呈现交通客流、消费与助老服务等演示指标，提供筛选与排行查看。";
@@ -51,8 +76,29 @@ const workbench = [
   variant("ai-workbench", "ui-ux-pro-max", "UI UX Pro Max", "Sol", workBrief, ["深浅主题切换", "周期与分析区域切换", "查询示例与说明展开"], ["经营分析应用界面", "围绕单个结果集中组织", "直接进入医院经营分析结果", "分析卡、指标和局部操作", "浅色默认，可切深色", "主题与状态反馈", "分析区域随断点纵向排列", "快速进入分析结果", "没有原始输入和确认流程", "单一经营分析原型展示"]),
 ];
 const island = [
-  variant("island-travel", "frontend-design", "Frontend Design", "Astra 6", travelBrief, ["规则理解行程与补充条件", "查询班次和选择人数", "确认模拟订单", "模拟支付成功/失败/未知/出票异常", "订单查询与恢复"], ["旅行刊物与票务桌", "上方叙事，下方任务密集", "对话查询与旅程票夹协作", "大幅海岸图、班次卡与票券", "暖纸、墨黑与橘红", "焦点定位与局部状态反馈", "对话和票夹由并列转纵向", "查询到异常恢复形成完整模拟流程", "对话区域和订单区域需要往返关注", "演示带异常恢复的出行产品"], { imageGeneration: {value:"yes",note:"海岸创作图，非真实线路；项目设计记录可核验。"}, assetDisclosure:"海岸图为 AI 创作，品牌、班次、票价和订单均为演示。", archiveChanges:["复制当前React、领域逻辑、数据、CSS和图片", "固定规则演示，移除真实AI请求及模式选项", "本地图片与链接适配；固定演示日期与订单标识", "添加离线隔离、冻结标识与就绪通知"] }),
-  variant("island-travel", "ui-ux-pro-max", "UI UX Pro Max", "Astra 6", travelBrief, ["目的地、时段与1–4位成人", "三班预设行程", "票价合计", "确认弹窗与完成反馈"], ["静谧旅行礼宾", "摄影与留白占比较大", "条件表单、班次清单与行程摘要", "全幅山林图、水平行程行", "炭绿、香槟色与衬线英文", "克制悬停、弹窗与完成反馈", "导航简化，班次和摘要纵向组织", "条件和费用直接可见", "预设行程不含对话、订单和支付状态机", "聚焦选班和确认的旅行概念展示"], { title:"UI UX Pro Max · Study 03", createdAt:"2026-09-15", references:{value:"no",note:"随稿说明记录：不读取或复用前版代码、截图、图片；沿用虚构品牌与出行命题。"}, imageGeneration:{value:"yes",note:"随稿说明记录独立生成山林图，无参考图。"}, assetDisclosure:"山林图为 AI 生成的虚构景观，非实地摄影；保留原版的本地字体回退声明。" }),
+  variant("island-travel", "frontend-design", "Frontend Design", "Astra", travelBrief, ["规则理解行程与补充条件", "查询班次和选择人数", "确认模拟订单", "模拟支付成功/失败/未知/出票异常", "订单查询与恢复"], ["旅行刊物与票务桌", "上方叙事，下方任务密集", "对话查询与旅程票夹协作", "大幅海岸图、班次卡与票券", "暖纸、墨黑与橘红", "焦点定位与局部状态反馈", "对话和票夹由并列转纵向", "查询到异常恢复形成完整模拟流程", "对话区域和订单区域需要往返关注", "演示带异常恢复的出行产品"], { modelVersion:"6", imageGeneration: {value:"yes",note:"海岸创作图，非真实线路；项目设计记录可核验。"}, assetDisclosure:"海岸图为 AI 创作，品牌、班次、票价和订单均为演示。", archiveChanges:["复制当前React、领域逻辑、数据、CSS和图片", "固定规则演示，移除真实AI请求及模式选项", "本地图片与链接适配；固定演示日期与订单标识", "添加离线隔离、冻结标识与就绪通知"] }),
+  variant("island-travel", "ui-ux-pro-max", "UI UX Pro Max", "Astra", travelBrief, ["目的地、时段与1–4位成人", "三班预设行程", "票价合计", "确认弹窗与完成反馈"], ["静谧旅行礼宾", "摄影与留白占比较大", "条件表单、班次清单与行程摘要", "全幅山林图、水平行程行", "炭绿、香槟色与衬线英文", "克制悬停、弹窗与完成反馈", "导航简化，班次和摘要纵向组织", "条件和费用直接可见", "预设行程不含对话、订单和支付状态机", "聚焦选班和确认的旅行概念展示"], { modelVersion:"6", title:"UI UX Pro Max · Study 03", createdAt:"2026-09-15", references:{value:"no",note:"随稿说明记录：不读取或复用前版代码、截图、图片；沿用虚构品牌与出行命题。"}, imageGeneration:{value:"yes",note:"随稿说明记录独立生成山林图，无参考图。"}, assetDisclosure:"山林图为 AI 生成的虚构景观，非实地摄影；保留原版的本地字体回退声明。" }),
+];
+const newImageExperiments: UiExperiment[] = [
+  experiment("scenic-agent", "04", "景区智能体", "同一产品命题下的两张 6 代模型桌面截图。", "other", [
+    imageVariant("scenic-agent", "astra-6", "Astra", "/projects/ui-lab/static/scenic-agent-astra-6.webp"),
+    imageVariant("scenic-agent", "sol-6", "Sol", "/projects/ui-lab/static/scenic-agent-sol-6.webp"),
+  ], ["astra-6", "sol-6"], ["astra-6", "sol-6"], "景区智能体的桌面 UI 生成结果。"),
+  experiment("finance-agent", "05", "财务智能体", "一张 6 代模型生成的财务智能体桌面截图。", "other", [
+    imageVariant("finance-agent", "sol-6", "Sol", "/projects/ui-lab/static/finance-agent-sol-6.webp"),
+  ], ["sol-6", "sol-6"], ["sol-6"], "财务智能体的桌面 UI 生成结果。"),
+  experiment("performance-merchant", "06", "演出商家端", "两张 6 代模型生成的商家端桌面截图。", "other", [
+    imageVariant("performance-merchant", "sol-6", "Sol", "/projects/ui-lab/static/performance-merchant-sol-6.webp"),
+    imageVariant("performance-merchant", "luna-6", "Luna", "/projects/ui-lab/static/performance-merchant-luna-6.webp"),
+  ], ["sol-6", "luna-6"], ["sol-6", "luna-6"], "演出商家端的桌面 UI 生成结果。"),
+  experiment("performance-user", "07", "演出用户端", "三张 6 代模型生成的用户端桌面截图。", "other", [
+    imageVariant("performance-user", "luna-6", "Luna", "/projects/ui-lab/static/performance-user-luna-6.webp"),
+    imageVariant("performance-user", "sol-6-a", "Sol", "/projects/ui-lab/static/performance-user-sol-6-a.webp"),
+    imageVariant("performance-user", "sol-6-b", "Sol", "/projects/ui-lab/static/performance-user-sol-6-b.webp"),
+  ], ["luna-6", "sol-6-a"], ["luna-6", "sol-6-a", "sol-6-b"], "演出用户端的桌面 UI 生成结果。"),
+  experiment("medical-guide", "08", "医疗导诊助手", "一张 6 代模型生成的医疗导诊助手桌面截图。", "other", [
+    imageVariant("medical-guide", "astra-6", "Astra", "/projects/ui-lab/static/medical-guide-astra-6.webp"),
+  ], ["astra-6", "astra-6"], ["astra-6"], "医疗导诊助手的桌面 UI 生成结果。"),
 ];
 function experiment(id: string, number: string, title: string, subtitle: string, category: UiExperiment["category"], variants: UiVariant[], defaults: [string,string], featured: string[], briefSummary: string): UiExperiment {
   return {id:number,slug:id,title,subtitle,category,variants,description:subtitle,briefSummary,comparisonLevel:"showcase",comparisonNote,defaultVariantIds:defaults,featuredVariantIds:featured,coverImage:variants[0].thumbnail};
@@ -61,11 +107,14 @@ export const experimentArchive: UiExperiment[] = [
   experiment("dashboards","01","城市通数据驾驶舱","同一组运营指标，五种信息组织方式。","dashboard",dashboards,["bare","frontend-design"],["bare","frontend-design","apple-design"],dashBrief),
   experiment("ai-workbench","02","AI 场景工作台","从模糊需求，到可以讨论的产品草稿。","ai-workbench",workbench,["apple-design","frontend-design"],["apple-design","frontend-design","ui-ux-pro-max"],workBrief),
   experiment("island-travel","03","岛见智能出行","一句出发，或一次选择：两种行程体验。","travel",island,["frontend-design","ui-ux-pro-max"],["frontend-design","ui-ux-pro-max"],travelBrief),
+  ...newImageExperiments,
 ];
-export const experiments = experimentArchive.map(e=>({...e,variants:e.variants.filter(v=>v.status==="ready")})).filter(e=>e.variants.length>=2);
+export const experiments = experimentArchive.map(e=>({...e,variants:e.variants.filter(v=>v.status==="ready")})).filter(e=>e.variants.length>=1);
 export function getExperiment(slug: string) { return experiments.find(e=>e.slug===slug); }
 export function skillLabel(v: UiVariant) { return v.skillMode==="bare" ? "裸跑" : v.skillName ?? "未记录"; }
+export function modelLabel(v: UiVariant) { return `${v.model} ${v.modelVersion ?? ""}`.trim(); }
 export function resolvePair(e: UiExperiment, left: string | null, right: string | null): [string,string] {
+  if (e.variants.length === 1) return [e.variants[0].slug, e.variants[0].slug];
   return left!==right && e.variants.some(v=>v.slug===left) && e.variants.some(v=>v.slug===right) ? [left!,right!] : e.defaultVariantIds;
 }
 export function changePair(pair: [string,string], side: 0 | 1, value: string): [string,string] {

@@ -5,6 +5,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChatDrawer } from "@/components/works/demos/qintai-ticketing/chat/chat-drawer";
+import { DemoCollectionLink } from "@/components/works/demos/navigation/demo-collection-link";
 import { useQintai } from "@/components/works/demos/qintai-ticketing/provider";
 import { formatCountdown, useTicker } from "@/components/works/demos/qintai-ticketing/ui/parts";
 
@@ -16,9 +17,8 @@ const NAV = [
 ];
 
 export function CustomerShell({ children }: { children: React.ReactNode }) {
-  const { storeName, storefront, session, resetSession, drawer, setDrawer } = useQintai();
+  const { storeName, storefront, session, resetSession } = useQintai();
   const pathname = usePathname();
-  const chatOpen = drawer.customer;
   const now = useTicker(1000);
 
   const cart = storefront.getCart(session);
@@ -32,7 +32,6 @@ export function CustomerShell({ children }: { children: React.ReactNode }) {
     <div className="q-app">
       <header className="q-topbar">
         <div className="q-topbar-inner">
-          <Link className="q-back" href="/works/demos">← <span>行业 Demo 集</span></Link>
           <Link className="q-brand" href="/works/demos/qintai-ticketing">
             <span className="q-brand-mark" aria-hidden>琴</span>
             <span className="q-brand-type">{storeName}<small>QINTAI TICKETING · 武汉演出</small></span>
@@ -55,35 +54,40 @@ export function CustomerShell({ children }: { children: React.ReactNode }) {
             ) : (
               <span className="q-hold-chip is-idle">当前无锁定座位</span>
             )}
-            <button type="button" className="q-ghost-button" onClick={() => setDrawer("customer", !chatOpen)} aria-expanded={chatOpen}>
+            <Link className="q-ghost-button" href="/works/demos/qintai-ticketing/merchant">
+              运营工作台 ↗
+            </Link>
+            <span className="q-ghost-button q-chat-presence">
               琴台助手 <em>AI</em>
-            </button>
+            </span>
             <span className="q-demo-badge">模拟数据 · 不收钱</span>
+            <DemoCollectionLink className="q-back" />
           </div>
         </div>
       </header>
 
-      <main className="q-workspace">
-        {children}
-        <footer className="q-footer">
-          <span>QINTAI TICKETING / 价格透明、库存诚实、先锁座再决定</span>
-          <span>观众 {fan} · 演出、票价与场馆来自公开资料；库存、锁座、候补与费用拆分为本地模拟数据 · 不产生真实交易</span>
-          <button
-            type="button"
-            className="q-text-button"
-            onClick={() => {
-              if (window.confirm("重新开始演示会清空这台浏览器上的锁座、候补、票夹、待审批台账与对话记录，确定继续？")) {
-                resetSession();
-              }
-            }}
-          >
-            重新开始演示
-          </button>
-        </footer>
-      </main>
+      <div className="q-customer-layout">
+        <main className="q-workspace">
+          {children}
+          <footer className="q-footer">
+            <span>QINTAI TICKETING / 价格透明、库存诚实、先锁座再决定</span>
+            <span>观众 {fan} · 演出、票价与场馆来自公开资料；库存、锁座、候补与费用拆分为本地模拟数据 · 不产生真实交易</span>
+            <button
+              type="button"
+              className="q-text-button"
+              onClick={() => {
+                if (window.confirm("重新开始演示会清空这台浏览器上的锁座、候补、票夹、待审批台账与对话记录，确定继续？")) {
+                  resetSession();
+                }
+              }}
+            >
+              重新开始演示
+            </button>
+          </footer>
+        </main>
 
-      <ChatDrawer role="customer" open={chatOpen} onClose={() => setDrawer("customer", false)} />
-      <button type="button" className={`q-chat-scrim${chatOpen ? " is-open" : ""}`} aria-label="收起对话" tabIndex={-1} onClick={() => setDrawer("customer", false)} />
+        <ChatDrawer role="customer" open onClose={() => undefined} alwaysVisible />
+      </div>
     </div>
   );
 }

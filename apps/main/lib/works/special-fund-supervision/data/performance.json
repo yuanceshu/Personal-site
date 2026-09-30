@@ -1,0 +1,5 @@
+[
+  {"projectId":"PRJ-C","metrics":[{"metric":"年度业务服务量","target":20000,"actual":8400,"unit":"次"},{"metric":"服务企业数量","target":120,"actual":67,"unit":"家"},{"metric":"系统月均活跃率","target":0.7,"actual":0.39,"unit":"比例"}]},
+  {"projectId":"PRJ-F","metrics":[{"metric":"绩效目标完成率","target":1,"actual":0.88,"unit":"比例"}]},
+  {"projectId":"PRJ-I","metrics":[{"metric":"年度业务服务量","target":10000,"actual":11600,"unit":"次"}]}
+]

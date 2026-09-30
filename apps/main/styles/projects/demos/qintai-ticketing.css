@@ -162,7 +162,7 @@
   max-width: 1440px; margin: 0 auto; padding: 0 28px; min-height: 68px;
   display: flex; align-items: center; gap: 22px;
 }
-.q-back { color: var(--q-ink-soft); font-size: 11.5px; white-space: nowrap; }
+.q-back { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; color: var(--q-ink-soft); font-size: 11.5px; white-space: nowrap; }
 .q-back:hover { color: var(--q-accent); }
 .q-brand { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
 .q-brand-mark { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 8px; background: var(--q-well); color: var(--q-accent); font-size: 17px; box-shadow: inset 0 0 0 1px var(--q-line-strong); }
@@ -172,7 +172,8 @@
 .q-nav a { padding: 8px 12px; border-radius: var(--q-radius); color: var(--q-ink-soft); font-size: 12.5px; }
 .q-nav a:hover { color: var(--q-ink); background: var(--q-well); }
 .q-nav a.is-active { color: var(--q-ink); background: var(--q-well); box-shadow: inset 0 -2px 0 var(--q-accent); }
-.q-topbar-side { display: flex; align-items: center; gap: 10px; }
+.q-topbar-side { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-left: auto; min-width: 0; flex-shrink: 0; }
+.q-topbar-side .q-back { flex: 0 0 auto; }
 .q-demo-badge { padding: 5px 8px; border: 1px solid var(--q-line); border-radius: 4px; color: var(--q-ink-faint); font: 9px var(--q-mono); letter-spacing: 0.12em; white-space: nowrap; }
 .q-hold-chip {
   display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 999px;
@@ -295,6 +296,8 @@
 .q-result-actions { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
 
 /* 演出详情 --------------------------------------------------------------- */
+.q-detail-back { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-bottom: 8px; color: var(--q-ink-soft); font-size: 12px; }
+.q-detail-back:hover { color: var(--q-accent); }
 .q-breadcrumb { display: flex; gap: 8px; margin-bottom: 18px; color: var(--q-ink-faint); font-size: 11.5px; }
 .q-breadcrumb a:hover { color: var(--q-accent); }
 .q-detail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--q-line); }
@@ -550,6 +553,9 @@
   background: var(--q-chrome); transform: translateX(102%); transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .q-chat.is-open { transform: none; }
+.q-customer-layout { max-width: 1600px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 420px); align-items: start; }
+.q-customer-layout .q-workspace { max-width: 1240px; width: 100%; margin: 0; }
+.q-chat.q-chat--persistent { position: sticky; top: 68px; right: auto; bottom: auto; width: auto; height: calc(100svh - 68px); max-height: calc(100svh - 68px); transform: none; }
 .q-chat-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 16px; border-bottom: 1px solid var(--q-line); }
 .q-chat-head > div { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .q-chat-mark { width: 34px; height: 34px; flex: none; display: grid; place-items: center; border-radius: 8px; background: var(--q-accent); color: #17060d; font-size: 16px; }
@@ -633,12 +639,15 @@
   .q-command { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 900px) {
+  .q-customer-layout { display: block; }
+  .q-chat.q-chat--persistent { position: relative; top: auto; width: 100%; height: 620px; max-height: none; border-top: 1px solid var(--q-line-strong); border-left: 0; }
   .q-merchant-layout { grid-template-columns: minmax(0, 1fr); }
   .q-rail { padding: 12px 14px; border-right: 0; border-bottom: 1px solid var(--q-line); }
   .q-rail-label, .q-rail-bottom { display: none; }
   .q-rail-nav { display: flex; overflow-x: auto; }
   .q-rail-nav a { white-space: nowrap; flex: 0 0 auto; }
   .q-topbar-inner { flex-wrap: wrap; gap: 12px; padding: 10px 16px; }
+  .q-topbar-side { order: 2; width: 100%; overflow-x: auto; padding-bottom: 2px; }
   .q-nav { order: 3; width: 100%; margin-left: 0; overflow-x: auto; }
   .q-workspace, .q-main-panel { padding-left: 16px; padding-right: 16px; }
   .q-page-intro { flex-direction: column; align-items: flex-start; }

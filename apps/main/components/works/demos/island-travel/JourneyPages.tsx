@@ -17,7 +17,7 @@ export function JourneysPage() {
   const { orders } = useTravel();
   const journeys = orders.filter(o => o.status === "ticketed" || o.status === "refunded");
   return <div className="container inner-content">
-    <StepHeading eyebrow="YOUR JOURNEYS" title="旅途，从出票之后继续。" description="这里展示本次体验中已出票的行程。演示状态由你推进，不代表真实车辆运行。刷新后全部清空。" />
+    <StepHeading eyebrow="YOUR JOURNEYS" title="旅途，从出票之后继续。" description="这里展示本次体验中已出票的行程。演示状态由你推进，不代表真实车辆运行。刷新后全部清空。" back="" backLabel="返回岛见首页" />
     <div className="orders-toolbar"><p>{String(journeys.length).padStart(2, "0")} 段演示行程</p><Link className="quiet-button" href={`${travelRoot}/orders`}>查看全部订单 <Arrow /></Link></div>
     {!journeys.length ? <EmptyState title="还没有可体验的行程。">完成模拟支付与出票后，行程会出现在这里。尚未出票的订单可在“我的订单”继续处理。</EmptyState> : <div className="orders-list">{[...journeys].reverse().map(order => <Link className="order-row" key={order.id} href={`${travelRoot}/journeys/${order.id}`}><div className="order-date"><strong>{order.trip.date.slice(8)}</strong><span>{order.trip.date.slice(0, 7).replace("-", " / ")}</span></div><div className="order-route"><span className="route-small">{order.id} / DEMO JOURNEY</span><h2>{order.trip.origin} <span>⟶</span> {order.trip.destination}</h2><p>{order.trip.depart} — {order.trip.arrive} · {order.quantity} 人</p></div><span className="status-badge">{order.status === "refunded" ? "已取消" : journeyLabels[order.journeyStage]}</span><Arrow /></Link>)}</div>}
   </div>;

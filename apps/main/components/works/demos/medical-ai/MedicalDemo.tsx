@@ -1,7 +1,8 @@
 'use client';
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import { AssistantMark, Badge, ConfirmationDialog, Icon, Journey, ResultCards, SafetyBanner, VisitSummary, type Confirmation } from './care-ui';
+import { AssistantMark, ConfirmationDialog, Icon, Journey, ResultCards, SafetyBanner, VisitSummary, type Confirmation } from './care-ui';
+import { DemoCollectionLink } from '@/components/works/demos/navigation/demo-collection-link';
 import { DEMO_EVENTS, needsActionReview, startsNewEpisode, STAGE_LABELS } from '@/lib/works/medical-ai/src/ui/presentation';
 import type { ChatResponse } from '@/lib/works/medical-ai/src/schemas/chat';
 import { createInitialVisitContext, type VisitContext, type VisitStage } from '@/lib/works/medical-ai/src/domain/visit-context';
@@ -94,12 +95,6 @@ export function MedicalDemo() {
   };
   const confirmPending = () => { const action = pendingAction; setPendingAction(null); setConfirmation(null); if (action) void action(); };
 
-  const refreshOnly = () => {
-    try {
-      const stored = JSON.parse(window.localStorage.getItem(STATE_KEY) ?? 'null') as MedicalClientState | null;
-      if (stored) applyState(stored);
-    } catch { setError('状态读取失败'); }
-  };
   const requestStage = (stage: VisitStage) => {
     if (!context) return;
     const event = DEMO_EVENTS[context.current_stage];
@@ -130,11 +125,11 @@ export function MedicalDemo() {
   ], []);
 
   return <div className="medical-ai-demo"><div className="product-shell">
-    <header className="mobile-header"><a className="brand" href="#assistant"><span className="brand-mark">明</span><span><strong>明川市中心医院</strong><small>AI 就医助手</small></span></a><Badge>Demo 环境</Badge></header>
+    <header className="mobile-header"><a className="brand" href="#assistant"><span className="brand-mark">明</span><span><strong>明川市中心医院</strong><small>AI 就医助手</small></span></a><DemoCollectionLink className="collection-back collection-back--mobile" /></header>
     <aside className="app-sidebar"><a className="brand" href="#assistant"><span className="brand-mark">明</span><span><strong>明川市中心医院</strong><small>AI 就医助手</small></span></a><div className="side-divider" />{patient && <div className="patient-chip"><span className="patient-avatar">{patient.name.slice(0, 1)}</span><span><small>当前患者</small><strong>{patient.name}</strong><em>{patient.gender} · {patient.age} 岁</em></span></div>}<nav className="side-nav">{nav.map(item => <a key={item.id} className={activeNav === item.id ? 'active' : ''} href={item.href} onClick={() => setActiveNav(item.id)}><Icon name={item.icon} size={17} />{item.label}</a>)}</nav><div className="sidebar-footer"><span className="secure-dot" />演示环境 · Mock 业务数据</div></aside>
 
     <main className="main-content">
-      <div className="topline"><div><small>患者旅程 / PATIENT JOURNEY</small><h1>{patient ? '你好，' + patient.name : '你好'}</h1></div><div className="topline-actions"><Badge><span className="status-dot" /> Demo 环境</Badge><button className="icon-button" onClick={() => void refreshOnly()} aria-label="刷新状态"><Icon name="refresh" size={18} /></button></div></div>
+      <div className="topline"><div><small>患者旅程 / PATIENT JOURNEY</small><h1>{patient ? '你好，' + patient.name : '你好'}</h1></div><div className="topline-actions"><DemoCollectionLink className="collection-back collection-back--desktop-content" /></div></div>
       {error && <div className="inline-error" role="status"><Icon name="alert" size={16} />{error}<button onClick={() => setError('')} aria-label="关闭提示"><Icon name="close" size={15} /></button></div>}
       <SafetyBanner safety={activeSafety ?? safety ?? null} critical={lastResponse?.debug.critical_flag ?? false} />
 

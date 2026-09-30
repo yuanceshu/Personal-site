@@ -97,12 +97,15 @@ export function ChatDrawer({
   open,
   onClose,
   notices,
+  alwaysVisible = false,
 }: {
   role: Role;
   open: boolean;
   onClose: () => void;
   /** 页面注入的额外提示，例如「先在演出详情页选中票档，助手的比较才有依据」。 */
   notices?: string[];
+  /** 观众侧使用常驻栏；运营侧仍使用可收起的抽屉。 */
+  alwaysVisible?: boolean;
 }) {
   const { chat, ask, live, runProposal, session } = useQintai();
   const state = chat[role];
@@ -111,11 +114,12 @@ export function ChatDrawer({
   const [outcomes, setOutcomes] = useState<Record<string, ProposalOutcome>>({});
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const entries = state.entries;
+  const visible = alwaysVisible || open;
 
   useEffect(() => {
-    if (!open || entries.length === 0) return;
+    if (!visible || entries.length === 0) return;
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [entries, open]);
+  }, [entries, visible]);
 
   const send = useCallback(
     (raw: string) => {
@@ -136,7 +140,11 @@ export function ChatDrawer({
   }, [live]);
 
   return (
-    <aside className={`q-chat${open ? " is-open" : ""}`} aria-hidden={!open} aria-label={`${config.title}·演示对话`}>
+    <aside
+      className={`q-chat${visible ? " is-open" : ""}${alwaysVisible ? " q-chat--persistent" : ""}`}
+      aria-hidden={!visible}
+      aria-label={`${config.title}·演示对话`}
+    >
       <header className="q-chat-head">
         <div>
           <span className="q-chat-mark" aria-hidden>琴</span>
@@ -145,7 +153,7 @@ export function ChatDrawer({
             <p>{config.subtitle}</p>
           </span>
         </div>
-        <button type="button" className="q-icon-button" onClick={onClose} aria-label="收起对话">✕</button>
+        {!alwaysVisible ? <button type="button" className="q-icon-button" onClick={onClose} aria-label="收起对话">✕</button> : null}
       </header>
       <p className={`q-chat-status q-chat-status--${status.tone}`} role="status">{status.label}</p>
       {notices && notices.length > 0 ? (

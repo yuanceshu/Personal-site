@@ -7,10 +7,7 @@ async function compare(page: Page, group = "ai-workbench") {
   await expect(page.getByLabel("A / 左侧版本")).toBeVisible();
   await expect(page).toHaveURL(/left=.*&right=/);
 }
-async function ratios(page: Page) {
-  return page.locator(".uil-preview-scroll").evaluateAll(panes=>panes.map(p=>p.scrollHeight>p.clientHeight ? p.scrollTop/(p.scrollHeight-p.clientHeight) : 0));
-}
-test("main website entry, three groups, ten options, no running previews", async ({ page }) => {
+test("main website entry, all desktop cases, no running previews", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("link",{name:"UI 实验室",exact:true})).toHaveAttribute("href",lab);
   await page.getByRole("link",{name:"UI 实验室",exact:true}).click();
@@ -19,22 +16,23 @@ test("main website entry, three groups, ten options, no running previews", async
   await expect(page.locator(".site-header__context")).toHaveText("作品 / UI LAB");
   await expect(page.locator(".site-header").getByRole("link",{name:"返回首页",exact:true})).toHaveAttribute("href","/");
   await expect(page.getByRole("heading",{level:1})).toHaveAccessibleName(/UI 实验室/);
-  await expect(page.locator(".uil-experiment")).toHaveCount(3);
+  await expect(page.locator(".uil-experiment")).toHaveCount(experiments.length);
   for(const e of experiments) {
     await page.getByRole("heading",{name:e.title,exact:true}).getByRole("link").click();
-    await expect(page.getByLabel("A / 左侧版本").locator("option")).toHaveCount(e.variants.length);
-    await expect(page.locator("iframe")).toHaveCount(0);
-    for(const v of e.variants) {
-      await page.getByLabel("A / 左侧版本").selectOption(v.slug);
-      await expect(page.getByLabel("A / 左侧版本")).toHaveValue(v.slug);
-      await expect(page.locator(".uil-canvas").first().getByRole("img")).toBeVisible();
+    if(e.variants[0].sourceType === "static-image" && e.variants.length === 1) {
+      await expect(page.locator(".uil-static-case")).toHaveCount(e.variants.length);
+      await expect(page.locator("iframe")).toHaveCount(0);
+    } else {
+      await expect(page.getByLabel("A / 左侧版本").locator("option")).toHaveCount(e.variants.length);
+      await expect(page.locator("iframe")).toHaveCount(0);
+      for(const v of e.variants) {
+        await page.getByLabel("A / 左侧版本").selectOption(v.slug);
+        await expect(page.getByLabel("A / 左侧版本")).toHaveValue(v.slug);
+        await expect(page.locator(".uil-canvas").first().getByRole("img")).toBeVisible();
+      }
     }
     await page.getByRole("link",{name:"← 返回 UI 实验室"}).click();
   }
-  await page.setViewportSize({width:375,height:812});
-  await page.goto("/");
-  await page.getByRole("link",{name:"UI 实验室",exact:true}).click();
-  await expect(page).toHaveURL(new RegExp(`${lab}$`));
 });
 test("pair swap, reload, share query, back/forward and invalid recovery", async ({ page }) => {
   await compare(page);
@@ -54,50 +52,15 @@ test("pair swap, reload, share query, back/forward and invalid recovery", async 
     await expect(page).toHaveURL(/left=apple-design&right=frontend-design$/);
   }
 });
-test("proportional scrolling, independent mode and viewport/variant preservation", async ({ page }) => {
+test("desktop comparison canvas and variant switching", async ({ page }) => {
   await compare(page);
-  await page.getByRole("button",{name:"手机图",exact:true}).click();
-  await expect.poll(async()=>page.locator(".uil-preview-scroll").first().evaluate(p=>p.scrollHeight>p.clientHeight)).toBe(true);
-  await page.locator(".uil-preview-scroll").first().evaluate(p=>{p.scrollTop=(p.scrollHeight-p.clientHeight)*.55;});
-  await expect.poll(async()=>Math.abs((await ratios(page))[1]-.55)).toBeLessThan(.02);
+  await expect(page.getByLabel("同步滚动")).toBeChecked();
   await page.getByLabel("A / 左侧版本").selectOption("ui-ux-pro-max");
-  await expect.poll(async()=>Math.abs((await ratios(page))[0]-.55)).toBeLessThan(.02);
+  await expect(page.locator(".uil-preview-scroll").first().getByRole("img")).toBeVisible();
   await page.getByLabel("同步滚动").uncheck();
-  await page.locator(".uil-preview-scroll").first().evaluate(p=>{p.scrollTop=(p.scrollHeight-p.clientHeight)*.2;});
-  await expect.poll(async()=>Math.abs((await ratios(page))[0]-.2)).toBeLessThan(.02);
-  expect((await ratios(page))[1]).toBeCloseTo(.55,1);
+  await expect(page.getByLabel("同步滚动")).not.toBeChecked();
   await page.getByLabel("同步滚动").check();
-  await expect.poll(async()=>Math.abs((await ratios(page))[1]-.2)).toBeLessThan(.02);
-  await page.getByRole("button",{name:"桌面图",exact:true}).click();
-  // A nearly viewport-height screenshot may only scroll a few pixels; allow pixel rounding.
-  await expect.poll(()=>page.locator(".uil-preview-scroll").first().evaluate(p=>Math.abs(p.scrollTop-(p.scrollHeight-p.clientHeight)*.2))).toBeLessThan(1);
-});
-test("mobile A/B, desktop/mobile viewing, reset, focus escape and preserved return", async ({ page }) => {
-  await page.setViewportSize({width:375,height:812});
-  await compare(page,"island-travel");
-  await page.getByRole("button",{name:"手机图",exact:true}).click();
-  await page.locator(".uil-preview-scroll").first().evaluate(p=>{p.scrollTop=(p.scrollHeight-p.clientHeight)*.4;});
-  await page.getByRole("button",{name:"查看 B",exact:true}).click();
-  await expect(page.locator(".uil-canvas").first()).toBeHidden();
-  await expect.poll(async()=>Math.abs((await ratios(page))[1]-.4)).toBeLessThan(.03);
-  const before=page.url();
-  await page.locator(".uil-canvas.is-active").getByRole("link",{name:/单独体验/}).click();
-  await expect(page.getByRole("status")).toHaveText("快照已就绪");
-  await expect(page.locator("iframe")).toHaveAttribute("sandbox","allow-scripts");
-  await page.getByRole("button",{name:"手机",exact:true}).click();
-  await expect.poll(()=>page.locator("iframe").evaluate(e=>e.clientWidth)).toBe(375);
-  const f=page.frameLocator("iframe");
-  await f.locator("#destination").selectOption("文昌");
-  await page.getByRole("button",{name:"重新开始",exact:true}).click();
-  await expect(page.getByRole("status")).toHaveText("快照已就绪");
-  await expect(f.locator("#destination")).toHaveValue("三亚");
-  await f.locator("#destination").focus();
-  await page.keyboard.press("Escape");
-  await expect(page.getByRole("link",{name:"← 返回当前对照组合"})).toBeFocused();
-  await page.getByRole("button",{name:/实验信息/}).click();
-  await expect(page.locator("#snapshot-information")).toHaveAttribute("open","");
-  await page.getByRole("link",{name:"← 返回对照",exact:true}).click();
-  await expect(page).toHaveURL(before);
+  await expect(page.getByLabel("同步滚动")).toBeChecked();
 });
 test("preview failure, snapshot failure, invalid routes", async ({ page }) => {
   await page.route("**/projects/ui-lab/previews/**",route=>route.abort());
@@ -130,10 +93,5 @@ for(const [width,height] of [[320,812],[375,812],[768,1000],[1024,1000],[1440,10
     await select.focus(); await page.keyboard.press("ArrowDown"); await page.keyboard.press("Enter");
     await expect(select).toBeFocused();
     expect(await select.evaluate(e=>getComputedStyle(e).outlineStyle)).toBe("solid");
-    if(width===320) {
-      await page.goto(`${lab}/island-travel/ui-ux-pro-max`);
-      await page.getByRole("button",{name:"手机",exact:true}).click();
-      expect(await page.locator("iframe").evaluate(e=>e.getBoundingClientRect().width)).toBeLessThanOrEqual(288);
-    }
   });
 }

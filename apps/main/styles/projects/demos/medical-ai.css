@@ -47,6 +47,11 @@
 .medical-ai-demo .sidebar-footer { display: flex; align-items: center; gap: 8px; margin-top: auto; color: #8fb8b1; font-size: 10px; line-height: 1.5; }
 .medical-ai-demo .secure-dot, .medical-ai-demo .status-dot, .medical-ai-demo .online i { width: 7px; height: 7px; display: inline-block; border-radius: 50%; background: #69c59d; }
 .medical-ai-demo .mobile-header { display: none; }
+.medical-ai-demo .collection-back { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: #9ec7bf; font-size: 10px; white-space: nowrap; }
+.medical-ai-demo .collection-back:hover { color: #fff; }
+.medical-ai-demo .collection-back--mobile { display: none; }
+.medical-ai-demo .collection-back--desktop-content { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--teal-dark); font-size: 10px; white-space: nowrap; }
+.medical-ai-demo .collection-back--desktop-content:hover { color: var(--teal); }
 .medical-ai-demo .main-content { width: min(1200px, 100%); min-width: 0; margin: 0 auto; padding: 34px clamp(25px, 4vw, 62px) 48px; }
 .medical-ai-demo .topline { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 29px; }
 .medical-ai-demo .topline small, .medical-ai-demo .section-label, .medical-ai-demo .results-heading > div > small { color: var(--teal); font-size: 9px; font-weight: 800; letter-spacing: .15em; }
@@ -244,6 +249,8 @@
   .medical-ai-demo .product-shell { display: block; }
   .medical-ai-demo .app-sidebar { display: none; }
   .medical-ai-demo .mobile-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 17px; background: #123e45; }
+  .medical-ai-demo .collection-back--desktop-content { display: none; }
+  .medical-ai-demo .collection-back--mobile { display: inline-flex; flex: 0 0 auto; font-size: 10px; }
   .medical-ai-demo .mobile-header .brand strong { font-size: 12px; }.medical-ai-demo .mobile-header .brand small { font-size: 9px; }
   .medical-ai-demo .main-content { padding: 24px 18px 42px; }
   .medical-ai-demo .hero, .medical-ai-demo .workspace-grid { grid-template-columns: 1fr; }

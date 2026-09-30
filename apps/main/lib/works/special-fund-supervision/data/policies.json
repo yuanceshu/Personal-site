@@ -1,0 +1,14 @@
+{
+  "policyId": "POLICY-2026-01",
+  "name": "某产业发展专项资金管理办法（模拟）",
+  "rules": [
+    {"id":"P-001","title":"企业经营条件","description":"申报主体应依法正常经营，持续经营时间不少于 12 个月。","ruleType":"eligibility","parameters":{"minimumOperatingMonths":12}},
+    {"id":"P-002","title":"项目建设周期","description":"项目建设完成日期不得晚于 2026-06-30。","ruleType":"deadline","parameters":{"completionDeadline":"2026-06-30"}},
+    {"id":"P-003","title":"必备申报材料","description":"至少应提供项目申请书、企业基本资料、项目建设合同、相关发票、项目验收证明。","ruleType":"documents","parameters":{"requiredDocumentTypes":["application","company-profile","contract","invoice","acceptance"]}},
+    {"id":"P-004","title":"补贴比例","description":"专项资金补贴金额原则上不得超过核定项目投资金额的 30%。","ruleType":"subsidy-rate","parameters":{"maxRate":0.3}},
+    {"id":"P-005","title":"单项目补贴上限","description":"单个项目获得专项补贴最高不得超过 50 万元。","ruleType":"subsidy-cap","parameters":{"maxSubsidy":500000}},
+    {"id":"P-006","title":"禁止重复申报","description":"同一项目不得重复申请同类型财政专项补贴。","ruleType":"duplicate","parameters":{}},
+    {"id":"P-007","title":"数据真实性","description":"申报运行时间、业务量、投入金额和实际经营数据应与相关系统、合同、发票保持合理一致。","ruleType":"consistency","parameters":{}},
+    {"id":"P-008","title":"绩效跟踪","description":"绩效目标完成率低于 60% 时，标记为重点关注。","ruleType":"performance","parameters":{"focusThreshold":0.6}}
+  ]
+}

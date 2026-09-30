@@ -36,7 +36,7 @@ test("观众侧：检索、锁座、票夹，刷新后锁座仍在", async ({ pa
 
   await page.getByLabel(/锁座张数/).fill("2");
   await page.getByRole("button", { name: /^锁座 · ¥/ }).click();
-  await expect(page.getByRole("status")).toContainText("已锁座");
+  await expect(page.locator(".q-inline-ok").filter({ hasText: "已锁座" })).toBeVisible();
 
   await page.getByRole("link", { name: "票夹", exact: true }).click();
   await expect(page).toHaveURL(`${BASE}/wallet`);
@@ -54,7 +54,7 @@ test("观众侧：售罄票档只能候补，候补页给出位次", async ({ pa
   await expect(page.getByText("该票档当前已售罄")).toBeVisible();
 
   await page.getByRole("button", { name: "加入候补" }).click();
-  await expect(page.getByRole("status")).toContainText("已加入候补");
+  await expect(page.locator(".q-inline-ok").filter({ hasText: "已加入候补" })).toBeVisible();
 
   await page.getByRole("link", { name: "候补与回流", exact: true }).click();
   await expect(page.getByRole("heading", { name: "你在排的队" })).toBeVisible();
@@ -105,11 +105,13 @@ test("运营侧：待审批提案刷新后仍在", async ({ page }) => {
 test("合集入口与移动布局可用", async ({ page }) => {
   await page.goto("/works/demos");
   const qintaiCard = page.locator("article").filter({ has: page.getByRole("heading", { name: "琴台票务 · 武汉演出票务" }) });
-  await expect(qintaiCard.getByRole("link", { name: /完整体验$/ })).toHaveAttribute("href", BASE);
+  await expect(qintaiCard.getByRole("link", { name: /进入琴台票务/ })).toHaveAttribute("href", BASE);
 
   await page.goto(BASE);
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.getByRole("button", { name: /琴台助手/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /运营工作台/ })).toHaveAttribute("href", `${BASE}/merchant`);
+  await expect(page.locator("aside.q-chat.q-chat--persistent")).toBeVisible();
+  await expect(page.locator("aside.q-chat.q-chat--persistent")).toHaveAttribute("aria-hidden", "false");
   const width = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(width).toBeLessThanOrEqual(390);
 });
@@ -123,7 +125,6 @@ test("实时 Agent 不可用时，助手仍能使用确定性降级回答", asyn
   );
 
   await page.goto(BASE);
-  await page.getByRole("button", { name: /琴台助手/ }).click();
   await expect(page.getByRole("status")).toContainText("确定性回答");
 
   const prompt = page.getByRole("button", { name: /我想买两张/ });

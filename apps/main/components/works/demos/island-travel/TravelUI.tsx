@@ -6,6 +6,7 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { cities } from "@/content/projects/demos/island-travel";
 import { addDays, dateLabel, type Trip } from "@/lib/works/island-travel/domain";
 import type { Conditions } from "@/lib/works/island-travel/schema";
+import { DemoCollectionLink } from "@/components/works/demos/navigation/demo-collection-link";
 import { travelRoot, useTravel } from "./TravelProvider";
 
 export function IslandMark() {
@@ -32,7 +33,7 @@ export function TravelShell({ children }: { children: ReactNode }) {
     <header className="site-header">
       <Link className="wordmark" href={travelRoot} aria-label="岛见首页"><IslandMark /><span>岛见<small>ISLAND CONCIERGE</small></span></Link>
       <nav aria-label="岛见导航"><Link href={`${travelRoot}/plan`} aria-current={pathname.endsWith("/plan") || pathname.includes("/products") ? "page" : undefined}>选择行程</Link><Link href={`${travelRoot}/journeys`} aria-current={pathname.includes("/journeys") ? "page" : undefined}>我的行程</Link><Link href={`${travelRoot}/orders`} aria-current={pathname.includes("/orders") ? "page" : undefined}>我的订单 <span className="nav-count">{String(orders.length + productOrders.length).padStart(2, "0")}</span></Link></nav>
-      <Link className="collection-back" href="/works/demos" aria-label="返回行业 Demo 集">行业 Demo 集 <Arrow /></Link>
+      <DemoCollectionLink className="collection-back" />
     </header>
     <main id="island-main" ref={main}>{children}</main>
     <footer className="container footer"><Link className="footer-brand" href={travelRoot}>岛见 <span>ISLAND CONCIERGE</span></Link><span>慢一点，世界会更近一点。</span><details><summary>关于这个 Demo</summary><p>岛见为虚构产品。城市名称真实，班次、票价、余票、乘车人、交易、乘车凭证及退票均为模拟。首页快查不调用模型；AI 仅理解需求，不决定金额与订单状态。无需填写真实住址或联系方式。真实 AI 每 IP 每10分钟最多10次。刷新清空全部体验数据。山林为 AI 生成的虚构景观，非实地摄影。</p></details></footer>

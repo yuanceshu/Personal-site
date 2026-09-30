@@ -10,10 +10,10 @@ async function appleResult(f: FrameLocator, example = "经营分析") {
   await f.getByRole("button", { name: /生成方案与原型/ }).click();
   await expect(f.locator("#lab-result-title")).toBeVisible();
 }
-for (const e of experimentArchive) for (const v of e.variants) {
+for (const e of experimentArchive) for (const v of e.variants) if (v.sourceType === "frozen-static-snapshot" && v.entryUrl) {
   test(`snapshot ${v.id}: offline interaction and reset`, async ({ page, baseURL }) => {
     const errors: string[] = [], unexpected: string[] = [];
-    const entry = new URL(v.entryUrl, baseURL).href;
+    const entry = new URL(v.entryUrl!, baseURL).href;
     const directory = entry.slice(0,entry.lastIndexOf("/")+1);
     page.on("pageerror", error => errors.push(error.message));
     page.on("console", message => { if(message.type() === "error") errors.push(message.text()); });

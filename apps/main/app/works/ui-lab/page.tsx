@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { experiments, skillLabel } from "@/content/projects/ui-lab/experiments";
+import { experiments, modelLabel, skillLabel } from "@/content/projects/ui-lab/experiments";
 import { PreviewImage } from "@/components/works/ui-lab/PreviewImage";
 
 export default function UiLabPage() {
@@ -10,22 +10,22 @@ export default function UiLabPage() {
       <p className="uil-kicker">UI 实验室</p>
       <h1 aria-label="UI 实验室：同一个命题。不同的界面答案。">同一个命题。<br className="uil-mobile-break" />不同的界面答案。</h1>
       <p className="uil-intro">让不同模型与设计方法，回应同一个产品想法。</p>
-      <p className="uil-stats">{experiments.length} 个主题 <span>·</span> {variants.length} 个版本 <span>·</span> {methods.size} 种 Skill <small>含 {variants.filter(v => v.skillMode === "bare").length} 个裸跑版本</small></p>
+    <p className="uil-stats">{experiments.length} 个主题 <span>·</span> {variants.length} 个案例 <span>·</span> {methods.size} 种 Skill <small>桌面视图 · 含 {variants.filter(v => v.skillMode === "bare").length} 个裸跑版本</small></p>
     </section>
     <section className="uil-projects" aria-label="实验项目">
       {experiments.map(e => {
         const href = `/works/ui-lab/${e.slug}`;
         return <article className="uil-experiment" key={e.slug}>
           <div className="uil-experiment-heading-row">
-            <div><p className="uil-kicker">{e.variants[0].model} · {e.variants.length} 个冻结版本</p><h2><Link href={href}>{e.title}</Link></h2><p className="uil-experiment-subtitle">{e.subtitle}</p></div>
+            <div><p className="uil-kicker">{[...new Set(e.variants.map(modelLabel))].join(" / ")} · {e.variants.length} 个桌面案例</p><h2><Link href={href}>{e.title}</Link></h2><p className="uil-experiment-subtitle">{e.subtitle}</p></div>
             <Link className="primary-link uil-enter" href={href} aria-label={`开始对照：${e.title}`}>开始对照 <span aria-hidden="true">›</span></Link>
           </div>
           <div className={`uil-contact ${e.featuredVariantIds.length === 2 ? "uil-contact--pair" : ""}`}>
             {e.featuredVariantIds.map(slug => e.variants.find(v => v.slug === slug)).filter(v => v !== undefined).map(v => <figure key={v.id}>
               <Link className="uil-thumbnail-window" href={href} aria-label={`对照${e.title}，预览${v.title}`}>
-                <PreviewImage src={v.thumbnail} alt={`${e.title} · ${v.model} × ${v.title}桌面预览`} width={720} height={500} eager={e === experiments[0]} />
+                <PreviewImage src={v.thumbnail} alt={`${e.title} · ${modelLabel(v)} × ${v.title}桌面预览`} width={720} height={500} eager={e === experiments[0]} />
               </Link>
-              <figcaption>{v.title}</figcaption>
+              <figcaption>{modelLabel(v)} · {v.title}</figcaption>
             </figure>)}
           </div>
           <div className="uil-experiment-meta"><p>{[...new Set(e.variants.map(skillLabel))].join(" / ")}</p><span className="uil-badge">视觉展示</span></div>

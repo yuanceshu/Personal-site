@@ -29,6 +29,9 @@ function SectionLines({ lines }: { lines: readonly string[] }) {
 
 export default function Home() {
   const industryWork = getHomeWork(homeWorkIds.industry, "industry");
+  const featuredDemos = ["finance-assistant", "island-travel"]
+    .map((id) => demos.find((demo) => demo.id === id))
+    .filter((demo): demo is (typeof demos)[number] => Boolean(demo));
   const teachingWork = getHomeWork(homeWorkIds.teaching, "teaching");
   const creationWork = getHomeWork(homeWorkIds.creation, "creation");
   const [industrySection, experimentsSection, creationSection, teachingSection, thoughtsSection] = homeSections;
@@ -97,7 +100,7 @@ export default function Home() {
                 </div>
                 <div className="home-bento__industries">
                   <ul aria-label="可体验的行业 Demo">
-                    {demos.map((demo) => (
+                    {featuredDemos.map((demo) => (
                       <li key={demo.id}>
                         <Link href={demo.href}>
                           <span>{demo.tags[0]}<small>{demo.title.split(" · ")[0]}</small></span>

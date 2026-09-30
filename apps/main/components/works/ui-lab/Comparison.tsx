@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { changePair, pairQuery, resolvePair, scrollRatio } from "@/content/projects/ui-lab/experiments";
+import { changePair, modelLabel, pairQuery, resolvePair, scrollRatio } from "@/content/projects/ui-lab/experiments";
 import type { UiExperiment } from "@/content/projects/ui-lab/types";
 import { Conditions } from "./Conditions";
 import { PreviewImage } from "./PreviewImage";
@@ -16,7 +16,6 @@ export function Comparison({ experiment: e }: { experiment: UiExperiment }) {
   const pair = resolvePair(e, repeated ? null : left, right);
   const invalid = left !== pair[0] || right !== pair[1] || repeated;
   const selected = pair.map(slug => e.variants.find(v => v.slug === slug)!);
-  const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [sync, setSync] = useState(true);
   const [active, setActive] = useState<0 | 1>(0);
   const [message, setMessage] = useState("");
@@ -41,7 +40,7 @@ export function Comparison({ experiment: e }: { experiment: UiExperiment }) {
     panes.current.forEach(pane => { if (pane) observer.observe(pane); });
     restore(0); restore(1);
     return () => observer.disconnect();
-  }, [leftSlug, rightSlug, device, active]);
+  }, [leftSlug, rightSlug, active]);
   function scroll(index: 0 | 1) {
     const pane = panes.current[index];
     if (!pane?.getClientRects().length) return;
@@ -60,7 +59,6 @@ export function Comparison({ experiment: e }: { experiment: UiExperiment }) {
   return <>
     <section className="uil-comparison" aria-label="双版本对照">
       <div className="uil-comparison-tools">
-        <SegmentedControl label="预览视口" value={device} onChange={setDevice} options={[{value:"desktop",label:"桌面图"},{value:"mobile",label:"手机图"}]} />
         <label className="uil-sync"><input type="checkbox" checked={sync} onChange={event => {
           setSync(event.target.checked);
           if (event.target.checked) { ratios.current[1-last.current] = ratios.current[last.current]; restore(1-last.current); }
@@ -69,17 +67,17 @@ export function Comparison({ experiment: e }: { experiment: UiExperiment }) {
       </div>
       <div className="uil-selectors">{selected.map((v, index) => <label key={index}>
         <span>{index === 0 ? "A / 左侧版本" : "B / 右侧版本"}</span>
-        <select value={v.slug} onChange={event => choose(index as 0 | 1, event.target.value)}>{e.variants.map(option => <option value={option.slug} key={option.id}>{option.model} × {option.title}</option>)}</select>
+        <select value={v.slug} onChange={event => choose(index as 0 | 1, event.target.value)}>{e.variants.map(option => <option value={option.slug} key={option.id}>{modelLabel(option)} × {option.title}</option>)}</select>
       </label>)}</div>
       <SegmentedControl className="uil-mobile-switch" label="查看对照侧" value={active} onChange={setActive} options={[{value:0,label:"查看 A"},{value:1,label:"查看 B"}]} />
       <div className="uil-canvases">{selected.map((v, index) => {
-        const preview = device === "desktop" ? v.desktopPreview : v.mobilePreview;
+        const preview = v.desktopPreview;
         return <article className={`uil-canvas ${active === index ? "is-active" : ""}`} key={index}>
-          <div className="uil-window-bar"><span>{index === 0 ? "A" : "B"} <strong>{v.title}</strong></span><Link href={`/works/ui-lab/${e.slug}/${v.slug}?${query}`}>单独体验 <span aria-hidden="true">↗</span></Link></div>
-          <div ref={element => { panes.current[index] = element; }} className={`uil-preview-scroll uil-preview-scroll--${device}`} tabIndex={0} role="region" aria-label={`${index === 0 ? "A" : "B"} ${v.title}截图滚动区`} onScroll={() => scroll(index as 0 | 1)}>
-            <PreviewImage key={`${v.id}/${device}`} {...preview} alt={`${e.title} · ${v.model} × ${v.title} · ${device === "desktop" ? "桌面" : "手机"}完整页面截图`} onLoad={() => restore(index)} eager />
+          <div className="uil-window-bar"><span>{index === 0 ? "A" : "B"} <strong>{modelLabel(v)} · {v.title}</strong></span>{v.entryUrl && <Link href={`/works/ui-lab/${e.slug}/${v.slug}?${query}`}>单独体验 <span aria-hidden="true">↗</span></Link>}</div>
+          <div ref={element => { panes.current[index] = element; }} className="uil-preview-scroll" tabIndex={0} role="region" aria-label={`${index === 0 ? "A" : "B"} ${modelLabel(v)}截图滚动区`} onScroll={() => scroll(index as 0 | 1)}>
+            <PreviewImage key={v.id} {...preview} alt={`${e.title} · ${modelLabel(v)} · ${v.title} · 桌面完整页面截图`} onLoad={() => restore(index)} eager />
           </div>
-          <div className="uil-preview-caption"><p>{v.previewState}</p><span>{preview.viewport.width} × {preview.viewport.height} 视口 · 图高 {preview.height}px</span>{v.limitations.filter(s => !s.startsWith("历史")).map(s => <p key={s}>{s}</p>)}</div>
+          <div className="uil-preview-caption"><p>{v.previewState}</p><span>{preview.viewport.width} × {preview.viewport.height} 桌面视口 · 图高 {preview.height}px</span>{v.limitations.filter(s => !s.startsWith("历史")).map(s => <p key={s}>{s}</p>)}</div>
         </article>;
       })}</div>
     </section>

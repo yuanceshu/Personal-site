@@ -101,9 +101,8 @@ export function CustomerShowDetail({ productId }: { productId: string }) {
   if (!product) {
     return (
       <div className="q-view">
-        <Empty>
-          没找到票档 {productId}。<Link href="/works/demos/qintai-ticketing/shows">返回演出列表 →</Link>
-        </Empty>
+        <Link className="q-detail-back" href="/works/demos/qintai-ticketing/shows"><span aria-hidden="true">←</span> 返回演出列表</Link>
+        <Empty>没找到票档 {productId}。</Empty>
       </div>
     );
   }
@@ -140,6 +139,7 @@ export function CustomerShowDetail({ productId }: { productId: string }) {
 
   return (
     <div className="q-view q-view--detail">
+      <Link className="q-detail-back" href="/works/demos/qintai-ticketing/shows"><span aria-hidden="true">←</span> 返回演出列表</Link>
       <nav className="q-breadcrumb">
         <Link href="/works/demos/qintai-ticketing">首页</Link>
         <span>/</span>
