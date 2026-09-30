@@ -35,7 +35,7 @@ df4ad00 fix: use shared Vercel Redis for demo limits
 ae17b69 fix: use Upstash REST variables for demo limits
 ```
 
-远端 `main` 已验证包含最新提交 `ae17b69`。
+代码部署使用的最新提交为 `ae17b69`；本记录随后由提交 `6db9961` 写入。
 
 本次没有提交工作区中原有的其他页面和测试改动。当前未纳入本记录提交的文件包括：
 
