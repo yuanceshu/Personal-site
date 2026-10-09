@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { DemoCollectionLink } from "@/components/works/demos/navigation/demo-collection-link";
 import { useEffect, useRef, useState } from "react";
 import { dateLabel, missingCondition, statusLabels, type PaymentResult } from "@/lib/works/island-travel/domain";
 import { travelRoot, useTravel } from "./TravelProvider";
@@ -9,28 +10,53 @@ import { OrderHistory, OrderServices } from "./OrderServices";
 import { DoorPlanSection } from "./DoorPlan";
 import { productKindLabels, productSourceWarning, productStatusLabels } from "@/lib/works/island-travel/products";
 
-function Concierge() {
+function Concierge({ compact = false, open = false, onClose, onViewResults }: { compact?: boolean; open?: boolean; onClose?: () => void; onViewResults?: () => void }) {
   const t = useTravel();
   const input = useRef<HTMLTextAreaElement>(null);
-  return <section id="travel-concierge" className="concierge" aria-label="出行对话">
-    <div className="concierge-header"><IslandMark /><div><p className="overline">AT YOUR SERVICE</p><h2>和岛见聊聊</h2></div><button className="quiet-button" onClick={() => { t.newJourney(); input.current?.focus(); }}>新行程</button></div>
+  const dialog = useRef<HTMLDialogElement>(null);
+  const log = useRef<HTMLDivElement>(null);
+  const followLatest = useRef(true);
+  const send = (value?: string) => { followLatest.current = true; void t.send(value); };
+  useEffect(() => { if (!compact) return; if (open) dialog.current?.showModal(); else dialog.current?.close(); }, [compact, open]);
+  useEffect(() => { if (compact && open && followLatest.current && log.current) log.current.scrollTop = log.current.scrollHeight; }, [compact, open, t.messages, t.busy]);
+  const content = <>
+    <div className="concierge-header"><IslandMark /><div><p className="overline">AT YOUR SERVICE</p><h2>和岛见聊聊</h2></div><button className="quiet-button" onClick={() => { followLatest.current = true; t.newJourney(); input.current?.focus(); }}>新行程</button>{compact && <button type="button" className="quiet-button concierge-close" autoFocus onClick={onClose} aria-label="收起岛见礼宾">✕</button>}{compact && <DemoCollectionLink className="collection-back concierge-back" />}</div>
     <p className="mode-caption">{t.mode === "live" ? "真实 AI 理解 · 模拟行程" : "演示模式 · 规则理解，不调用 AI"}</p>
     {t.chatContextId && <div className="chat-context" role="status">当前订单：{t.chatContextId} · 对话只提供页面入口，不会提交交易、工单或提醒。<button className="quiet-button" type="button" onClick={t.clearChatContext}>清除关联</button></div>}
-    <div className="chat-log" role="log" aria-label="聊天记录" aria-live="polite">
-      {t.messages.map(message => <article className={`chat-message chat-message--${message.role}`} key={message.id}><span>{message.role === "user" ? "你" : "岛见"}{message.mode === "demo" ? " · 演示" : ""}</span><p>{message.text}</p>{message.link && <Link className="text-link" href={message.link.href}>{message.link.label} <Arrow /></Link>}</article>)}
+    <div className="chat-log" ref={log} onScroll={event => { const el = event.currentTarget; followLatest.current = el.scrollHeight - el.scrollTop - el.clientHeight < 64; }} role="log" aria-label="聊天记录" aria-live="polite">
+      {t.messages.map(message => <article className={`chat-message chat-message--${message.role}`} key={message.id}><span>{message.role === "user" ? "你" : "岛见"}{message.mode === "demo" ? " · 演示" : ""}</span><p>{message.text}</p>{message.link && <Link className="text-link" href={message.link.href} onClick={onClose}>{message.link.label} <Arrow /></Link>}</article>)}
     </div>
-    {t.messages.length === 1 && <div className="chat-suggestions">{["明天上午从海口去三亚", "改成下午，2人", "模拟支付怎么体验？"].map((example, i) => <button key={example} disabled={t.busy} onClick={() => void t.send(example)}><small>0{i + 1}</small>{example}<Arrow /></button>)}</div>}
+    {t.messages.length === 1 && <div className="chat-suggestions">{["明天上午从海口去三亚", "改成下午，2人", "模拟支付怎么体验？"].map((example, i) => <button key={example} disabled={t.busy} onClick={() => send(example)}><small>0{i + 1}</small>{example}<Arrow /></button>)}</div>}
     {t.busy && <div className="travel-wait" role="status"><span className="waiting-dot" />正在理解你的出行计划…<button className="quiet-button" onClick={t.cancel}>取消</button></div>}
-    {t.error && <div className="travel-error" role="alert"><p>{t.error}</p><div><button className="quiet-button" onClick={() => void t.send()}>重试</button>{t.mode === "live" && <button className="quiet-button" onClick={() => { t.changeMode("demo"); input.current?.focus(); }}>切换演示模式</button>}</div></div>}
-    <form className="chat-composer" onSubmit={e => { e.preventDefault(); void t.send(); }}><label htmlFor="travel-message">描述你的出行计划</label><div><textarea id="travel-message" ref={input} value={t.input} maxLength={1200} rows={3} readOnly={t.busy} onChange={e => t.setInput(e.target.value)} placeholder="例如：晚一点出发，改成下午，2个人" onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void t.send(); } }} /><button className="send-button" type="submit" disabled={t.busy || !t.input.trim()} aria-label="发送行程"><Arrow /></button></div></form>
+    {t.error && <div className="travel-error" role="alert"><p>{t.error}</p><div><button className="quiet-button" onClick={() => send()}>重试</button>{t.mode === "live" && <button className="quiet-button" onClick={() => { t.changeMode("demo"); input.current?.focus(); }}>切换演示模式</button>}</div></div>}
+    {compact && t.queried && <button type="button" className="button gold concierge-results" onClick={onViewResults}>查看这 {t.trips.length} 趟班次 <Arrow /></button>}
+    <form className="chat-composer" onSubmit={e => { e.preventDefault(); send(); }}><label htmlFor="travel-message">描述你的出行计划</label><div><textarea id="travel-message" ref={input} value={t.input} maxLength={1200} rows={3} readOnly={t.busy} onChange={e => t.setInput(e.target.value)} placeholder="例如：晚一点出发，改成下午，2个人" onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); } }} /><button className="send-button" type="submit" disabled={t.busy || !t.input.trim()} aria-label="发送行程"><Arrow /></button></div></form>
     <div className="chat-footer"><label>对话模式<select aria-label="对话模式" value={t.mode} onChange={e => t.changeMode(e.target.value as "live" | "demo")}><option value="live">真实 AI</option><option value="demo">演示模式</option></select></label><p>无需提供真实姓名、手机号或证件信息。</p></div>
-  </section>;
+  </>;
+  return compact
+    ? <dialog id="travel-concierge" ref={dialog} className="concierge concierge-dialog" aria-label="出行对话" onCancel={event => { event.preventDefault(); onClose?.(); }} onClick={event => { if (event.target !== event.currentTarget) return; const box = event.currentTarget.getBoundingClientRect(); if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) onClose?.(); }}>{content}</dialog>
+    : <section id="travel-concierge" className="concierge" aria-label="出行对话">{content}</section>;
 }
 
 export function PlanningPage() {
   const t = useTravel();
+  const [compact, setCompact] = useState(false);
+  const [conciergeOpen, setConciergeOpen] = useState(false);
+  const enteredWithQuery = useRef(t.queried);
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 800px)");
+    const update = () => { setCompact(query.matches); };
+    const openFromHash = () => { if (window.location.hash === "#travel-concierge") setConciergeOpen(true); };
+    update(); openFromHash();
+    if (query.matches && enteredWithQuery.current && !window.location.hash) requestAnimationFrame(() => document.getElementById("results-title")?.scrollIntoView({ block: "start", behavior: "instant" }));
+    query.addEventListener("change", update); window.addEventListener("hashchange", openFromHash);
+    return () => { query.removeEventListener("change", update); window.removeEventListener("hashchange", openFromHash); };
+  }, []);
+  const closeConcierge = () => { setConciergeOpen(false); if (window.location.hash === "#travel-concierge") window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search); };
+  const viewResults = () => { closeConcierge(); requestAnimationFrame(() => document.getElementById("results-title")?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" })); };
   return <div className="container inner-content">
     <StepHeading eyebrow="01 / FIND YOUR WAY" title="出发的时间，由你决定。" description="选一趟合适的班次，也可以让岛见帮你调整计划。" step={1} back="" backLabel="返回岛见首页" />
+    <button type="button" className="button gold mobile-concierge-entry" onClick={() => setConciergeOpen(true)}>和岛见聊聊 · 帮我选班次 <Arrow /></button>
     <QueryForm />
     <div className="planning-grid">
       <section className="departures" aria-labelledby="results-title"><div className="route-title"><div><span className="route-small">YOUR DEPARTURES</span><h2 id="results-title">{t.queried ? `${t.conditions.origin || "出发地"} → ${t.conditions.destination || "目的地"}` : "下一站，等你决定。"}</h2></div><p className="route-context">{dateLabel(t.conditions.date)}<br />{t.conditions.time_preference || "不限时段"} · {t.conditions.quantity ?? 1} 人</p></div>
@@ -40,7 +66,7 @@ export function PlanningPage() {
         <div className="table-note"><span>虚构班次 · 余票按本次体验计算</span><span>单程 / 不可真实乘车</span></div>
         <div className="journey-reminder"><p className="overline">A LITTLE ROOM TO BREATHE</p><p>不必急着抵达。<br /><span>让路上的时间，也成为旅行的一部分。</span></p></div>
         <div className="travel-product-discovery"><div><span className="overline">BEYOND THE TICKET</span><h2>把车站之外，也纳入计划。</h2><p>探索车站接驳、景区直通车与包车。全部为虚构演示服务，分别确认与支付。</p></div><Link className="quiet-button" href={`${travelRoot}/products`} onClick={() => t.setProductQuery("")}>查看交通产品 <Arrow /></Link></div>
-      </section><Concierge />
+      </section><Concierge compact={compact} open={conciergeOpen} onClose={closeConcierge} onViewResults={viewResults} />
     </div>
     <DoorPlanSection />
   </div>;

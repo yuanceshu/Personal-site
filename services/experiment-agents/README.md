@@ -104,3 +104,15 @@ EXPERIMENT_AGENT_URL=http://127.0.0.1:8002 EXPERIMENT_AGENT_TOKEN=local-test-onl
 契约及提示词位于 `works/island_travel/`。单次显式模型调用，不自动重试、不返回伪造业务数据；模型预算沿用 1–45 秒，接口外层48秒，Next.js代理50秒、Function60秒。结构错误502，缺配置503，超时504；客户端断开时取消当前调用。浏览器只发送行程与最近16条对话，FAQ、班次和交易由前端程序处理。
 
 岛见主站代理新增 Redis REST 原子限流（每IP每600秒10次），只保存带盐IP摘要和过期计数，不存订单或聊天；此配置不自动覆盖工作台接口。当前公网未部署此版本，也未创建计数资源。原有工作台的公网限流风险仍按上文记录，不能把岛见本地检查当作全服务已完成生产防护。
+
+## 供暖服务 Agent
+
+POST /works/heating/chat 复用本服务 Agno/OpenAIChat 与 MiniMax，隔离在 works/heating。仅由主站服务端代理调用，需既有Bearer、X-Heating-Tool-Url、X-Heating-Action-Url和签名X-Heating-Context。身份/运行委托每次回调复核，模型不能指定userId或自行确认。
+
+最新方案是页面临时模拟，不使用数据库。主站提供不透明demoState，HeatingProxy只在本次对话内持有；每次Tool通过JSON请求传递并接收更新包，asyncio锁串行化工具，避免并行分支覆盖。包不进入模型提示词、对话历史、Card业务结果或日志，只随内部final SSE交还主站校验。供暖请求体上限512000字节适配该字段，其他Demo的32768字节边界不变。Python不解密状态包、不复制金额/材料/状态规则，不跨请求保存状态。
+
+Agent只查询与生成待确认提案，原TS规则继续执行用户confirm操作。respond选择追问/展示；答复以Tool证据为准，模型自由陈述丢弃。材料内容不发送模型。MiniMax-M3在本模块单独关闭thinking，其他Demo配置不变。工具失败或模型失败不编造成功，页面保留最后有效状态。
+
+聊天式H5使用final中的replyMode与focus（houseIds、billIds、applicationIds、invoiceIds）按本轮需求展示卡片。模型引用先限定在可信Tool与当前住户记录内，定向Tool可以补齐实际引用，主站仍独立复核所有引用范围。初始query_records不直接展示全部记录，回复不输出内部接口名或编号。加载更新后的供暖模块即可复用原配置，不需要新服务或数据库。
+
+供暖回调12秒、模型流程48秒；原Python Function75秒配置不变。受保护主站Preview可通过代理X-Heating-Callback-Bypass在服务端回调，保护凭据不进模型或浏览器。配置、页面生命周期与验收见 ../../apps/main/README.md。测试：uv run pytest、uv lock --check；主站真实模型联调继续用原运行方式，已经改为状态包承接，不使用SQLite。

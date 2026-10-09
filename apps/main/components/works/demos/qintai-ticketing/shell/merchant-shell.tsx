@@ -10,9 +10,9 @@ import { OPERATOR_NAME, useQintai } from "@/components/works/demos/qintai-ticket
 
 const BASE = "/works/demos/qintai-ticketing/merchant";
 const NAV = [
-  { href: BASE, label: "总览", exact: true },
-  { href: `${BASE}/events`, label: "演出与定价" },
-  { href: `${BASE}/holds`, label: "库存与待审批" },
+  { href: BASE, label: "总览", short: "总览", exact: true },
+  { href: `${BASE}/events`, label: "演出与定价", short: "演出定价" },
+  { href: `${BASE}/holds`, label: "库存与待审批", short: "库存审批" },
 ];
 
 export function MerchantShell({ children }: { children: React.ReactNode }) {
@@ -56,7 +56,7 @@ export function MerchantShell({ children }: { children: React.ReactNode }) {
               return (
                 <Link key={item.href} href={item.href} className={active ? "is-active" : ""} aria-current={active ? "page" : undefined}>
                   <span>0{index + 1}</span>
-                  {item.label}
+                  <span className="q-rail-title">{item.label}</span><span className="q-rail-short">{item.short}</span>
                   <b>{badge > 0 ? badge : "↗"}</b>
                 </Link>
               );
@@ -91,7 +91,6 @@ export function MerchantShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <ChatDrawer role="merchant" open={chatOpen} onClose={() => setDrawer("merchant", false)} />
-      <button type="button" className={`q-chat-scrim${chatOpen ? " is-open" : ""}`} aria-label="收起对话" tabIndex={-1} onClick={() => setDrawer("merchant", false)} />
     </div>
   );
 }

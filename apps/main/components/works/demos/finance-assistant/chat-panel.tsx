@@ -31,6 +31,7 @@ const ChatPanel = forwardRef<ChatHandle>(function ChatPanel(_, ref) {
   const textarea = useRef<HTMLTextAreaElement>(null);
   const scroll = useRef<HTMLDivElement>(null);
   const busy = useRef(false);
+  const followLatest = useRef(true);
   const abort = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -51,12 +52,13 @@ const ChatPanel = forwardRef<ChatHandle>(function ChatPanel(_, ref) {
     try { localStorage.setItem(messageKey, JSON.stringify(messages.slice(-20))); localStorage.setItem(contextKey, JSON.stringify(context)); } catch { /* The current React session still works if storage is unavailable. */ }
   }, [messages, context, restored]);
 
-  useEffect(() => { if (scroll.current) scroll.current.scrollTop = scroll.current.scrollHeight; }, [messages, loading]);
+  useEffect(() => { if (followLatest.current && scroll.current) scroll.current.scrollTop = scroll.current.scrollHeight; }, [messages, loading]);
 
   async function send(value = input) {
     const message = value.trim();
     if (!message || busy.current || !restored) return;
     busy.current = true;
+    followLatest.current = true;
     setInput('');
     const nextMessages: DisplayMessage[] = [...messages, { role: 'user', content: message }];
     setMessages(nextMessages);
@@ -77,7 +79,7 @@ const ChatPanel = forwardRef<ChatHandle>(function ChatPanel(_, ref) {
       setMessages([...nextMessages, { role: 'assistant', content: '', error: controller.signal.aborted ? '本次查询超时，请稍后重试或缩小查询范围。' : error instanceof Error ? error.message : '请求失败，请稍后重试。' }]);
     } finally {
       window.clearTimeout(timeout); busy.current = false; setLoading(false); abort.current = null;
-      window.setTimeout(() => textarea.current?.focus(), 0);
+
     }
   }
 
@@ -87,8 +89,8 @@ const ChatPanel = forwardRef<ChatHandle>(function ChatPanel(_, ref) {
   return <section className="chat-panel" aria-label="财务智能分析对话">
     <div className="chat-heading"><div className="assistant-identity"><span className="assistant-mark"><Icon name="spark" /></span><div><h2>云川财务智能体</h2><p>把复杂的数据问题，变成清楚的答案</p></div></div><button className="quiet-button" onClick={() => { if (!loading) { setMessages([]); setContext({}); setInput(''); textarea.current?.focus(); } }} disabled={loading || !messages.length}><Icon name="plus" />新会话</button></div>
     {!!contextTags.length && <div className="context-strip"><span>当前追问上下文</span>{contextTags.map(tag => <b key={String(tag)}>{tag}</b>)}</div>}
-    <div className="messages" ref={scroll} aria-live="polite" aria-busy={loading}>
-      {!messages.length && <div className="chat-empty"><div className="empty-orbit"><Icon name="spark" /></div><span className="eyebrow">YOUR FINANCIAL COPILOT</span><h3>从一个好问题开始。</h3><p>查一个数，追一处变化，或展开一笔差异。<br />你可以用平常说话的方式提问。</p><div className="prompt-grid">{prompts.map(prompt => <button key={prompt.name} onClick={() => void send(prompt.text)} disabled={!restored || loading}><Icon name={prompt.icon} /><div><b>{prompt.name}</b><small>{prompt.hint}</small></div><Icon name="arrow" /></button>)}</div></div>}
+    <div className="messages" ref={scroll} onScroll={event => { const el = event.currentTarget; followLatest.current = el.scrollHeight - el.scrollTop - el.clientHeight < 64; }} aria-live="polite" aria-busy={loading}>
+      {!messages.length && <div className="chat-empty"><h3>从一个好问题开始。</h3><p>查指标、追变化、展开差异，也可以直接输入问题。</p><div className="prompt-grid">{prompts.map(prompt => <button key={prompt.name} onClick={() => void send(prompt.text)} disabled={!restored || loading}><Icon name={prompt.icon} /><div><b>{prompt.name}</b><small>{prompt.hint}</small></div><Icon name="arrow" /></button>)}</div></div>}
       {messages.map((item, index) => <article className={`message ${item.role}`} key={`${item.role}-${index}`}><div className="message-meta"><span className={`message-avatar ${item.role}`}><Icon name={item.role === 'user' ? 'company' : 'spark'} /></span><b>{item.role === 'user' ? '你' : '财务智能体'}</b>{item.role === 'assistant' && !item.error && !!item.blocks?.length && <span className="fact-label"><Icon name="check" />已查询数据</span>}</div>{item.error ? <div className="error-message"><Icon name="alert" /><div><p>{item.error}</p><button className="text-button" disabled={loading} onClick={() => void send(messages[index - 1]?.content ?? '')}>重新尝试</button></div></div> : <p className="message-copy">{item.content}</p>}{item.blocks?.map((block, blockIndex) => <ResultBlockView block={block} key={`${block.type}-${blockIndex}`} />)}</article>)}
       {loading && <article className="message assistant loading-message"><div className="message-meta"><span className="message-avatar assistant"><Icon name="spark" /></span><b>财务智能体</b></div><div className="loading-line"><i /><i /><i /><span>正在查询与分析数据…</span></div></article>}
     </div>

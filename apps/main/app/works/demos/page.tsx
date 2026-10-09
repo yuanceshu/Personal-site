@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
-import { demos } from "@/content/projects/demos/catalog";
+import { collectionDemos as demos } from "./collection-data";
 import { CollectionBrowser } from "./collection-browser";
 import "@/styles/projects/demos/collection.css";
 
@@ -27,7 +27,7 @@ export default function DemosPage() {
             </Link>
           </div>
           <div className="collection-hero-meta" aria-label="合集概览">
-            <div><strong>{String(demos.length).padStart(2, "0")}</strong><span>个可体验场景</span></div>
+            <div><strong>{String(demos.length).padStart(2, "0")}</strong><span>个场景</span></div>
             <div><strong>AI</strong><span>从理解到行动</span></div>
           </div>
         </section>

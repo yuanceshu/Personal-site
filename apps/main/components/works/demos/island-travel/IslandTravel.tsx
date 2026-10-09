@@ -16,7 +16,7 @@ export function IslandTravel() {
     <section className="hero" aria-labelledby="hero-title">
       <Image className="hero-image" src="/projects/demos/island-travel/rainforest.webp" alt="晨雾中的热带山谷，深绿山林环抱一条宁静的河流。AI 生成的虚构景观。" fill sizes="100vw" preload />
       <div className="hero-shade" />
-      <div className="hero-center"><p className="overline">海南 · 不止一种抵达</p><h1 id="hero-title" tabIndex={-1}>山海之间，<br />自有去处。</h1><p className="hero-english">Beyond the everyday.</p><p className="hero-description">不必把每一刻排满。<br />告诉岛见下一站，给沿途留一点时间。</p><a className="explore" href="#search"><span>开启一段旅程</span><span aria-hidden="true">↓</span></a></div>
+      <div className="hero-center"><p className="overline">海南 · 不止一种抵达</p><h1 id="hero-title" tabIndex={-1}>山海之间，<br />自有去处。</h1><p className="hero-english">Beyond the everyday.</p><p className="hero-description">不必把每一刻排满。<br />告诉岛见下一站，给沿途留一点时间。</p><nav className="mobile-start-actions" aria-label="开始出行体验"><a className="button gold" href="#search">直接查班次 <Arrow /></a><Link className="button" href={travelRoot + "/plan#travel-concierge"}>和岛见聊聊 <Arrow /></Link></nav><a className="explore" href="#search"><span>开启一段旅程</span><span aria-hidden="true">↓</span></a></div>
       <span className="hero-side">AN INVITATION TO SLOW DOWN</span><div className="hero-caption"><span>山林之间 / 一次关于出发的想象</span><span>AI 生成景观 · 非实地摄影</span></div>
     </section>
     <QueryForm home />

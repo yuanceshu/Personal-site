@@ -20,6 +20,7 @@ test("current content categories map to stable work entities", () => {
     "finance-assistant",
     "medical-ai",
     "qintai-ticketing",
+    "heating",
   ]);
   assert.deepEqual(getWorksByCategory("teaching").map((work) => work.id), ["project-000"]);
   assert.deepEqual(getWorksByCategory("experiment").map((work) => work.id), [
@@ -32,7 +33,7 @@ test("current content categories map to stable work entities", () => {
 });
 
 test("every industry demo entry explains its usable capabilities", () => {
-  assert.equal(demos.length, 6);
+  assert.equal(demos.length, 7);
   for (const demo of demos) {
     assert.ok(demo.audience);
     assert.ok(demo.cover.label);
@@ -42,7 +43,7 @@ test("every industry demo entry explains its usable capabilities", () => {
     assert.ok(demo.collection.category);
     assert.ok(demo.collection.description);
     assert.equal(demo.collection.features.length, 6);
-    assert.match(demo.collection.image, /^\/projects\/demos\/collection\/.+\.jpg$/);
+    assert.match(demo.collection.image, /^\/projects\/demos\/collection\/.+\.(jpg|svg)$/);
     assert.match(demo.href, /^\/works\/demos\//);
   }
 });

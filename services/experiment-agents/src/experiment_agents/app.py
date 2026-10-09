@@ -20,6 +20,8 @@ from .works.medical_ai.schemas import ChatRequest as MedicalChatRequest, ChatRes
 from .works.medical_ai.workflow import MedicalError, explain as medical_explain
 from .works.finance_assistant.schemas import ChatRequest as FinanceChatRequest, ChatResponse as FinanceChatResponse
 from .works.finance_assistant.workflow import run_chat as finance_run_chat
+from .works.heating.schemas import ChatRequest as HeatingChatRequest
+from .works.heating.workflow import stream_chat as heating_stream_chat
 
 
 async def until_disconnect(request: Request):
@@ -76,6 +78,7 @@ class RequestBoundary:
             "/works/qintai-ticketing/status",
             "/works/medical-ai/chat",
             "/works/finance-assistant/chat",
+            "/works/heating/chat",
         }:
             return await reject(404, "not_found")
         headers = dict(scope["headers"])
@@ -89,7 +92,7 @@ class RequestBoundary:
             if message["type"] == "http.disconnect":
                 return
             body.extend(message.get("body", b""))
-            if len(body) > 32768:
+            if len(body) > (512000 if scope["path"] == "/works/heating/chat" else 32768):
                 return await reject(413, "input_too_large")
             if not message.get("more_body", False):
                 break
@@ -234,6 +237,21 @@ def create_app(settings: Settings | None = None, runner=run_stage, travel_runner
             return JSONResponse({"error": "finance_agent_failed"}, status_code=502)
         except Exception:
             return JSONResponse({"error": "finance_agent_failed"}, status_code=502)
+
+    @app.post("/works/heating/chat")
+    async def heating_chat(payload: HeatingChatRequest, request: Request):
+        if not settings.configured:
+            return JSONResponse({"error": "model_unavailable"}, status_code=503)
+        tool_url = request.headers.get("x-heating-tool-url")
+        action_url = request.headers.get("x-heating-action-url")
+        delegation = request.headers.get("x-heating-context")
+        if not tool_url or not action_url or not delegation:
+            return JSONResponse({"error": "tool_unavailable"}, status_code=503)
+        return StreamingResponse(
+            heating_stream_chat(payload, settings, tool_url, action_url, delegation, request.headers.get("x-heating-callback-bypass")),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
+        )
 
     return app
 

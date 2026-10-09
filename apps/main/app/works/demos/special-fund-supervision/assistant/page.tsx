@@ -1,0 +1,1 @@
+import { Shell,Assistant } from "@/components/works/demos/special-fund-supervision/SupervisionApp"; export default function AssistantPage(){return <Shell><main className="sf-main"><div className="sf-page-title"><span className="sf-kicker">CROSS-PROJECT ASSISTANT</span><h1>全局 AI 监管助手</h1><p>跨项目查询 Mock 监管数据，并保留 Tool 证据。</p></div><Assistant/></main></Shell>}

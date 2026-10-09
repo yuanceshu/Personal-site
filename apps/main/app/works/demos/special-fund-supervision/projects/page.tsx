@@ -1,0 +1,2 @@
+import { Shell,ProjectTable,Stats } from "@/components/works/demos/special-fund-supervision/SupervisionApp"; import { projects } from "@/lib/works/special-fund-supervision/repository"; import { queryRegulatoryStats } from "@/lib/works/special-fund-supervision/tools";
+export default function ProjectsPage(){return <Shell><main className="sf-main"><div className="sf-page-title"><span className="sf-kicker">PROJECT REGISTER</span><h1>项目库</h1><p>查看本期所有模拟项目、状态与风险提示。</p></div><Stats stats={queryRegulatoryStats()}/><ProjectTable projects={projects}/></main></Shell>}

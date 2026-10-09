@@ -63,6 +63,13 @@ export const works: readonly WorkMeta[] = [
     parentId: "demos",
   },
   {
+    id: "heating",
+    title: "和煦供暖 AI 服务助手",
+    category: "industry",
+    href: "/works/demos/heating",
+    parentId: "demos",
+  },
+  {
     id: "project-000",
     title: "Project 000",
     category: "teaching",

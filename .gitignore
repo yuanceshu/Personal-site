@@ -24,3 +24,9 @@ pnpm-debug.log*
 
 # Local provenance and screenshot comparisons (never publish)
 /archives/ui-lab/.local/
+
+# Heating Demo development database (never used on Vercel)
+/apps/main/.local/heating/
+
+# Heating browser verification artifacts
+/apps/main/test-results/heating/

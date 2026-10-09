@@ -13,3 +13,39 @@
 @media(max-width:360px){.island-app .container{width:calc(100% - 32px)}.island-app .site-header{padding-inline:16px}.island-app .site-header nav{gap:14px}.island-app .hero h1{font-size:42px}.island-app .search-shell{padding:20px 16px}.island-app .search-form{gap:17px 13px}.island-app .field select{font-size:14px}.island-app .section-heading h2{font-size:26px}.island-app .departure-row{grid-template-columns:15px minmax(52px,1fr) 39px minmax(52px,1fr) 47px;gap:8px;padding:22px 8px}.island-app .time-block strong{font-size:27px}.island-app .price-block strong{font-size:22px}.island-app .time-block small{font-size:8px}.island-app .route-title h3{font-size:24px}.island-app .route-context{font-size:9px}.island-app .summary{padding:22px}.island-app .table-note{font-size:8px}}
 @media(prefers-reduced-motion:reduce){.island-app{scroll-behavior:auto}.island-app *,.island-app *:before,.island-app *:after{transition:none!important;animation:none!important}}
 @media(prefers-contrast:more){.island-app{--muted:#d8ddcf;--line:#85927b}.island-app .hero-shade{background:#08100899}.island-app .hero-description,.island-app .hero-caption{color:#fff}}
+
+.island-app .mobile-start-actions, .island-app .mobile-concierge-entry { display: none; }
+@media (max-width: 800px) {
+  .island-app .hero { min-height: 560px; padding: 130px 20px 90px; }
+  .island-app .hero h1 { margin-top: 16px; }
+  .island-app .hero-english { font-size: 24px; margin-top: 10px; }
+  .island-app .hero-description { margin-top: 16px; }
+  .island-app .hero .explore, .island-app .hero-caption { display: none; }
+  .island-app .mobile-start-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 24px; }
+  .island-app .mobile-start-actions .button { min-height: 48px; font-size: 12px; gap: 10px; padding: 12px 16px; border-color: var(--gold); }
+  .island-app .mobile-concierge-entry { display: flex; width: 100%; margin: 0 0 24px; justify-content: center; gap: 12px; }
+  .island-app .concierge-dialog { position: fixed; inset: auto 0 0; z-index: 20; width: 100%; height: calc(100dvh - 20px); max-height: none; max-width: none; margin: 0; padding: 20px 16px calc(16px + env(safe-area-inset-bottom)); border: 1px solid var(--line); border-radius: 16px 16px 0 0; color: var(--text); background: var(--panel); display: flex; flex-direction: column; gap: 10px; }
+  .island-app .concierge-dialog:not([open]) { display: none; }
+  .island-app .concierge-dialog::backdrop { background: #08100899; }
+  .island-app .concierge-dialog .concierge-header { gap: 8px; flex-shrink: 0; }
+  .island-app .concierge-dialog .concierge-header h2 { font-size: 22px; }
+  .island-app .concierge-dialog .concierge-header > svg { display: none; }
+  .island-app .concierge-close { min-width: 44px; }
+  .island-app .concierge-dialog .chat-log { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior: contain; }
+  .island-app .concierge-dialog .chat-composer { flex-shrink: 0; margin-top: 0; }
+  .island-app .concierge-dialog .chat-composer textarea { font-size: 16px; }
+  .island-app .concierge-dialog .chat-suggestions { display: none; }
+  .island-app .concierge-results { min-height: 44px; flex-shrink: 0; justify-content: center; padding-block: 8px; }
+  .island-app #search, .island-app #results-title, .island-app #journeys-title { scroll-margin-top: 20px; }
+}
+
+@media (max-width: 800px) {
+  .island-app:has(.concierge-dialog[open]) .site-header .collection-back { visibility: hidden; }
+  .island-app .concierge-dialog .concierge-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+  .island-app .concierge-dialog .concierge-header > div { grid-column: 1; grid-row: 1; }
+  .island-app .concierge-dialog .concierge-close { grid-column: 2; grid-row: 1; }
+  .island-app .concierge-dialog .concierge-header > .quiet-button:not(.concierge-close) { grid-column: 1; grid-row: 2; justify-self: start; margin-left: 0; }
+  .island-app .concierge-back { grid-column: 2; grid-row: 2; }
+}
+
+html:has(.concierge-dialog[open]) { overflow: hidden; }

@@ -30,7 +30,7 @@ export function AssistantMark() { return <span className="assistant-mark"><Icon 
 
 export function Journey({ context }: { context: VisitContext }) {
   const index = JOURNEY_GROUPS.findIndex((group) => group.stages.includes(context.current_stage));
-  return <section className="journey" aria-label="就医旅程">
+  return <section className="journey" id="journey" aria-label="就医旅程">
     <div className="section-heading"><h2>本次就医旅程</h2><span>{index + 1} / {JOURNEY_GROUPS.length}</span></div>
     <ol className="journey-steps">{JOURNEY_GROUPS.map((group, i) => <li key={group.label} className={i < index ? 'done' : i === index ? 'current' : ''} aria-current={i === index ? 'step' : undefined}>
       <span className="step-dot">{i < index || context.current_stage === 'FINISHED' ? <Icon name="check" size={14} /> : i + 1}</span><div><strong>{group.label}</strong>{i === index && <small>{STAGE_LABELS[context.current_stage]}</small>}</div>

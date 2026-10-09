@@ -23,17 +23,19 @@ export const ChatPanel = forwardRef<ChatHandle, { onPlan: () => void }>(function
   const [historyOpen, setHistoryOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const sendingRef = useRef(false);
+  const followLatest = useRef(true);
   const locationName = scenicSpotMap[context.currentSpotId]?.name ?? "景区内";
 
   useEffect(() => { setMessages(readLocalStorage(HISTORY_KEY, chatHistorySchema, [])); setHydrated(true); }, []);
   useEffect(() => { if (hydrated) writeLocalStorage(HISTORY_KEY, messages.slice(-100)); }, [messages, hydrated]);
-  useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [messages, sending]);
+  useEffect(() => { if (followLatest.current && scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight; }, [messages, sending]);
   useImperativeHandle(ref, () => ({ ask: (message) => { setHistoryOpen(false); void sendMessage(message); }, showHistory: () => setHistoryOpen(true) }));
 
   async function sendMessage(message = draft) {
     const value = message.trim();
     if (!value || sendingRef.current || !hydrated || !visitorReady) return;
     sendingRef.current = true;
+    followLatest.current = true;
     const userMessage: ChatMessage = { id: crypto.randomUUID(), role: "user", content: value, createdAt: new Date().toISOString() };
     setMessages((current) => [...current, userMessage]); setDraft(""); setSending(true);
     try {
@@ -54,9 +56,9 @@ export const ChatPanel = forwardRef<ChatHandle, { onPlan: () => void }>(function
 
   return <div className="chat-panel">
     <header className="chat-header"><span className="assistant-avatar"><Icon name="spark" size={24} /></span><div><h2>林间向导<span className="ai-badge">AI</span></h2><p><span className="status-dot" />已承接你在{locationName}的游览状态</p></div><button className="icon-button" onClick={() => setHistoryOpen(!historyOpen)} aria-label={historyOpen ? "关闭历史记录" : "打开历史记录"}><Icon name={historyOpen ? "close" : "history"} /></button></header>
-    {historyOpen ? <div className="history-panel"><div className="section-heading"><h3>一路聊过的事</h3><span>当前会话 · 本机保存</span></div>{!messages.length ? <div className="empty-history"><Icon name="history" size={32} /><p>还没有对话。<br />从一个关于林泉的问题开始吧。</p><button className="text-link" onClick={() => setHistoryOpen(false)}>问问向导<Icon name="arrow" /></button></div> : <div className="history-list">{messages.filter((message) => message.role === "user").map((message) => <button key={message.id} onClick={() => { setHistoryOpen(false); requestAnimationFrame(() => document.getElementById(message.id)?.scrollIntoView({ block: "center", behavior: "smooth" })); }}><Icon name="chat" size={17} /><span>{message.content}<small>{new Date(message.createdAt).toLocaleString("zh-CN", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}</small></span><Icon name="chevron" size={15} /></button>)}</div>}</div> : <>
-      <div className="chat-scroll" ref={scrollRef} role="log" aria-live="polite" aria-label="与向导的对话">
-        {!messages.length && <div className="chat-empty"><span className="welcome-symbol"><Icon name="leaf" size={36} /></span><span className="eyebrow">YOUR PERSONAL NATURE GUIDE</span><h3>山野之间，有问有答。</h3><p>我是你的林泉向导。想去哪里、需要什么，<br />或只是对路边的一片叶子好奇，都可以告诉我。</p><div className="chat-context-note"><Icon name="pin" size={16} />{locationName}<span>·</span>{context.profile.availableMinutes} 分钟可用</div><div className="quick-grid">{prompts.map((prompt) => <button key={prompt} disabled={!hydrated || !visitorReady} onClick={() => void sendMessage(prompt)}>{prompt}<Icon name="arrow" size={15} /></button>)}</div></div>}
+    {historyOpen ? <div className="history-panel"><div className="section-heading"><h3>一路聊过的事</h3><span>当前会话 · 本机保存</span></div>{!messages.length ? <div className="empty-history"><Icon name="history" size={32} /><p>还没有对话。<br />从一个关于林泉的问题开始吧。</p><button className="text-link" onClick={() => setHistoryOpen(false)}>问问向导<Icon name="arrow" /></button></div> : <div className="history-list">{messages.filter((message) => message.role === "user").map((message) => <button key={message.id} onClick={() => { setHistoryOpen(false); requestAnimationFrame(() => document.getElementById(message.id)?.scrollIntoView({ block: "center", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" })); }}><Icon name="chat" size={17} /><span>{message.content}<small>{new Date(message.createdAt).toLocaleString("zh-CN", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}</small></span><Icon name="chevron" size={15} /></button>)}</div>}</div> : <>
+      <div className="chat-scroll" ref={scrollRef} onScroll={event => { const el = event.currentTarget; followLatest.current = el.scrollHeight - el.scrollTop - el.clientHeight < 64; }} role="log" aria-live="polite" aria-label="与向导的对话">
+        {!messages.length && <div className="chat-empty"><h3>山野之间，有问有答。</h3><p>我是你的林泉向导。想去哪里、需要什么，<br />或只是对路边的一片叶子好奇，都可以告诉我。</p><div className="chat-context-note"><Icon name="pin" size={16} />{locationName}<span>·</span>{context.profile.availableMinutes} 分钟可用</div><div className="quick-grid">{prompts.map((prompt) => <button key={prompt} disabled={!hydrated || !visitorReady} onClick={() => void sendMessage(prompt)}>{prompt}<Icon name="arrow" size={15} /></button>)}</div></div>}
         {messages.map((message) => <div className={`message ${message.role}`} id={message.id} key={message.id}>{message.role === "assistant" && <div className="message-avatar"><Icon name="spark" size={17} /></div>}<div className="message-body"><div className="bubble">{message.content.split(/(\*\*.*?\*\*)/g).map((part, index) => part.startsWith("**") && part.endsWith("**") ? <strong key={index}>{part.slice(2, -2)}</strong> : part)}</div>{message.action && <span className="action-label"><Icon name="check" size={13} />{message.action.label}</span>}{message.tool === "plan_tour_route" && <button className="message-route-link text-link" onClick={onPlan}>打开路线手记<Icon name="arrow" size={14} /></button>}{message.engine && <div className="message-meta"><span>{message.engine.mode === "llm" ? "AI 向导" : message.engine.mode === "fallback" ? "模型暂不可用 · 规则回答" : "规则演示 · 未连接模型"}</span>{message.tool && <span title={message.tool}>{toolLabels[message.tool] ?? "已查询现场信息"}</span>}</div>}</div></div>)}
         {sending && <div className="message"><div className="message-avatar"><Icon name="spark" size={17} /></div><div className="thinking"><span /><span /><span /><small>正在查看你的游览信息</small></div></div>}
       </div>

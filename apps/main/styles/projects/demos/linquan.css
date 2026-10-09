@@ -81,3 +81,61 @@
 @keyframes pulse { from { opacity: .3; transform: translateY(1px); } to { opacity: 1; transform: translateY(-1px); } }
 @media (max-width: 1040px) { .app .topbar-inner, .app .workspace { padding-left: 28px; padding-right: 28px; }.app .workspace-grid { grid-template-columns: minmax(0, 1fr) 295px; gap: 24px; }.app .service-grid { grid-template-columns: repeat(3, 1fr); }.app .service-button:nth-child(3) { border-right: 0; }.app .service-button:nth-child(n+4) { border-top: 1px solid var(--line-light); }.app .service-button:nth-child(4) { padding-left: 0; }.app .tour-layout { grid-template-columns: 1fr; }.app .tour-form-card { order: 2; }.app .route-preview { order: 1; } }
 @media (max-width: 760px) { .app .topbar { height: 62px; }.app .topbar-inner { padding: 0 16px; }.app .brand-type { font-size: 17px; }.app .brand-type span, .app .main-nav, .app .demo-badge { display: none; }.app .header-actions { margin-left: auto; }.app .workspace { padding: 31px 16px 75px; }.app .page-intro { margin-bottom: 24px; }.app .page-intro h1 { font-size: 34px; }.app .intro-note { display: none; }.app .workspace-grid { display: block; }.app .context-column { margin-top: 18px; }.app .hero { min-height: 440px; }.app .hero-content { left: 25px; top: 33px; }.app .hero h2 { font-size: 54px; }.app .hero p { font-size: 13px; }.app .hero-caption { left: 20px; bottom: 20px; }.app .service-grid { grid-template-columns: repeat(3, 1fr); }.app .service-button, .app .service-button:not(:first-child) { padding: 13px 5px; align-items: center; border-right: 1px solid var(--line-light); text-align: center; }.app .service-button:nth-child(3n) { border-right: 0; }.app .experience-grid { grid-template-columns: 1fr; }.app .experience-card { min-height: 220px; }.app .activity-feature { align-items: flex-start; flex-wrap: wrap; }.app .activity-copy { min-width: calc(100% - 72px); }.app .activity-feature .text-link { margin-left: 71px; }.app .site-footer { display: block; line-height: 1.8; }.app .site-footer span { display: block; }.app .chat-container { min-height: 620px; }.app .chat-panel { min-height: 620px; }.app .chat-panel .chat-scroll { padding: 20px 17px; }.app .composer { padding: 12px 16px 17px; }.app .composer-hint span:first-child { display: none; }.app .chat-empty { padding-top: 25px; }.app .chat-empty h3 { font-size: 39px; }.app .history-panel { padding: 22px 17px; }.app .tour-intro h2 { font-size: 43px; }.app .tour-layout { gap: 12px; }.app .tour-form-card, .app .route-preview { padding: 17px; }.app .route-stats { gap: 5px; }.app .route-stats strong { font-size: 18px; }.app .mobile-nav { position: fixed; display: flex; z-index: 5; right: 0; bottom: 0; left: 0; justify-content: space-around; padding: 7px 10px calc(7px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line-light); background: rgba(250,250,245,.96); }.app .mobile-nav button { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 3px 16px; color: #8c9a90; border: 0; background: none; font: 9px Arial, sans-serif; }.app .mobile-nav button.active { color: var(--green-dark); }.app .journey-card { padding: 18px 16px 15px; } }
+
+/* 聊天保留一个消息滚动区，切换入口承接当前任务。 */
+.app--chat .workspace { padding-top: 22px; }
+.app--chat .page-intro { margin-bottom: 18px; }
+.app--chat .page-intro h1 { font-size: 32px; }
+.app--chat .page-intro .eyebrow { display: none; }
+.app .chat-container { height: calc(100dvh - 225px); min-height: 410px; scroll-margin-top: 90px; }
+.app .chat-panel { height: 100%; min-height: 0; }
+.app .chat-panel .chat-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 18px 26px; }
+.app .chat-panel > :not(.chat-scroll) { flex-shrink: 0; }
+.app .chat-empty { padding: 8px 0; }
+.app .chat-empty h3 { font-size: 32px; margin: 6px 0 10px; }
+.app .chat-empty p { font-size: 13px; line-height: 1.65; }
+.app .chat-context-note { margin-top: 14px; }
+.app .brand { min-height: 44px; }
+.app .send-button, .app .icon-button { min-width: 44px; min-height: 44px; }
+.app .text-link { min-height: 44px; padding-block: 8px; }
+.app .switch { width: 44px; height: 44px; padding: 15px 8px; background: transparent; position: relative; }
+.app .switch::before { content: ""; position: absolute; inset: 13px 6px; border-radius: 20px; background: #bdc8bc; }
+.app .switch i { position: relative; z-index: 1; }
+.app .switch.on { background: transparent; }
+.app .switch.on::before { background: var(--green); }
+.app .switch.on i { transform: translateX(16px); }
+.app .composer textarea { font-size: 16px; }
+.app .history-panel { overflow: auto; min-height: 0; }
+.app .mobile-adjust { display: none; }
+.app .route-preview, .app .tour-form-card { scroll-margin-top: 85px; }
+@media (max-width: 760px) {
+  .app--chat .page-intro { margin-bottom: 14px; }
+  .app--chat .page-intro h1 { font-size: 26px; }
+  .app .chat-container { height: calc(100dvh - 156px - env(safe-area-inset-bottom)); min-height: 330px; scroll-margin-top: 78px; }
+  .app .chat-panel .chat-scroll { padding: 16px; }
+  .app .chat-empty h3 { font-size: 29px; }
+  .app .chat-header { padding: 12px 16px; }
+  .app .composer { padding: 12px; }
+  .app .composer-shortcuts { flex-wrap: wrap; }
+  .app .composer-shortcuts button, .app .interest-chip { min-height: 44px; font-size: 12px; }
+  .app .composer-hint { font-size: 10px; }
+  .app .mobile-nav button { min-height: 44px; font-size: 11px; }
+  .app .tour-intro { margin-bottom: 18px; }
+  .app .tour-form-card { order: 1; }
+  .app .route-preview { order: 2; }
+  .app .route-placeholder { min-height: 110px; }
+  .app .route-placeholder-icon { display: none; }
+  .app .mobile-adjust { display: inline-flex; }
+  .app .tour-form-card.is-collapsed > :not(.form-card-heading) { display: none; }
+  .app .people-fields input, .app .form-field select, .app #current-location { min-height: 44px; font-size: 16px; }
+}
+.app .composer textarea { flex: 1; min-width: 0; width: 100%; resize: none; }
+@media (max-width: 760px) {
+  .app--chat .workspace { padding-top: 16px; }
+  .app--chat .page-intro { display: none; }
+  .app .chat-empty h3 { font-size: 26px; text-wrap: balance; line-height: 1.3; }
+}
+
+.app .preference { position: relative; }
+.app .preference input { position: absolute; display: block; width: 1px; height: 1px; opacity: 0; }
+.app .preference input:focus-visible + span { outline: 2px solid var(--green); outline-offset: 3px; }

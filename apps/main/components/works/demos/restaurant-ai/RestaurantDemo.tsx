@@ -22,6 +22,9 @@ const paths: Record<RestaurantRole, string> = {
   finance: "/works/demos/restaurant-ai/finance",
 };
 
+const roleLabels: Record<RestaurantRole, string> = { customer: "顾客", operations: "运营", finance: "财务" };
+const roleTasks: Record<RestaurantRole, string> = { customer: "选菜、查桌位、准备预订", operations: "看经营、查库存、拟定调整", finance: "核对差额、生成复核清单" };
+
 const roles = {
   customer: {
     number: "01", kicker: "给顾客 · CUSTOMER", title: "智能门店顾问", short: "从口味与人数出发，组合菜品、核对桌位、准备预订草案。",
@@ -89,7 +92,7 @@ function Home() {
   return <main className="r-app r-home">
     <Header />
     <section className="r-hero">
-      <div className="r-hero-copy"><p className="r-eyebrow">FOOD INTELLIGENCE / 2026</p><h1>让餐饮服务<br /><em>继续往前走。</em></h1><p className="r-hero-lede">从一次用餐安排，到门店运营和财务复核。三个 Agent 读取资料、分析情况、提出行动，并在需要你决定的地方停下来。</p><div className="r-hero-cta"><Link href={paths.customer}>进入顾客场景 <span>↗</span></Link><span>03 个角色 · 03 条演示链路</span></div></div>
+      <div className="r-hero-copy"><p className="r-eyebrow">FOOD INTELLIGENCE / 2026</p><h1>让餐饮服务<br /><em>继续往前走。</em></h1><p className="r-hero-lede">从一次用餐安排，到门店运营和财务复核。三个 Agent 读取资料、分析情况、提出行动，并在需要你决定的地方停下来。</p><nav className="r-hero-roles" aria-label="选择体验角色">{(Object.keys(roles) as RestaurantRole[]).map(role => <Link key={role} href={paths[role]}><strong>{roleLabels[role]} <span>↗</span></strong><small>{roleTasks[role]}</small></Link>)}</nav></div>
       <div className="r-hero-art" aria-hidden="true"><div className="r-art-top"><span>YUEWEI / 悦味</span><span>WORKFLOW 01—03</span></div><div className="r-art-orbit"><span className="r-art-center">食</span><span className="r-art-node node-one">顾客<br />想法</span><span className="r-art-node node-two">门店<br />信号</span><span className="r-art-node node-three">财务<br />线索</span></div><div className="r-art-bottom"><span>理解需求</span><span>查阅依据</span><span>等待确认</span></div></div>
     </section>
     <section className="r-scenarios"><div className="r-section-heading"><p className="r-eyebrow">CHOOSE A WORKFLOW</p><h2>同一家餐厅，三种具体的问题。</h2><p>从单句问答走向可以看见过程的任务体验。</p></div><div className="r-card-grid">{(Object.keys(roles) as RestaurantRole[]).map(role => <Link key={role} href={paths[role]} className={`r-scenario r-${role}`}><div className="r-scenario-top"><span>{roles[role].number} / 03</span><span className="r-scenario-arrow">↗</span></div><span className="r-scenario-kicker">{roles[role].kicker}</span><h3>{roles[role].title}</h3><p>{roles[role].short}</p><div className="r-scenario-bottom"><span>{roles[role].samplePrompt}</span><b>开始体验</b></div></Link>)}</div></section>
@@ -112,9 +115,10 @@ function Workspace({ role }: { role: RestaurantRole }) {
   const [notice, setNotice] = useState("");
   const abort = useRef<AbortController | null>(null);
   const scroll = useRef<HTMLDivElement | null>(null);
+  const followLatest = useRef(true);
 
   useEffect(() => {
-    if (messages.length > 0) scroll.current?.scrollTo({ top: scroll.current.scrollHeight, behavior: "smooth" });
+    if (followLatest.current && messages.length > 0 && scroll.current) scroll.current.scrollTop = scroll.current.scrollHeight;
   }, [messages]);
   useEffect(() => () => abort.current?.abort(), []);
   useEffect(() => {
@@ -126,7 +130,8 @@ function Workspace({ role }: { role: RestaurantRole }) {
         if (!current) return;
         setLiveAvailable(live);
         if (!live) {
-          setNotice("实时 Agent 当前不可用。以下为明确标注的预置样例，不是实时生成结果。");
+          followLatest.current = false;
+          setNotice("实时服务不可用，正在回放预置任务。可查看依据、确认草案和切换角色；自由提问需实时服务。");
           setMessages(sampleMessages(role));
         }
       });
@@ -134,7 +139,9 @@ function Workspace({ role }: { role: RestaurantRole }) {
   }, [role]);
 
   const showSample = () => {
-    setNotice("当前展示的是预置样例，不是实时 Agent 结果。");
+    followLatest.current = false;
+    if (scroll.current) scroll.current.scrollTop = 0;
+    setNotice(liveAvailable ? "当前展示的是预置样例，不是实时生成结果。你也可以输入新任务，切换到实时对话。" : "当前展示预置任务：可查看依据、确认草案和切换角色。实时服务不可用，自由提问与追问暂不可用。");
     setMessages(sampleMessages(role));
     setAccepted([]);
   };
@@ -142,6 +149,7 @@ function Workspace({ role }: { role: RestaurantRole }) {
   const send = async (raw = input) => {
     const question = raw.trim();
     if (!question || busy || liveAvailable !== true) return;
+    followLatest.current = true;
     const assistantId = crypto.randomUUID();
     const history = messages.filter(item => !item.sample && item.status !== "loading" && item.status !== "error").slice(-16).map(item => ({ role: item.role, content: item.text.slice(0, 1200) }));
     setInput(""); setNotice(""); setBusy(true);
@@ -195,17 +203,17 @@ function Workspace({ role }: { role: RestaurantRole }) {
   return <main className={`r-app r-workspace r-${role}`}>
     <Header active={role} />
     <div className="r-work-layout">
-      <aside className="r-rail" aria-label="角色与演示信息"><div className="r-rail-label">WORKSPACES <span>01—03</span></div><nav className="r-role-nav" aria-label="切换角色">{(Object.keys(roles) as RestaurantRole[]).map(item => <Link key={item} href={paths[item]} aria-current={item === role ? "page" : undefined}><span>{roles[item].number}</span>{roles[item].title}<b>↗</b></Link>)}</nav><div className="r-rail-bottom"><span className="r-status-dot" />虚构业务环境<p>Agent 查询的是隔离的演示资料。任何草案都需要你确认，且不会提交到真实门店。</p><small>本页已确认演示草案：{accepted.length}</small></div></aside>
+      <aside className="r-rail" aria-label="角色与演示信息"><div className="r-rail-label">WORKSPACES <span>01—03</span></div><nav className="r-role-nav" aria-label="切换角色">{(Object.keys(roles) as RestaurantRole[]).map(item => <Link key={item} href={paths[item]} aria-current={item === role ? "page" : undefined}><span>{roles[item].number}</span><span className="r-role-full">{roles[item].title}</span><span className="r-role-short">{roleLabels[item]}</span><b>↗</b></Link>)}</nav><div className="r-rail-bottom"><span className="r-status-dot" />虚构业务环境<p>Agent 查询的是隔离的演示资料。任何草案都需要你确认，且不会提交到真实门店。</p><small>本页已确认演示草案：{accepted.length}</small></div></aside>
       <section className="r-main-panel"><div className="r-intro"><p className="r-eyebrow">{config.kicker} / AGENT WORKSPACE</p><h1>{config.heading}</h1><p>{config.description}</p><div className="r-work-meta"><span><i />资料可追溯</span><span><i />操作待确认</span><span><i />会话仅在当前页面</span></div></div>
-        <div className="r-conversation"><div className="r-conversation-top"><span>当前任务</span><div><span className="r-live-badge">{liveAvailable === true ? "● 实时 Agent" : liveAvailable === false ? "○ 样例模式" : "◌ 检查服务"}</span><button type="button" onClick={showSample} disabled={busy}>查看样例回放 ↗</button></div></div>
+        <div className="r-conversation"><div className="r-conversation-top"><span>当前任务</span><div><span className="r-live-badge">{liveAvailable === true ? messages.some(item => item.sample) ? "○ 预置样例 · 实时服务可用" : "● 实时 Agent" : liveAvailable === false ? "○ 样例模式" : "◌ 检查服务"}</span><button type="button" onClick={showSample} disabled={busy}>查看样例回放 ↗</button></div></div>
           {notice && <p className="r-sample-notice" role="status">{notice}</p>}
-          <div className="r-chat-scroll" ref={scroll} aria-live="polite">{messages.length === 0 ? <div className="r-empty"><span className="r-empty-mark">{config.number}</span><p className="r-eyebrow">A GOOD PLACE TO START</p><h2>给我一个具体问题。<br />我们从资料开始。</h2><p>试试下面的任务示例，看看 Agent 如何查资料、组织结果与准备下一步。</p><div className="r-prompt-list">{config.prompts.map((prompt, index) => <button key={prompt} type="button" onClick={() => send(prompt)} disabled={busy || liveAvailable !== true}><span>0{index + 1}</span>{prompt}<b>↗</b></button>)}</div></div> : messages.map(item => <div key={item.id} className={`r-message r-message-${item.role}`}><div className="r-message-head"><span>{item.role === "user" ? "你" : "食智 Agent"}</span>{item.sample && <small>预置样例</small>}</div>{item.status === "loading" ? <div className="r-processing"><span className="r-loader" />{item.steps?.length ? "正在整理查阅结果…" : "正在理解任务…"}{item.steps && <ol>{item.steps.map(step => <li key={step}>{step}</li>)}</ol>}</div> : <p className={item.status === "error" ? "r-error-text" : ""}>{item.text}</p>}
+          <div className="r-chat-scroll" ref={scroll} onScroll={event => { const el = event.currentTarget; followLatest.current = el.scrollHeight - el.scrollTop - el.clientHeight < 64; }} role="log" aria-label="当前角色的任务记录" aria-live="polite">{messages.length === 0 ? <div className="r-empty"><span className="r-empty-mark">{config.number}</span><p className="r-eyebrow">A GOOD PLACE TO START</p><h2>给我一个具体问题。<br />我们从资料开始。</h2><p>试试下面的任务示例，看看 Agent 如何查资料、组织结果与准备下一步。</p><div className="r-prompt-list">{config.prompts.map((prompt, index) => <button key={prompt} type="button" onClick={() => send(prompt)} disabled={busy || liveAvailable !== true}><span>0{index + 1}</span>{prompt}<b>↗</b></button>)}</div></div> : messages.map(item => <div key={item.id} className={`r-message r-message-${item.role}`}><div className="r-message-head"><span>{item.role === "user" ? "你" : "食智 Agent"}</span>{item.sample && <small>预置样例</small>}</div>{item.status === "loading" ? <div className="r-processing"><span className="r-loader" />{item.steps?.length ? "正在整理查阅结果…" : "正在理解任务…"}{item.steps && <ol>{item.steps.map(step => <li key={step}>{step}</li>)}</ol>}</div> : <p className={item.status === "error" ? "r-error-text" : ""}>{item.text}</p>}
               {item.result && <div className="r-result"><div className="r-steps">{item.steps?.map(step => <span key={step}>✓ {step}</span>)}</div>{item.result.cards.length > 0 && <div className="r-result-cards">{item.result.cards.map(card => <div className="r-data-card" key={card.id}><small>{card.eyebrow}</small><h3>{card.title}</h3><dl>{card.items.map(row => <div key={`${row.label}-${row.value}`}><dt>{row.label}</dt><dd>{row.value}</dd></div>)}</dl></div>)}</div>}
                 {item.result.proposal && <div className="r-proposal"><div><small>AWAITING YOUR DECISION / 演示操作</small><h3>{item.result.proposal.title}</h3><p>{item.result.proposal.detail}</p></div><button type="button" disabled={accepted.includes(item.result.proposal.id)} onClick={() => setAccepted(previous => [...previous, item.result!.proposal!.id])}>{accepted.includes(item.result.proposal.id) ? "已在本页确认 ✓" : item.result.proposal.action_label}</button></div>}
                 <details className="r-sources"><summary>查看依据 <span>{item.result.sources.length} 项资料 ↗</span></summary>{item.result.sources.length ? item.result.sources.map(source => <div className="r-source" key={source.id}><small>{source.category}</small><h4>{source.title}</h4><p>{source.excerpt}</p></div>) : <p>当前演示资料不足，未引用来源。</p>}</details>
-                {item.result.followups.length > 0 && <div className="r-followups">{item.result.followups.map(followup => <button key={followup} type="button" disabled={busy || liveAvailable !== true} onClick={() => send(followup)}>{followup} ↗</button>)}</div>}
+                {liveAvailable === true && item.result.followups.length > 0 && <div className="r-followups">{item.result.followups.map(followup => <button key={followup} type="button" disabled={busy || liveAvailable !== true} onClick={() => send(followup)}>{followup} ↗</button>)}</div>}
               </div>}</div>)}</div>
-          <form className="r-composer" onSubmit={event => { event.preventDefault(); send(); }}><label htmlFor="restaurant-question">继续对话</label><div><textarea id="restaurant-question" value={input} onChange={event => setInput(event.target.value)} onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send(); } }} placeholder={liveAvailable === false ? "当前仅可浏览预置样例" : "描述任务或提出问题…"} disabled={liveAvailable !== true} rows={2} maxLength={1200} /><button type="submit" disabled={busy || liveAvailable !== true || !input.trim()}>发送 ↗</button></div><small>实时回答以虚构演示资料为依据；请勿输入真实顾客或财务信息。</small></form>
+          {liveAvailable === false ? <div className="r-sample-footer"><strong>预置任务回放</strong><p>当前暂停自由提问。可以阅读回答与依据，并确认上方演示草案。</p></div> : <form className="r-composer" onSubmit={event => { event.preventDefault(); send(); }}><label htmlFor="restaurant-question">继续对话</label><div><textarea id="restaurant-question" value={input} onChange={event => setInput(event.target.value)} onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send(); } }} placeholder="描述任务或提出问题…" disabled={liveAvailable !== true} rows={2} maxLength={1200} /><button type="submit" disabled={busy || liveAvailable !== true || !input.trim()}>发送 ↗</button></div><small>实时回答以虚构演示资料为依据；请勿输入真实顾客或财务信息。</small></form>}
         </div>
       </section>
       <aside className="r-context"><div className="r-context-header"><small>CONTEXT / {config.number}</small><span>演示资料</span></div><div className="r-context-feature"><span>YUEWEI<br />悦味</span><p>一张桌位、一份库存、一笔差额，都需要能追到来源。</p></div><div className="r-context-section"><small>当前角色</small><h2>{config.title}</h2><p>{config.short}</p></div><div className="r-context-section"><small>工作方式</small><ol><li>理解任务</li><li>查阅对应资料与数据</li><li>形成答案与草案</li><li>等待你确认</li></ol></div><div className="r-context-footer">DEMO DATA ONLY<br />不连接真实业务系统</div></aside>

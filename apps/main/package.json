@@ -22,7 +22,11 @@
     "test:linquan:browser": "playwright test --config=tests/linquan/playwright.config.ts",
     "test:qintai": "tsx --test tests/qintai-ticketing/*.test.ts",
     "test:qintai:browser": "playwright test --config=tests/qintai-ticketing/playwright.config.ts",
-    "test:medical-ai": "tsx --test tests/medical-ai/*.test.ts"
+    "test:medical-ai": "tsx --test tests/medical-ai/*.test.ts",
+    "test:special-fund-supervision": "tsx --test tests/special-fund-supervision/*.test.ts",
+    "test:heating": "tsx --test tests/heating/*.test.ts",
+    "test:heating:live": "tsx tests/heating/live.ts",
+    "test:heating:browser": "playwright test --config=tests/heating/playwright.config.ts"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

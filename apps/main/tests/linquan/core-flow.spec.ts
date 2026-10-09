@@ -41,14 +41,14 @@ test("位置更新和历史会话保存在浏览器", async ({ page }) => {
   await expect(page.getByRole("log", { name: "与向导的对话" })).toContainText("云端观景台");
   await page.reload();
   await expect(page.getByLabel("更新当前位置")).toHaveValue("cloud-platform");
-  await page.getByRole("button", { name: "查看历史会话" }).click();
+  await page.getByRole("button", { name: "问问向导" }).click();
+  await page.getByRole("button", { name: "打开历史记录" }).click();
   await expect(page.getByText("我现在在哪里？")).toBeVisible();
 });
 
 test("合集入口和移动布局可用", async ({ page }) => {
   await page.goto("/works/demos");
-  const linquanCard = page.getByRole("article").filter({ hasText: "林泉 · 智能伴游" });
-  await expect(linquanCard.getByRole("link", { name: "进入完整体验" })).toHaveAttribute("href", path);
+  await expect(page.locator(`.demo-card a[href="${path}"]`)).toHaveCount(1);
   await page.goto(path);
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByRole("navigation", { name: "移动导航" })).toBeVisible();

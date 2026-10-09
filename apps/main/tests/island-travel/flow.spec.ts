@@ -54,6 +54,7 @@ test("quick form does not call AI and navigation preserves conditions", async ({
   let calls = 0;
   await page.route("**/api/experiments/island-travel/chat", route => { calls++; return route.abort(); });
   await page.goto(path);
+  await expect(page.getByRole("button", { name: "查找我的行程" })).toBeEnabled();
   await page.getByLabel("目的地", { exact: true }).selectOption("琼海");
   await page.getByLabel("同行人数", { exact: true }).selectOption("3");
   await page.getByLabel("时段", { exact: true }).selectOption("下午");

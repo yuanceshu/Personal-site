@@ -76,4 +76,15 @@ export const demos = [{
   collection: { category: "餐饮", description: "顾客、运营、财务共用一套数据，流程自动衔接推进。", features: ["顾客菜单、桌位与预订", "运营经营快照与库存", "财务对账差额与复核", "查看工具进度与来源", "继续追问具体问题", "生成待确认工作草案"], image: "/projects/demos/collection/restaurant-ai.jpg" },
   cover: { label: "食智助手", sub: "顾客、运营与财务 · 虚构演示", line: "让数据、判断与操作有据可依。", note: "虚拟知识库 · 无外部业务连接", theme: "restaurant" },
   featureGroups: [{ label: "三种角色", items: ["顾客菜单、桌位与预订草案", "运营经营快照、库存与制度", "财务对账差额与复核清单"] }, { label: "工作方式", items: ["查看工具进度与来源", "继续追问具体问题", "确认只保存在当前页面的草案"] }],
+}, {
+  id: "heating",
+  title: "和煦供暖 · AI 服务助手",
+  subtitle: "说出需要，暖心办理。",
+  description: "通过自然语言办理供暖缴费、断暖申请与进度查询，业务工具核实每一步结果，重要操作由住户明确确认。",
+  tags: ["供暖服务", "自然语言办理", "模拟交易"],
+  href: "/works/demos/heating",
+  audience: "办理供暖业务的住户",
+  collection: { category: "供暖", description: "说出缴费或断暖需求，助手引导选房、备齐材料并确认办理。", features: ["自然语言办理与政策咨询", "演示房屋绑定与多房屋选择", "费用查询与模拟支付", "支付记录与模拟电子发票", "断暖申请、材料登记与补件", "审核进度与对话恢复"], image: "/projects/demos/collection/heating.svg" },
+  cover: { label: "和煦供暖", sub: "缴费、断暖与进度 · 虚构住户", line: "说出需要，暖心办理。", note: "虚构业务与模拟支付 · 材料仅保存元数据", theme: "heating" },
+  featureGroups: [{ label: "供暖服务", items: ["自然语言咨询与多房屋选择", "演示房屋绑定与费用查询", "明确确认、模拟支付与发票"] }, { label: "断暖办理", items: ["申请草稿与模拟材料登记", "材料核对、提交与补件", "审核进度与断暖费用支付"] }],
 }] as const;

@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AssistantMark, ConfirmationDialog, Icon, Journey, ResultCards, SafetyBanner, VisitSummary, type Confirmation } from './care-ui';
 import { DemoCollectionLink } from '@/components/works/demos/navigation/demo-collection-link';
 import { DEMO_EVENTS, needsActionReview, startsNewEpisode, STAGE_LABELS } from '@/lib/works/medical-ai/src/ui/presentation';
@@ -43,6 +43,29 @@ export function MedicalDemo() {
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
   const [activeSafety, setActiveSafety] = useState<SafetyResult | null>(null);
   const [activeNav, setActiveNav] = useState('assistant');
+  const conversation = useRef<HTMLDivElement>(null);
+  const followLatest = useRef(true);
+
+  const showConversation = useCallback(() => {
+    setActiveNav('assistant');
+    window.history.replaceState(window.history.state, '', '#assistant');
+    document.getElementById('assistant')?.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+  }, []);
+
+  useEffect(() => {
+    const syncHash = () => {
+      const id = window.location.hash.slice(1);
+      if (id === 'demo-start') setActiveNav('assistant');
+      else if (['assistant', 'journey', 'care-details'].includes(id)) setActiveNav(id === 'care-details' ? 'care' : id);
+    };
+    syncHash();
+    window.addEventListener('hashchange', syncHash);
+    return () => window.removeEventListener('hashchange', syncHash);
+  }, []);
+
+  useEffect(() => {
+    if (followLatest.current && conversation.current) conversation.current.scrollTop = conversation.current.scrollHeight;
+  }, [messages, loading]);
 
   useEffect(() => {
     const id = window.localStorage.getItem(SESSION_KEY) ?? window.crypto.randomUUID();
@@ -66,6 +89,8 @@ export function MedicalDemo() {
 
   const executeMessage = useCallback(async (message: string) => {
     if (!message.trim() || loading) return;
+    followLatest.current = true;
+    showConversation();
     setLoading(true); setError('');
     setMessages(previous => [...previous, { role: 'user', text: message }]);
     try {
@@ -80,7 +105,7 @@ export function MedicalDemo() {
       const messageText = reason instanceof Error ? reason.message : '未知错误';
       setError(messageText); setMessages(previous => [...previous, { role: 'assistant', text: '这次没有完成查询：' + messageText }]);
     } finally { setLoading(false); }
-  }, [applyState, loading, messages, sessionId, state]);
+  }, [applyState, loading, messages, sessionId, state, showConversation]);
 
   const messageDetails = (message: string): Confirmation => {
     const payment = /(缴费|支付|付款)/.test(message);
@@ -121,28 +146,29 @@ export function MedicalDemo() {
   const nav = useMemo(() => [
     { id: 'assistant', label: 'AI 就医助手', icon: 'spark' as const, href: '#assistant' },
     { id: 'journey', label: '我的就医旅程', icon: 'path' as const, href: '#journey' },
-    { id: 'care', label: '就诊事项', icon: 'file' as const, href: '#care' },
+    { id: 'care', label: '就诊事项', icon: 'file' as const, href: '#care-details' },
   ], []);
 
   return <div className="medical-ai-demo"><div className="product-shell">
-    <header className="mobile-header"><a className="brand" href="#assistant"><span className="brand-mark">明</span><span><strong>明川市中心医院</strong><small>AI 就医助手</small></span></a><DemoCollectionLink className="collection-back collection-back--mobile" /></header>
-    <aside className="app-sidebar"><a className="brand" href="#assistant"><span className="brand-mark">明</span><span><strong>明川市中心医院</strong><small>AI 就医助手</small></span></a><div className="side-divider" />{patient && <div className="patient-chip"><span className="patient-avatar">{patient.name.slice(0, 1)}</span><span><small>当前患者</small><strong>{patient.name}</strong><em>{patient.gender} · {patient.age} 岁</em></span></div>}<nav className="side-nav">{nav.map(item => <a key={item.id} className={activeNav === item.id ? 'active' : ''} href={item.href} onClick={() => setActiveNav(item.id)}><Icon name={item.icon} size={17} />{item.label}</a>)}</nav><div className="sidebar-footer"><span className="secure-dot" />演示环境 · Mock 业务数据</div></aside>
+    <header className="mobile-header"><a className="brand" href="#demo-start" aria-label="明川医院首页"><span className="brand-mark">明</span><span><strong>明川市中心医院</strong><small>AI 就医助手</small></span></a><DemoCollectionLink className="collection-back collection-back--mobile" /></header>
+    <aside className="app-sidebar"><a className="brand" href="#demo-start" aria-label="明川医院首页"><span className="brand-mark">明</span><span><strong>明川市中心医院</strong><small>AI 就医助手</small></span></a><div className="side-divider" />{patient && <div className="patient-chip"><span className="patient-avatar">{patient.name.slice(0, 1)}</span><span><small>当前患者</small><strong>{patient.name}</strong><em>{patient.gender} · {patient.age} 岁</em></span></div>}<nav className="side-nav">{nav.map(item => <a key={item.id} className={activeNav === item.id ? 'active' : ''} href={item.href} aria-current={activeNav === item.id ? "location" : undefined} onClick={() => setActiveNav(item.id)}><Icon name={item.icon} size={17} />{item.label}</a>)}</nav><div className="sidebar-footer"><span className="secure-dot" />演示环境 · Mock 业务数据</div></aside>
 
-    <main className="main-content">
+    <main className="main-content" id="demo-start">
+      <nav className="mobile-section-nav" aria-label="就医导航">{nav.map(item => <a key={item.id} href={item.href} aria-current={activeNav === item.id ? "location" : undefined} onClick={() => setActiveNav(item.id)}>{item.label}</a>)}</nav>
       <div className="topline"><div><small>患者旅程 / PATIENT JOURNEY</small><h1>{patient ? '你好，' + patient.name : '你好'}</h1></div><div className="topline-actions"><DemoCollectionLink className="collection-back collection-back--desktop-content" /></div></div>
       {error && <div className="inline-error" role="status"><Icon name="alert" size={16} />{error}<button onClick={() => setError('')} aria-label="关闭提示"><Icon name="close" size={15} /></button></div>}
       <SafetyBanner safety={activeSafety ?? safety ?? null} critical={lastResponse?.debug.critical_flag ?? false} />
 
-      <section className="hero" id="assistant"><div className="hero-copy"><div className="hero-kicker"><AssistantMark />持续理解你的就医状态</div><h2>把复杂的就医流程，<br /><em>交给一个懂你的助手。</em></h2><p>描述症状、询问路线或报告。我会陪你从诊前咨询，一直走到回诊完成。</p><div className="hero-prompts"><button onClick={() => requestMessage('我肚子疼，应该挂什么科？')} disabled={loading}>我肚子疼，应该挂什么科？</button><button onClick={() => requestMessage('张明远今天还有号吗？')} disabled={loading}>张明远今天还有号吗？</button></div></div><div className="hero-status"><small>当前就医阶段</small><div className="stage-number">{initializing ? '··' : context?.current_stage === 'FINISHED' ? '✓' : (context?.current_stage ? String(['PRE_VISIT', 'REGISTERED', 'ARRIVED', 'WAITING_DOCTOR', 'CONSULTING', 'PAYMENT', 'WAITING_EXAM', 'EXAMINING', 'WAITING_REPORT', 'RETURN_VISIT', 'FINISHED'].indexOf(context.current_stage) + 1).padStart(2, '0') : '01')}</div><strong>{context ? STAGE_LABELS[context.current_stage] : '正在读取状态'}</strong><p>{context?.next_action ?? '稍等，我正在读取本次就诊进度。'}</p><button className="link-button" onClick={() => requestMessage('然后呢？')} disabled={loading}>询问下一步 <Icon name="arrow" size={16} /></button></div></section>
+      <section className="hero"><div className="hero-copy"><div className="hero-kicker"><AssistantMark />持续理解你的就医状态</div><h2>把复杂的就医流程，<br /><em>交给一个懂你的助手。</em></h2><p>描述症状、询问路线或报告。我会陪你从诊前咨询，一直走到回诊完成。</p><a className="button primary start-conversation" href="#assistant" onClick={() => setActiveNav("assistant")}>开始对话 <Icon name="chat" size={16} /></a><div className="hero-prompts"><button onClick={() => requestMessage('我肚子疼，应该挂什么科？')} disabled={loading}>我肚子疼，应该挂什么科？</button><button onClick={() => requestMessage('张明远今天还有号吗？')} disabled={loading}>张明远今天还有号吗？</button></div></div><div className="hero-status"><small>当前就医阶段</small><div className="stage-number">{initializing ? '··' : context?.current_stage === 'FINISHED' ? '✓' : (context?.current_stage ? String(['PRE_VISIT', 'REGISTERED', 'ARRIVED', 'WAITING_DOCTOR', 'CONSULTING', 'PAYMENT', 'WAITING_EXAM', 'EXAMINING', 'WAITING_REPORT', 'RETURN_VISIT', 'FINISHED'].indexOf(context.current_stage) + 1).padStart(2, '0') : '01')}</div><strong>{context ? STAGE_LABELS[context.current_stage] : '正在读取状态'}</strong><p>{context?.next_action ?? '稍等，我正在读取本次就诊进度。'}</p><button className="link-button" onClick={() => requestMessage('然后呢？')} disabled={loading}>询问下一步 <Icon name="arrow" size={16} /></button></div></section>
 
-      {context && <Journey context={context} />}
-
-      <section className="workspace-grid"><section className="conversation-panel"><div className="panel-heading"><div className="assistant-heading"><AssistantMark /><div><h2>和 AI 就医助手对话</h2><p>你可以直接说出现在的情况</p></div></div><span className="online"><i />在线</span></div><div className="conversation-scroll" aria-live="polite">{messages.map((item, index) => <div className={'bubble-row ' + item.role} key={item.role + index}><span className="bubble-avatar">{item.role === 'assistant' ? '明' : (patient?.name.slice(0, 1) ?? '我')}</span><div className="bubble"><small>{item.role === 'assistant' ? 'AI 就医助手' : '你'}</small>{item.text.split('\n').map((line, i) => <p key={i}>{line || ' '}</p>)}</div></div>)}{loading && <div className="bubble-row assistant"><span className="bubble-avatar">明</span><div className="bubble typing"><i /><i /><i /></div></div>}</div><div className="suggestion-row">{(context?.report_status === 'READY' ? ['帮我看看报告', '普外科怎么走？'] : ['我现在应该去哪？', '当前就诊进度']).map(prompt => <button key={prompt} onClick={() => requestMessage(prompt)} disabled={loading}>{prompt}</button>)}</div><form className="composer" onSubmit={submit}><input value={input} onChange={event => setInput(event.target.value)} disabled={loading} placeholder="告诉我你的情况，或问问下一步…" aria-label="输入消息" /><button disabled={loading || !input.trim()} aria-label="发送"><Icon name="send" size={17} /></button></form><p className="disclaimer">AI 提供就医流程与健康信息辅助，不能替代医生诊断。紧急情况请联系现场医护人员。</p></section>
+      <section className="workspace-grid"><section className="conversation-panel" id="assistant" aria-label="AI 就医助手对话"><div className="panel-heading"><div className="assistant-heading"><AssistantMark /><div><h2>和 AI 就医助手对话</h2><p>你可以直接说出现在的情况</p></div></div><span className="online"><i />{loading ? "查询中" : "演示助手"}</span></div><div className="conversation-scroll" ref={conversation} onScroll={event => { const el = event.currentTarget; followLatest.current = el.scrollHeight - el.scrollTop - el.clientHeight < 64; }} role="log" aria-live="polite" aria-busy={loading}>{messages.map((item, index) => <div className={'bubble-row ' + item.role} key={item.role + index}><span className="bubble-avatar">{item.role === 'assistant' ? '明' : (patient?.name.slice(0, 1) ?? '我')}</span><div className="bubble"><small>{item.role === 'assistant' ? 'AI 就医助手' : '你'}</small>{item.text.split('\n').map((line, i) => <p key={i}>{line || ' '}</p>)}</div></div>)}{loading && <div className="bubble-row assistant"><span className="bubble-avatar">明</span><div className="bubble typing" role="status" aria-label="正在查询就医信息"><i /><i /><i /></div></div>}</div><div className="suggestion-row">{(context?.report_status === 'READY' ? ['帮我看看报告', '普外科怎么走？'] : ['我现在应该去哪？', '当前就诊进度']).map(prompt => <button key={prompt} onClick={() => requestMessage(prompt)} disabled={loading}>{prompt}</button>)}</div><form className="composer" onSubmit={submit}><input value={input} onChange={event => setInput(event.target.value)} disabled={loading} placeholder="告诉我你的情况，或问问下一步…" aria-label="输入消息" /><button disabled={loading || !input.trim()} aria-label="发送"><Icon name="send" size={17} /></button></form>{canShowCards && <a className="result-jump" href="#medical-results">查看本次查询结果与可选操作 <Icon name="arrow" size={16} /></a>}<p className="disclaimer">AI 提供就医流程与健康信息辅助，不能替代医生诊断。紧急情况请联系现场医护人员。</p></section>
 
         <aside className="side-column"><section className="care-card"><div className="panel-heading"><div><small className="section-label">CURRENT VISIT</small><h2>本次就诊</h2></div><Icon name="path" size={18} /></div>{context ? <><div className="current-action"><small>下一步</small><strong>{context.next_action}</strong></div><div className="care-meta"><span>阶段</span><b>{STAGE_LABELS[context.current_stage]}</b></div>{context.registration_status === 'COMPLETED' && <div className="care-meta"><span>就诊安排</span><b>{context.appointment_time} · {context.doctor_name}</b></div>}</> : <p className="empty-copy">正在同步本次就诊状态…</p>}</section><VisitSummary context={context ?? { patient_id: 'demo001', visit_id: 'visit001', current_stage: 'PRE_VISIT', department_id: null, department_name: null, doctor_id: null, doctor_name: null, appointment_time: null, registration_status: 'NOT_REGISTERED', current_order: null, payment_status: null, exam_status: null, report_status: null, next_action: '正在读取状态' }} order={order} report={report} busy={loading} onMessage={requestMessage} /></aside>
       </section>
 
-      {canShowCards && lastResponse && <section className="results-section" aria-live="polite"><div className="results-heading"><div><small>STRUCTURED RESULT</small><h2>这次对话的结果</h2></div><span>来自已连接的 Mock Tool</span></div><ResultCards response={lastResponse} current={context} blocked={loading} onMessage={requestMessage} /></section>}
+      {canShowCards && lastResponse && <section className="results-section" id="medical-results" aria-live="polite"><div className="results-heading"><div><small>STRUCTURED RESULT</small><h2>这次对话的结果</h2></div><span>来自已连接的 Mock Tool</span></div><ResultCards response={lastResponse} current={context} blocked={loading} onMessage={requestMessage} /></section>}
+
+      {context && <Journey context={context} />}
 
       {nextEvent && !isFinished && <section className="demo-step"><div><small>演示推进</small><h2>{nextEvent.label}</h2><p>{nextEvent.description}</p></div><button className="button secondary" onClick={() => requestStage(nextEvent.stage)} disabled={loading}>确认推进 <Icon name="arrow" size={16} /></button></section>}
       <details className="developer-details"><summary>开发调试信息</summary>{lastResponse ? <pre>{JSON.stringify({ intent: lastResponse.debug.intent, route: lastResponse.debug.route, tool_calls: lastResponse.tool_calls, debug: lastResponse.debug }, null, 2)}</pre> : <p>发送消息后可查看本轮 Tool 证据。</p>}</details>

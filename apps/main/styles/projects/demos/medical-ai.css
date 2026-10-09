@@ -280,3 +280,49 @@
   .medical-ai-demo .demo-step { align-items: flex-start; flex-direction: column; }
   .medical-ai-demo .product-footer { align-items: flex-start; flex-direction: column; gap: 6px; }
 }
+
+/* 让对话与反馈先于辅助信息，定位时保留页头空间。 */
+.medical-ai-demo #demo-start, .medical-ai-demo #assistant, .medical-ai-demo #journey, .medical-ai-demo #care-details, .medical-ai-demo #medical-results { scroll-margin-top: 24px; }
+.medical-ai-demo .mobile-section-nav { display: none; }
+.medical-ai-demo .hero-copy { min-height: 0; padding: 24px 28px; }
+.medical-ai-demo .hero-copy h2 { font-size: clamp(26px, 2.6vw, 36px); margin: 12px 0 10px; line-height: 1.3; text-wrap: balance; }
+.medical-ai-demo .hero-prompts { margin-top: 12px; }
+.medical-ai-demo .start-conversation { margin-top: 14px; min-height: 44px; }
+.medical-ai-demo .hero-status { min-height: 0; padding: 20px; }
+.medical-ai-demo .stage-number { font-size: 38px; margin: 8px 0; }
+.medical-ai-demo .workspace-grid { grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr); margin-bottom: 18px; }
+.medical-ai-demo .conversation-panel { display: flex; flex-direction: column; height: min(540px, calc(100dvh - 48px)); min-height: 400px; }
+.medical-ai-demo .conversation-scroll { flex: 1; min-height: 0; max-height: none; overscroll-behavior: contain; }
+.medical-ai-demo .conversation-panel > :not(.conversation-scroll) { flex-shrink: 0; }
+.medical-ai-demo .composer input { min-height: 44px; font-size: 16px; }
+.medical-ai-demo .composer button { width: 44px; min-height: 44px; flex-shrink: 0; }
+.medical-ai-demo .hero-prompts button, .medical-ai-demo .suggestion-row button, .medical-ai-demo .link-button { min-height: 44px; font-size: 12px; }
+.medical-ai-demo .result-jump { display: flex; align-items: center; gap: 8px; min-height: 44px; color: var(--teal); font-size: 12px; }
+@media (max-width: 1180px) {
+  .medical-ai-demo .hero { grid-template-columns: 1fr; }
+  .medical-ai-demo .hero-status { display: grid; grid-template-columns: auto auto 1fr auto; align-items: center; gap: 8px 14px; }
+  .medical-ai-demo .hero-status > small { grid-column: 1 / -1; }
+  .medical-ai-demo .hero-status p { min-height: 0; margin: 0; }
+  .medical-ai-demo .workspace-grid { grid-template-columns: minmax(0, 1fr); }
+  .medical-ai-demo .side-column { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+}
+@media (max-width: 800px) {
+  .medical-ai-demo .mobile-section-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-bottom: 16px; }
+  .medical-ai-demo .mobile-section-nav a { display: flex; justify-content: center; align-items: center; min-height: 44px; font-size: 12px; border-radius: 8px; background: var(--mint); }
+  .medical-ai-demo .mobile-section-nav a[aria-current] { color: #fff; background: var(--teal); }
+  .medical-ai-demo .hero-copy { padding: 20px; }
+  .medical-ai-demo .hero-copy h2 { font-size: 27px; }
+  .medical-ai-demo .hero-status { grid-template-columns: auto 1fr; }
+  .medical-ai-demo .hero-status > small { grid-column: 1; }
+  .medical-ai-demo .hero-status .stage-number { display: none; }
+  .medical-ai-demo .hero-status p { grid-column: 1 / -1; }
+  .medical-ai-demo .hero-status .link-button { grid-column: 1 / -1; justify-self: start; }
+  .medical-ai-demo .conversation-panel { height: min(500px, calc(100dvh - 24px)); min-height: 380px; }
+  .medical-ai-demo .side-column { grid-template-columns: 1fr; }
+  .medical-ai-demo .journey-steps { min-width: 0; grid-template-columns: 1fr; gap: 18px; }
+  .medical-ai-demo .journey-steps li::after { display: none; }
+}
+@media (max-width: 800px) {
+  .medical-ai-demo .hero-status { display: none; }
+  .medical-ai-demo .hero-copy p { font-size: 12px; line-height: 1.6; }
+}

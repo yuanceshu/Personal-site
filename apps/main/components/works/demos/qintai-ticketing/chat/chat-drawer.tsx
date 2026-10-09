@@ -7,6 +7,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { DemoCollectionLink } from "@/components/works/demos/navigation/demo-collection-link";
 import { useQintai, type ChatEntry, type ProposalOutcome } from "@/components/works/demos/qintai-ticketing/provider";
 import type { ChatResult, Role } from "@/lib/works/qintai-ticketing/schema";
 
@@ -61,10 +62,12 @@ function Proposal({
   entry,
   outcome,
   onConfirm,
+  onNavigate,
 }: {
   entry: ChatEntry;
   outcome: ProposalOutcome | undefined;
   onConfirm: (proposal: NonNullable<ChatResult["proposal"]>) => void;
+  onNavigate: () => void;
 }) {
   const proposal = entry.result?.proposal;
   if (!proposal) return null;
@@ -86,7 +89,7 @@ function Proposal({
         <button type="button" disabled={done} onClick={() => onConfirm(proposal)}>
           {done ? "已执行 ✓" : proposal.action_label}
         </button>
-        {outcome?.href ? <Link href={outcome.href}>前往处理 ↗</Link> : null}
+        {outcome?.href ? <Link href={outcome.href} onClick={onNavigate}>前往处理 ↗</Link> : null}
       </div>
     </div>
   );
@@ -113,13 +116,23 @@ export function ChatDrawer({
   const [input, setInput] = useState("");
   const [outcomes, setOutcomes] = useState<Record<string, ProposalOutcome>>({});
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const followLatest = useRef(true);
+  const lastUser = useRef<string | undefined>(undefined);
   const entries = state.entries;
   const visible = alwaysVisible || open;
 
   useEffect(() => {
-    if (!visible || entries.length === 0) return;
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    const user = [...entries].reverse().find(entry => entry.role === "user");
+    if (user?.id !== lastUser.current) { lastUser.current = user?.id; followLatest.current = true; }
+    if (!visible || !followLatest.current || entries.length === 0) return;
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [entries, visible]);
+
+  useEffect(() => {
+    if (alwaysVisible) return;
+    if (open) dialog.current?.showModal(); else dialog.current?.close();
+  }, [open, alwaysVisible]);
 
   const send = useCallback(
     (raw: string) => {
@@ -127,6 +140,7 @@ export function ChatDrawer({
       // 探测尚未结束时先不发送；探测结果为 false 时仍允许发送，
       // askQintaiAgent 会把 503、超时和异常降级为确定性回答。
       if (!text || state.pending || live === null) return;
+      followLatest.current = true;
       setInput("");
       ask(role, text);
     },
@@ -136,15 +150,10 @@ export function ChatDrawer({
   const status = useMemo(() => {
     if (live === null) return { label: "◌ 正在探测实时 Agent", tone: "muted" as const };
     if (live) return { label: "● 实时 Agent 已连接", tone: "ok" as const };
-    return { label: "○ 实时 Agent 未配置 · 助手会退化为确定性回答", tone: "warn" as const };
+    return { label: "○ 实时服务不可用 · 当前使用确定性回答", tone: "warn" as const };
   }, [live]);
 
-  return (
-    <aside
-      className={`q-chat${visible ? " is-open" : ""}${alwaysVisible ? " q-chat--persistent" : ""}`}
-      aria-hidden={!visible}
-      aria-label={`${config.title}·演示对话`}
-    >
+  const content = <>
       <header className="q-chat-head">
         <div>
           <span className="q-chat-mark" aria-hidden>琴</span>
@@ -153,7 +162,7 @@ export function ChatDrawer({
             <p>{config.subtitle}</p>
           </span>
         </div>
-        {!alwaysVisible ? <button type="button" className="q-icon-button" onClick={onClose} aria-label="收起对话">✕</button> : null}
+        {!alwaysVisible ? <><button type="button" className="q-icon-button" onClick={onClose} aria-label="收起对话">✕</button><DemoCollectionLink className="q-back q-dialog-back" /></> : null}
       </header>
       <p className={`q-chat-status q-chat-status--${status.tone}`} role="status">{status.label}</p>
       {notices && notices.length > 0 ? (
@@ -161,7 +170,7 @@ export function ChatDrawer({
           {notices.map((notice) => <li key={notice}>{notice}</li>)}
         </ul>
       ) : null}
-      <div className="q-chat-scroll" ref={scrollRef} aria-live="polite">
+      <div className="q-chat-scroll" ref={scrollRef} onScroll={event => { const el = event.currentTarget; followLatest.current = el.scrollHeight - el.scrollTop - el.clientHeight < 64; }} role="log" aria-label="助手对话记录" aria-live="polite">
         {entries.length === 0 ? (
           <div className="q-chat-empty">
             <p className="q-overline">A GOOD PLACE TO START</p>
@@ -211,6 +220,7 @@ export function ChatDrawer({
                   <Cards result={entry.result} />
                   <Proposal
                     entry={entry}
+                    onNavigate={onClose}
                     outcome={entry.result.proposal ? outcomes[entry.result.proposal.id] : undefined}
                     onConfirm={(proposal) => {
                       const outcome = runProposal(proposal);
@@ -260,7 +270,7 @@ export function ChatDrawer({
             rows={2}
             maxLength={1200}
             value={input}
-            placeholder={live === false ? "实时 Agent 未配置，可先浏览页面数据" : config.placeholder}
+            placeholder={live === false ? "可询问费用、库存与规则，体验确定性回答" : config.placeholder}
             disabled={live === null}
             onChange={(event) => setInput(event.target.value)}
             onKeyDown={(event) => {
@@ -277,6 +287,8 @@ export function ChatDrawer({
           演出均为本地模拟数据。
         </small>
       </form>
-    </aside>
-  );
+  </>;
+  return alwaysVisible
+    ? <aside className="q-chat is-open q-chat--persistent" aria-label={`${config.title}·演示对话`}>{content}</aside>
+    : <dialog ref={dialog} className="q-chat q-chat--dialog" aria-label={`${config.title}·演示对话`} onCancel={event => { event.preventDefault(); onClose(); }} onClick={event => { if (event.target !== event.currentTarget) return; const box = event.currentTarget.getBoundingClientRect(); if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) onClose(); }}>{content}</dialog>;
 }

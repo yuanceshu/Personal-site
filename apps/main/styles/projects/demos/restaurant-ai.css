@@ -16,3 +16,54 @@
 .r-empty{margin:10px auto 12px}.r-empty-mark{margin-bottom:12px}.r-empty h2{font-size:clamp(25px,2.4vw,36px);margin-bottom:8px}.r-empty>p:not(.r-eyebrow){line-height:1.5}.r-prompt-list{margin-top:12px}.r-prompt-list button{padding:10px 3px}
 @media(max-width:800px){.r-chat-scroll{height:auto;min-height:400px}}
 @media(prefers-reduced-motion:reduce){.r-app *{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* 三种角色在起点可见，工作区先呈现任务与可执行的输入。 */
+.r-hero-roles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.r-hero-roles a { min-height: 76px; display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 12px; background: var(--ink); color: #fff; }
+.r-hero-roles a:hover { background: var(--accent-dark); }
+.r-hero-roles strong { display: flex; justify-content: space-between; font-size: 14px; }
+.r-hero-roles small { font-size: 11px; line-height: 1.6; color: #e3e8de; }
+.r-hero { padding-top: 45px; padding-bottom: 45px; min-height: 550px; }
+.r-hero h1 { font-size: clamp(51px, 5.4vw, 82px); margin: 18px 0 22px; }
+.r-hero-lede { font-size: 15px; margin-bottom: 24px; }
+.r-main-panel { display: flex; flex-direction: column; padding-top: 22px; padding-bottom: 22px; height: calc(100dvh - 78px); min-height: 560px; }
+.r-intro { flex-shrink: 0; width: 100%; margin-bottom: 16px; }
+.r-intro h1 { font-size: clamp(28px, 2.8vw, 40px); }
+.r-intro .r-eyebrow { margin-bottom: 8px; }
+.r-intro > p:not(.r-eyebrow) { margin-bottom: 10px; }
+.r-conversation { width: 100%; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.r-conversation > :not(.r-chat-scroll) { flex-shrink: 0; }
+.r-chat-scroll { flex: 1; min-height: 0; height: auto; max-height: none; padding-top: 18px; padding-bottom: 18px; overscroll-behavior: contain; }
+.r-conversation-top button, .r-top-home, .r-proposal button, .r-sources summary { min-height: 44px; display: inline-flex; align-items: center; }
+.r-sources summary { width: 100%; }
+.r-sample-notice { line-height: 1.7; font-size: 12px; }
+.r-composer textarea { resize: none; font-size: 16px; }
+.r-role-short { display: none; }
+@media (max-width: 800px) {
+  .r-hero { padding-top: 28px; padding-bottom: 40px; }
+  .r-hero-roles { grid-template-columns: 1fr; }
+  .r-hero-roles a { min-height: 64px; padding: 10px 14px; gap: 5px; }
+  .r-hero-art { margin-top: 0; }
+  .r-role-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; gap: 4px; }
+  .r-role-nav a { display: flex; justify-content: center; padding: 10px 4px; min-height: 44px; font-size: 13px; }
+  .r-role-nav a .r-role-full, .r-role-nav a > span:first-child { display: none; }
+  .r-role-nav a .r-role-short { display: block; font: inherit; color: inherit; }
+  .r-main-panel { height: calc(100dvh - 145px); min-height: 580px; padding: 18px 12px; }
+  .r-intro h1 { font-size: 28px; }
+  .r-work-meta { display: none; }
+  .r-chat-scroll { min-height: 0; }
+  .r-conversation-top { flex-wrap: wrap; gap: 4px; padding-block: 4px; }
+  .r-conversation-top > div { flex-wrap: wrap; }
+  .r-hero h1 { font-size: 48px; }
+  .r-hero-lede { font-size: 13px; line-height: 1.8; }
+}
+.r-role-nav a .r-role-full { font: inherit; color: inherit; }
+
+.r-sample-footer { padding: 12px 20px; border-top: 1px solid var(--line); background: #f7f5ef; font-size: 12px; color: var(--muted); }
+.r-sample-footer strong { color: var(--ink); }
+.r-sample-footer p { margin: 5px 0 0; line-height: 1.6; }
+@media (max-width: 800px) {
+  .r-message-user { padding: 10px 12px; margin-bottom: 12px; }
+  .r-message-user > p { font-size: 12px; line-height: 1.6; }
+  .r-message-head { margin-bottom: 6px; }
+}

@@ -64,6 +64,7 @@ function QueryFields({ conditions, today, onSubmit, home }: { conditions: Condit
       if (origin === destination) { setError("出发地与目的地不能相同，请换一个目的地。"); return; }
       if (!today || !date || date < today || date > addDays(today, 6)) { setError("请选择从今天起未来7天内的出发日期。"); return; }
       setError(""); onSubmit({ origin, destination, date, time_preference: period, quantity });
+      if (!home && window.matchMedia("(max-width: 800px)").matches) requestAnimationFrame(() => document.getElementById("results-title")?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" }));
     }}>
       <div className="field"><label htmlFor="travel-origin">出发地</label><select id="travel-origin" value={origin} onChange={e => setOrigin(e.target.value)}>{cities.map(city => <option key={city}>{city}</option>)}</select></div>
       <div className="field"><label htmlFor="travel-destination">目的地</label><select id="travel-destination" value={destination} aria-describedby={error ? "query-error" : undefined} aria-invalid={!!error && origin === destination} onChange={e => setDestination(e.target.value)}>{cities.map(city => <option key={city}>{city}</option>)}</select></div>

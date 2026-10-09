@@ -104,14 +104,15 @@ test("运营侧：待审批提案刷新后仍在", async ({ page }) => {
 
 test("合集入口与移动布局可用", async ({ page }) => {
   await page.goto("/works/demos");
-  const qintaiCard = page.locator("article").filter({ has: page.getByRole("heading", { name: "琴台票务 · 武汉演出票务" }) });
-  await expect(qintaiCard.getByRole("link", { name: /进入琴台票务/ })).toHaveAttribute("href", BASE);
+  await expect(page.locator(`.demo-card a[href="${BASE}"]`)).toHaveCount(1);
 
   await page.goto(BASE);
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByRole("link", { name: /运营工作台/ })).toHaveAttribute("href", `${BASE}/merchant`);
-  await expect(page.locator("aside.q-chat.q-chat--persistent")).toBeVisible();
-  await expect(page.locator("aside.q-chat.q-chat--persistent")).toHaveAttribute("aria-hidden", "false");
+  await page.getByRole("button", { name: /琴台助手/ }).click();
+  await expect(page.getByRole("dialog", { name: /琴台助手/ })).toBeVisible();
+  await expect(page.locator("#q-chat-input-customer")).toBeVisible();
+  await page.keyboard.press("Escape");
   const width = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(width).toBeLessThanOrEqual(390);
 });

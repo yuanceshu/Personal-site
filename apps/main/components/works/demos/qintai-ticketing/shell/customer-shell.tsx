@@ -3,6 +3,7 @@
 /** 观众侧外壳：顶部导航 + 观众现场摘要 + 对话抽屉。 */
 
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { ChatDrawer } from "@/components/works/demos/qintai-ticketing/chat/chat-drawer";
 import { DemoCollectionLink } from "@/components/works/demos/navigation/demo-collection-link";
@@ -17,8 +18,19 @@ const NAV = [
 ];
 
 export function CustomerShell({ children }: { children: React.ReactNode }) {
-  const { storeName, storefront, session, resetSession } = useQintai();
+  const { storeName, storefront, session, resetSession, drawer, setDrawer } = useQintai();
   const pathname = usePathname();
+  const [compact, setCompact] = useState(false);
+  const shell = useRef<HTMLDivElement>(null);
+  const header = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 1000px)");
+    const update = () => setCompact(query.matches);
+    update(); query.addEventListener("change", update);
+    const observer = new ResizeObserver(() => { if (header.current) shell.current?.style.setProperty("--q-topbar-height", `${header.current.offsetHeight}px`); });
+    if (header.current) observer.observe(header.current);
+    return () => { query.removeEventListener("change", update); observer.disconnect(); };
+  }, []);
   const now = useTicker(1000);
 
   const cart = storefront.getCart(session);
@@ -29,13 +41,14 @@ export function CustomerShell({ children }: { children: React.ReactNode }) {
   const fan = storefront.getPreferences(session).display_name ?? "观众";
 
   return (
-    <div className="q-app">
-      <header className="q-topbar">
+    <div className="q-app" ref={shell}>
+      <header className="q-topbar" ref={header}>
         <div className="q-topbar-inner">
           <Link className="q-brand" href="/works/demos/qintai-ticketing">
             <span className="q-brand-mark" aria-hidden>琴</span>
             <span className="q-brand-type">{storeName}<small>QINTAI TICKETING · 武汉演出</small></span>
           </Link>
+          <DemoCollectionLink className="q-back" />
           <nav className="q-nav" aria-label="主导航">
             {NAV.map((item) => {
               const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
@@ -57,11 +70,10 @@ export function CustomerShell({ children }: { children: React.ReactNode }) {
             <Link className="q-ghost-button" href="/works/demos/qintai-ticketing/merchant">
               运营工作台 ↗
             </Link>
-            <span className="q-ghost-button q-chat-presence">
+            <button type="button" className="q-ghost-button q-chat-presence" aria-expanded={compact ? drawer.customer : undefined} onClick={() => { if (compact) setDrawer("customer", true); else document.getElementById("q-chat-input-customer")?.focus(); }}>
               琴台助手 <em>AI</em>
-            </span>
+            </button>
             <span className="q-demo-badge">模拟数据 · 不收钱</span>
-            <DemoCollectionLink className="q-back" />
           </div>
         </div>
       </header>
@@ -86,7 +98,7 @@ export function CustomerShell({ children }: { children: React.ReactNode }) {
           </footer>
         </main>
 
-        <ChatDrawer role="customer" open onClose={() => undefined} alwaysVisible />
+        <ChatDrawer role="customer" open={drawer.customer} onClose={() => setDrawer("customer", false)} alwaysVisible={!compact} />
       </div>
     </div>
   );

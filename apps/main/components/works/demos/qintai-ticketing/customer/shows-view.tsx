@@ -45,6 +45,8 @@ function sortProducts(rows: Product[], sort: SearchFilters["sort"]): Product[] {
 export function CustomerShows() {
   const { storefront, session, askNow, revision } = useQintai();
   const [query, setQuery] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
   const [venue, setVenue] = useState(VENUES[0]);
   const [priceCap, setPriceCap] = useState("");
   const [minQuantity, setMinQuantity] = useState("");
@@ -79,6 +81,15 @@ export function CustomerShows() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storefront, session, query, filters, venue, priceCap, minQuantity, sort, revision]);
 
+  const groups = useMemo(() => {
+    const grouped = new Map<string, Product[]>();
+    for (const row of rows) {
+      const key = `${row.attributes.event_name}-${row.attributes.event_date}-${row.attributes.venue}`;
+      grouped.set(key, [...(grouped.get(key) ?? []), row]);
+    }
+    return [...grouped.entries()];
+  }, [rows]);
+
   useCustomerContext("shows", () => ({
     results: rows.slice(0, 12),
     selected: rows[0] ? storefront.withLiveState(rows[0]) : null,
@@ -88,7 +99,7 @@ export function CustomerShows() {
 
   return (
     <div className="q-view q-view--shows">
-      <form className="q-filters" onSubmit={(event) => event.preventDefault()}>
+      <form className={`q-filters ${filtersOpen ? "is-expanded" : ""}`} onSubmit={(event) => event.preventDefault()}>
         <label className="q-filter-wide">
           <span>检索演出、场馆或票档</span>
           <input
@@ -98,6 +109,7 @@ export function CustomerShows() {
             onChange={(event) => setQuery(event.target.value)}
           />
         </label>
+        <button type="button" className="q-mobile-filter-toggle q-ghost-button" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(!filtersOpen)}>{filtersOpen ? "收起筛选" : "筛选与排序"} ↓</button>
         <label>
           <span>场馆</span>
           <select value={venue} onChange={(event) => setVenue(event.target.value)}>
@@ -148,7 +160,14 @@ export function CustomerShows() {
         <Empty>没有符合条件的票档。可以换一个说法，或取消价格与张数限制。</Empty>
       ) : (
         <ul className="q-result-list">
-          {rows.map((product) => {
+          {groups.map(([key, products]) => <li className="q-show-group" key={key}>
+            <button type="button" className="q-show-group-toggle" aria-expanded={expandedGroups.includes(key)} onClick={() => setExpandedGroups(previous => previous.includes(key) ? previous.filter(item => item !== key) : [...previous, key])}>
+              <strong>{products[0].attributes.event_name ?? products[0].title}</strong>
+              <span>{chineseDate(products[0].attributes.event_date)} · {products[0].attributes.venue}</span>
+              <b>{money(Math.min(...products.map(product => product.price)))} 起 · {products.length} 个票档 {expandedGroups.includes(key) ? "收起 ↑" : "展开 ↓"}</b>
+            </button>
+            <ul className={`q-group-products ${expandedGroups.includes(key) ? "is-expanded" : ""}`}>
+          {products.map((product) => {
             const remaining = storefront.engine.remaining(product.product_id);
             const soldOut = remaining === 0;
             const scarce = !soldOut && remaining <= Math.max(SELLING_FAST_FLOOR, Math.floor(storefront.engine.capacity(product.product_id) / 50));
@@ -209,6 +228,8 @@ export function CustomerShows() {
               </li>
             );
           })}
+            </ul>
+          </li>)}
         </ul>
       )}
 

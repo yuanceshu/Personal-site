@@ -1,0 +1,4 @@
+import { z } from "zod"; import { executeAgentTool } from "@/lib/works/special-fund-supervision/agent/tools"; import { toolNames } from "@/lib/works/special-fund-supervision/tools";
+export const runtime="nodejs";
+const schema=z.object({name:z.enum(toolNames as [typeof toolNames[number],...typeof toolNames]),input:z.unknown()});
+export async function POST(request:Request){const token=process.env.EXPERIMENT_AGENT_TOKEN;if(token&&request.headers.get("authorization")!==`Bearer ${token}`)return Response.json({error:"unauthorized"},{status:401});try{const p=schema.parse(await request.json());return Response.json({result:executeAgentTool(p.name,p.input)},{headers:{"Cache-Control":"no-store"}});}catch(error){if(error instanceof z.ZodError)return Response.json({error:"invalid_request",issues:error.issues},{status:400});return Response.json({error:"tool_failed"},{status:422});}}

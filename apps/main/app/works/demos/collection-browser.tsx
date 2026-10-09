@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { demos } from "@/content/projects/demos/catalog";
+import { collectionDemos as demos } from "./collection-data";
 
 const allCategory = "全部";
 
@@ -40,7 +40,7 @@ export function CollectionBrowser() {
           <p className="eyebrow">选一个场景开始</p>
           <h2>一些我遇到过的行业场景 点击体验完整流程</h2>
         </div>
-        <p>{activeCategory === allCategory ? "数据均为模拟・持续建设中" : `${activeCategory} · ${visibleDemos.length} 个场景`}</p>
+        <p>{activeCategory === allCategory ? "数据均为模拟" : `${activeCategory} · ${visibleDemos.length} 个场景`}</p>
       </div>
 
       <section id="demo-grid" key={activeCategory} className="collection-grid" aria-label="行业 Demo 入口" aria-live="polite">
@@ -48,7 +48,7 @@ export function CollectionBrowser() {
           const index = demos.findIndex((item) => item.id === demo.id);
           return (
             <article className="demo-card" id={`demo-${demo.id}`} key={demo.id}>
-              <Link className="demo-card-link" href={demo.href} aria-label={`进入${demo.title} Demo`}>
+              <Link className="demo-card-link" href={demo.href} aria-label={`${demo.entryLabel}：${demo.title}`}>
                 <div className="demo-card-image">
                   <Image src={demo.collection.image} alt={`${demo.title} 场景示意`} fill sizes="(max-width: 800px) 100vw, 50vw" />
                 </div>
@@ -57,10 +57,10 @@ export function CollectionBrowser() {
                   <h3>{demo.title}</h3>
                   <p className="demo-card-description">{demo.collection.description}</p>
                   <div className="demo-card-features">
-                    <p>可体验功能</p>
+                    <p>{demo.featuresLabel}</p>
                     <ul>{demo.collection.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
                   </div>
-                  <span className="demo-card-cta">进入 Demo <span aria-hidden="true">→</span></span>
+                  <span className="demo-card-cta">{demo.entryLabel} <span aria-hidden="true">→</span></span>
                 </div>
               </Link>
             </article>
