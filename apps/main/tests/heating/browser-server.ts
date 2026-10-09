@@ -17,7 +17,7 @@ for (const name of ["package.json", "tsconfig.json", "next.config.ts", "next-env
 const upstream = createServer(async (request, response) => {
   try {
     const chunks: Buffer[] = []; for await (const chunk of request) chunks.push(Buffer.from(chunk));
-    const { message, history = [], demoState: initialState } = JSON.parse(Buffer.concat(chunks).toString());
+    const { message, history = [], paymentSimulation, demoState: initialState } = JSON.parse(Buffer.concat(chunks).toString());
     let demoState = initialState;
     if (message === "演示模型异常") { response.writeHead(503); response.end(); return; }
     response.writeHead(200, { "Content-Type": "text/event-stream" });
@@ -54,10 +54,10 @@ const upstream = createServer(async (request, response) => {
       }
       else if (message.includes("DEMO-H002")) await call("bind_house", { account: "DEMO-H002", name: "演示住户B", phone: "DEMO-PHONE-B" }, true);
       else if (!records.houses.length) { replyMode = "binding_details"; answer = "先使用下方的虚构资料绑定房屋，我会继续帮您办理。"; }
-      else if (message.includes("模拟支付成功") || message.includes("模拟支付失败") || message.includes("取消刚才待支付订单")) {
-        const order = records.orders.find((o: { status: string }) => o.status === "pending");
+      else if (message.includes("模拟支付成功") || message.includes("模拟支付失败") || message.includes("取消待支付订单")) {
+        const order = records.orders.find((o: { id: string; status: string }) => o.status === "pending" && (!paymentSimulation || o.id === paymentSimulation.orderId));
         focus.billIds = [order.billId];
-        await call("simulate_payment", { orderId: order.id, outcome: message.includes("失败") ? "failure" : message.includes("取消") ? "cancel" : "success" }, true);
+        await call("simulate_payment", { orderId: order.id, outcome: paymentSimulation?.outcome ?? (message.includes("失败") ? "failure" : message.includes("取消") ? "cancel" : "success") }, true);
       } else if (message.includes("重新提审")) { focus.applicationIds = [app.id]; await call("resubmit_application", { applicationId: app.id }, true); }
       else if (message.includes("帮我提交")) { focus.applicationIds = [app.id]; await call("submit_application", { applicationId: app.id }, true); }
       else if (message.includes("审核通过了")) { focus.applicationIds = [app.id]; await call("create_disconnection_bill", { applicationId: app.id }, true); }

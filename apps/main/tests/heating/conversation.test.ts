@@ -3,7 +3,7 @@ import test from "node:test";
 import { randomUUID } from "node:crypto";
 import { HeatingConversation } from "@/lib/works/heating/agent/conversation";
 import { HeatingError } from "@/lib/works/heating/errors";
-import { fixture, materials, records } from "./helpers";
+import { fixture, materials, records, confirm, signBill } from "./helpers";
 
 const code = (name: string) => (e: unknown) => e instanceof HeatingError && e.code === name;
 test("提案复用业务校验，不写业务；独立确认改变状态，重复确认恢复回执", async () => {
@@ -95,6 +95,7 @@ test("失败支付后新一轮可创建新订单；同轮重复提案复用且�
     const proposal = (await chat.propose(f.service, first.turnId!, action))!;
     assert.equal((await chat.propose(f.service, first.turnId!, action))!.id, proposal.id);
     await chat.release(first.turnId!);
+    await signBill(f.service, a, "bill-house-A");
     const confirmed = await chat.begin(randomUUID(), {}, "confirm");
     await chat.confirm(f.service, confirmed.turnId!, proposal.id); await chat.release(confirmed.turnId!);
     const order = (await records(f.service, a)).orders[0];
@@ -128,5 +129,32 @@ test("并行模型工具调用也只能持久化一份提案，相同提案并�
     assert.equal(different.filter(r => r.status === "rejected").length, 1);
     assert.equal((await records(f.service, f.session.actor)).orders.length, 0);
     assert.equal((await records(f.service, f.session.actor)).applications.length, 0);
+  } finally { f.close(); }
+});
+
+
+test("指定支付失败的轮次禁止改为新订单、成功结果或其他订单，独立确认后才失败", async () => {
+  const f = await fixture();
+  try {
+    const actor = f.session.actor;
+    const order = await confirm(f.service, actor, { name: "create_payment", input: { billId: "bill-house-A", idempotencyKey: "selected-order" } }) as { id: string };
+    const chat = new HeatingConversation(f.store, "test", actor, f.session.expiresAt, f.clock);
+    const selected = { orderId: order.id, outcome: "failure" as const };
+    const run = await chat.begin(randomUUID(), { paymentSimulation: selected }, "chat", selected);
+    for (const operation of [
+      { name: "create_payment", input: { billId: "bill-house-A" } },
+      { name: "simulate_payment", input: { orderId: order.id, outcome: "success" } },
+      { name: "simulate_payment", input: { orderId: "other-order", outcome: "failure" } },
+    ]) await assert.rejects(chat.propose(f.service, run.turnId!, operation), code("payment_selection_mismatch"));
+    const operation = { name: "simulate_payment", input: selected };
+    const proposal = (await chat.propose(f.service, run.turnId!, operation))!;
+    assert.equal((await chat.propose(f.service, run.turnId!, operation))!.id, proposal.id);
+    assert.equal((await records(f.service, actor)).orders[0].status, "pending");
+    await chat.release(run.turnId!);
+    const confirmed = await chat.begin(randomUUID(), {}, "confirm");
+    await chat.confirm(f.service, confirmed.turnId!, proposal.id);
+    const result = await records(f.service, actor);
+    assert.equal(result.orders.length, 1); assert.equal(result.orders[0].status, "failed");
+    assert.equal(result.bills[0].status, "unpaid"); assert.equal(result.invoices.length, 0);
   } finally { f.close(); }
 });

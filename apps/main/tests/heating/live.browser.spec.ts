@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { watchPage, pageSnapshot, repeatConfirm } from "./browser-client";
+import { watchPage, pageSnapshot, repeatConfirm, signInPage } from "./browser-client";
 
 test.use({ actionTimeout: 30000 });
 
@@ -34,14 +34,14 @@ test("真实 H5 → Next SSE → Agno/MiniMax → TS Tool：缴费确认、发�
   const input = page.getByRole("textbox", { name: "说说您想办理什么" });
   async function ready() { await expect(input).toBeEnabled({ timeout: 30000 }); await expect(page.locator(".heat-wait")).toHaveCount(0, { timeout: 100000 }); }
   await ready(); await expect(page.getByTestId("bill-card")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "我想绑定房屋", exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "查房屋面积和供暖费", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "绑定房屋", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "房屋与费用", exact: true })).toBeVisible();
   await page.screenshot({ path: "test-results/heating/live-mobile-home.png", fullPage: false });
   async function ask(text: string) { await input.fill(text); await page.getByRole("button", { name: /^发送/ }).click(); await ready(); }
   await ask("我想交今年的暖气费。");
   const order = page.getByRole("button", { name: "确认账单，去付款", exact: true }).last();
-  if (!(await order.count())) await ask("请继续为我这套已绑定的房屋办理今年供暖缴费，生成待确认的缴费订单。执行前由我点击确认。");
-  await expect(order).toBeVisible(); await order.click(); await ready();
+  if (!(await page.getByRole("button", { name: "手写签署", exact: true }).count()) && !(await order.count())) await ask("请继续为我这套已绑定的房屋办理今年供暖缴费，生成待确认的缴费订单。执行前由我点击确认。");
+  await signInPage(page); await expect(order).toBeVisible(); await order.click(); await ready();
   const pay = page.getByRole("button", { name: "确认模拟支付", exact: true }).last();
   if (!(await pay.count())) await ask("请为刚才的待支付订单准备模拟支付成功的确认卡片。我会另行点击确认。");
   await expect(pay).toBeVisible(); await pay.click(); await ready();
@@ -101,7 +101,7 @@ test("真实 H5：退回补件恢复原工单、支付取消与重复确认、�
     await active.getByRole("button", { name: "演示设置", exact: true }).click();
     await active.getByLabel("切换演示住户").selectOption(userId); await ready();
   };
-  const confirm = async (name: string) => { await active.getByRole("button", { name, exact: true }).last().click(); await ready(); };
+  const confirm = async (name: string) => { if (name === "确认账单，去付款") await signInPage(active); await active.getByRole("button", { name, exact: true }).last().click(); await ready(); };
   watchPage(active); await active.goto("/works/demos/heating"); await ready(); await switchUser("D");
   await ask("为什么我的申请被退回了？");
   const before = (await pageSnapshot(active)).records.applications[0];
@@ -137,4 +137,73 @@ test("真实 H5：退回补件恢复原工单、支付取消与重复确认、�
   expect(reopened.records.orders).toHaveLength(0); expect(reopened.records.invoices).toHaveLength(0); expect(reopened.records.applications).toHaveLength(0); expect(reopened.conversation.history).toHaveLength(0);
   await switchUser("D"); const resetD = (await pageSnapshot(active)).records.applications;
   expect(resetD).toHaveLength(1); expect(resetD[0].status).toBe("needs_more_materials"); expect(resetD[0].materials).toHaveLength(before.materials.length);
+});
+
+
+test("真实模型：演示失败始终针对已确认订单，不回到新账单或成功支付", async ({ page }) => {
+  watchPage(page); await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/works/demos/heating");
+  const ready = async () => { await expect(page.getByRole("textbox", { name: "说说您想办理什么" })).toBeEnabled({ timeout: 30000 }); await expect(page.locator(".heat-wait")).toHaveCount(0, { timeout: 100000 }); };
+  await ready(); await page.getByRole("button", { name: "供暖缴费", exact: true }).click(); await ready();
+  await signInPage(page); await page.getByRole("button", { name: "确认账单，去付款", exact: true }).last().click(); await ready();
+  const before = await pageSnapshot(page); expect(before.records.orders).toHaveLength(1); expect(before.records.orders[0].status).toBe("pending");
+  await page.getByRole("button", { name: "演示设置", exact: true }).click(); await page.getByRole("dialog").getByText("模拟异常", { exact: true }).click();
+  await page.getByRole("button", { name: "演示支付失败", exact: true }).click(); await ready();
+  await expect(page.locator(".heat-error")).toHaveCount(0);
+  const proposed = (await pageSnapshot(page)).conversation.proposal;
+  expect(proposed.operation.name).toBe("simulate_payment"); expect(proposed.operation.input.orderId).toBe(before.records.orders[0].id); expect(proposed.operation.input.outcome).toBe("failure");
+  await page.getByRole("button", { name: "确认模拟支付失败", exact: true }).last().click(); await ready();
+  const after = await pageSnapshot(page); expect(after.records.orders).toHaveLength(1); expect(after.records.orders[0].status).toBe("failed"); expect(after.records.bills[0].status).toBe("unpaid"); expect(after.records.invoices).toHaveLength(0);
+  expect(await repeatConfirm(page, proposed.id)).toBe(200);
+  await page.getByTestId("bill-card").last().scrollIntoViewIfNeeded(); await page.screenshot({ path: "test-results/heating/live-payment-failure.png", fullPage: false });
+});
+
+test("真实断暖协议：审核通过后签署、两次付款确认及模拟发票", async ({ page }) => {
+  watchPage(page); await page.setViewportSize({ width: 390, height: 844 }); await page.goto("/works/demos/heating");
+  const ready = async () => { await expect(page.getByRole("textbox", { name: "说说您想办理什么" })).toBeEnabled({ timeout: 30000 }); await expect(page.locator(".heat-wait")).toHaveCount(0, { timeout: 100000 }); await expect(page.locator(".heat-error")).toHaveCount(0); };
+  const ask = async (text: string) => { await page.getByRole("textbox", { name: "说说您想办理什么" }).fill(text); await page.getByRole("button", { name: /^发送/ }).click(); await ready(); };
+  const confirm = async (text: string) => { await page.getByRole("button", { name: text, exact: true }).last().click(); await ready(); };
+  await ready(); await page.getByRole("button", { name: "演示设置", exact: true }).click(); await page.getByLabel("切换演示住户").selectOption("C"); await ready();
+  await expect.poll(async () => (await pageSnapshot(page)).records.applications[0].status, { timeout: 40000, intervals: [2000] }).toBe("approved");
+  await ask("我的断暖申请 application-C 审核通过了，请继续办理对应断暖费用。"); await confirm("确认断暖费用");
+  await page.getByTestId("bill-card").last().getByRole("button", { name: "请助手办理缴费", exact: true }).click(); await ready();
+  await expect(page.getByTestId("agreement-card").last()).toContainText("断暖服务与费用协议");
+  await expect(page.getByTestId("agreement-card").last()).toContainText("831.25");
+  await signInPage(page); expect((await pageSnapshot(page)).records.orders).toHaveLength(0);
+  await confirm("确认账单，去付款"); await confirm("确认模拟支付");
+  const result = await pageSnapshot(page); expect(result.records.applications[0].status).toBe("fee_paid"); expect(result.records.invoices).toHaveLength(1);
+  expect(result.records.agreements.find((a: { kind: string }) => a.kind === "disconnection").signedAt).toBeTruthy();
+});
+
+test("真实政策咨询：目录、序号、口语追问和跨业务查询", async ({ page }) => {
+  watchPage(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/works/demos/heating");
+  const input = page.getByRole("textbox", { name: "说说您想办理什么" });
+  const replies = () => page.locator(".heat-message.assistant .heat-bubble");
+  async function ready() {
+    await expect(input).toBeEnabled({ timeout: 30000 });
+    await expect(page.locator(".heat-wait")).toHaveCount(0, { timeout: 100000 });
+    await expect(page.locator(".heat-error")).toHaveCount(0);
+  }
+  async function ask(message: string) {
+    await input.fill(message); await page.getByRole("button", { name: /^发送/ }).click(); await ready();
+    await expect(replies().last()).not.toContainText("回复未完整完成");
+  }
+  await ready();
+  await page.getByRole("button", { name: "供暖政策", exact: true }).click(); await ready();
+  await expect(replies().last()).toContainText("1. 供暖时间");
+  await expect(replies().last()).toContainText("9. 暖气不热与维修");
+  await page.screenshot({ path: "test-results/heating/live-policy-directory.png", fullPage: false });
+  await ask("第四项"); await expect(replies().last()).toContainText("不设置办理截止日期");
+  await ask("那需要什么材料？"); await expect(replies().last()).toContainText("产权证明或合同、断暖施工照片");
+  await ask("几月开始烧暖气？"); await expect(replies().last()).toContainText("11月15日");
+  await ask("暖气一直不热，你能上门修吗？"); await expect(replies().last()).toContainText("不支持报修派单");
+  await ask("当地室温必须达到多少度？"); await expect(replies().last()).toContainText("演示资料未包含");
+  let snapshot = await pageSnapshot(page);
+  expect(snapshot.conversation.proposal).toBeNull(); expect(snapshot.records.orders).toHaveLength(0); expect(snapshot.records.applications).toHaveLength(0);
+  await ask("先不问政策了，查我家今年需要交多少供暖费，只查询。");
+  await expect(page.getByTestId("bill-card").last()).toContainText("2,125.00");
+  snapshot = await pageSnapshot(page); expect(snapshot.conversation.proposal).toBeNull();
+  await page.screenshot({ path: "test-results/heating/live-policy.png", fullPage: false });
 });

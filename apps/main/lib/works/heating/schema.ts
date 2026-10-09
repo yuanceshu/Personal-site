@@ -22,11 +22,13 @@ export const eventSchema = z.object({ id: idSchema, userId: userIdSchema, entity
 export const invoiceSchema = z.object({ id: idSchema, userId: userIdSchema, orderId: idSchema, billId: idSchema, amountCents: cents, label: z.literal("模拟发票"), issuedAt: timestamp }).strict();
 export const policySchema = z.object({ id: idSchema, year: yearSchema, label: z.string(), unitPriceCents: cents, disconnectionBasisPoints: z.number().int().min(0).max(10000), requiredMaterials: z.array(materialTypeSchema).min(1), reviewIntervalMs: z.number().int().min(1000), knowledge: z.array(z.object({ topic: z.string(), keywords: z.array(z.string()), answer: z.string() }).strict()) }).strict();
 
+export const signedAgreementSchema = z.object({ id: idSchema, userId: userIdSchema, billId: idSchema, houseId: idSchema, year: yearSchema, kind: z.enum(["heating", "disconnection"]), amountCents: cents, version: z.string().max(40), contentHash: z.string().regex(/^[a-f0-9]{64}$/), signedAt: timestamp, source: z.enum(["handwritten_demo", "preset_demo"]) }).strict();
+
 export const stateSchema = z.object({
   schemaVersion: z.literal(1), generation: z.string().uuid(), activeUserId: userIdSchema,
   identityVersion: z.number().int().nonnegative(), expiresAt: timestamp,
   users: z.array(userSchema), houses: z.array(houseSchema), bindings: z.array(z.object({ userId: userIdSchema, houseId: idSchema }).strict()),
-  bills: z.array(billSchema), orders: z.array(orderSchema), materials: z.array(materialSchema), applications: z.array(applicationSchema), events: z.array(eventSchema), invoices: z.array(invoiceSchema), policy: policySchema,
+  agreements: z.array(signedAgreementSchema).default([]), bills: z.array(billSchema), orders: z.array(orderSchema), materials: z.array(materialSchema), applications: z.array(applicationSchema), events: z.array(eventSchema), invoices: z.array(invoiceSchema), policy: policySchema,
   confirmations: z.array(z.object({ id: idSchema, fingerprint: z.string(), identityVersion: z.number().int(), expiresAt: timestamp }).strict()),
   receipts: z.array(z.object({ key: z.string(), fingerprint: z.string(), result: z.unknown() }).strict()),
 }).strict();

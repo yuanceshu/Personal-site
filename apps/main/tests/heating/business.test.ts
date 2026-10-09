@@ -6,7 +6,7 @@ import { RequestHeatingStore } from "@/lib/works/heating/store";
 import { HeatingService } from "@/lib/works/heating/service";
 import { applicationSchema, billSchema, materialSchema, operationSchema, orderSchema } from "@/lib/works/heating/schema";
 import { assertApplicationTransition } from "@/lib/works/heating/state-machine";
-import { confirm, draft, fixture, materials, pay, png, records } from "./helpers";
+import { confirm, draft, fixture, materials, pay, png, records, signBill } from "./helpers";
 
 const code = (expected: string) => (error: unknown) => error instanceof HeatingError && error.code === expected;
 
@@ -58,6 +58,7 @@ test("支付并发重复点击幂等；同一幂等键改参数会冲突", async
   const f = await fixture();
   try {
     const actor = f.session.actor;
+    await signBill(f.service, actor, "bill-house-A");
     const create = { name: "create_payment" as const, input: { billId: "bill-house-A", idempotencyKey: "same-order" } };
     const card = await f.service.prepareConfirmation(actor, create);
     const payload = { ...create, input: { ...create.input, confirmationId: card.confirmationId } };

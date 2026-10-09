@@ -1,10 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
-import { watchPage, pageSnapshot as snapshot, repeatConfirm } from "./browser-client";
+import { watchPage, pageSnapshot as snapshot, repeatConfirm, signInPage } from "./browser-client";
 const input = (page: Page) => page.getByRole("textbox", { name: "说说您想办理什么" });
 const app = (page: Page) => page.getByTestId("application-card").last();
 async function ready(page: Page) { await expect(input(page)).toBeEnabled({ timeout: 20000 }); await expect(page.locator(".heat-wait")).toHaveCount(0, { timeout: 20000 }); }
 async function send(page: Page, text: string) { await ready(page); await input(page).fill(text); await page.getByRole("button", { name: /^发送/ }).click(); await ready(page); }
-async function confirm(page: Page, text: string) { await page.getByRole("button", { name: text, exact: true }).last().click(); await ready(page); }
+async function confirm(page: Page, text: string) { if (text === "确认账单，去付款") await signInPage(page); await page.getByRole("button", { name: text, exact: true }).last().click(); await ready(page); }
 async function settings(page: Page) { await ready(page); await page.getByRole("button", { name: "演示设置", exact: true }).click(); }
 async function switchUser(page: Page, user: string) { await settings(page); await page.getByLabel("切换演示住户").selectOption(user); await ready(page); await expect(page.getByRole("dialog")).toHaveCount(0); }
 async function pay(page: Page) { await send(page, "我想交今年的暖气费。"); await confirm(page, "确认账单，去付款"); await expect(page.getByRole("button", { name: "确认模拟支付", exact: true }).last()).toBeEnabled(); await confirm(page, "确认模拟支付"); }
@@ -15,17 +15,22 @@ test.beforeEach(({ page }) => { watchPage(page); });
 test("桌面：同页缴费、明确确认、重复确认与发票；刷新清空全部对话和业务", async ({ page }) => {
   await page.goto("/works/demos/heating"); await ready(page);
   await expect(page.getByTestId("bill-card")).toHaveCount(0); await expect(page.locator(".heat-shortcuts button")).toHaveCount(6);
-  for (const prompt of ["我想交暖气费", "今年没人住，想断暖", "我想绑定房屋", "查房屋面积和供暖费", "查申请进度", "问供暖政策"]) {
+  for (const prompt of ["供暖缴费", "申请断暖", "绑定房屋", "房屋与费用", "申请进度", "供暖政策"]) {
     await expect(page.getByRole("button", { name: prompt, exact: true })).toBeVisible();
   }
   await page.screenshot({ path: "test-results/heating/desktop-home.png", fullPage: true });
-  await page.getByRole("button", { name: "查房屋面积和供暖费", exact: true }).click(); await ready(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole("button", { name: "供暖政策", exact: true })).toBeInViewport();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: "test-results/heating/mobile-home.png", fullPage: false });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.getByRole("button", { name: "房屋与费用", exact: true }).click(); await ready(page);
   await expect(page.getByTestId("bill-card").last()).toContainText("2,125.00");
   await page.reload(); await ready(page); await expect(page.getByTestId("bill-card")).toHaveCount(0);
-  await page.getByRole("button", { name: "我想交暖气费", exact: true }).click(); await ready(page); const proposed = (await snapshot(page)).conversation.proposal;
+  await page.getByRole("button", { name: "供暖缴费", exact: true }).click(); await ready(page); const proposed = (await snapshot(page)).conversation.proposal;
   expect((await snapshot(page)).records.orders).toHaveLength(0); await expect(page.locator(".heat-shortcuts")).toHaveCount(0);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.locator(".heat-proposal").last().scrollIntoViewIfNeeded();
+  await page.getByTestId("agreement-card").last().scrollIntoViewIfNeeded();
   await page.screenshot({ path: "test-results/heating/payment-confirm.png", fullPage: false });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await confirm(page, "确认账单，去付款"); await expect(page.getByRole("button", { name: "确认模拟支付", exact: true }).last()).toBeEnabled();
@@ -120,7 +125,7 @@ test("材料一键模拟登记，无文件选择或传输；重复点击、失�
 test("明确账单需求、缴费记录、已绑定提示和断暖多房屋卡片承接", async ({ page }) => {
   await page.goto("/works/demos/heating"); await ready(page);
   await send(page, "我要缴纳房屋 虚构和煦小区1号楼101室（演示）（house-A）的正常供暖费，账单 bill-house-A，请先核对并让我确认。");
-  await expect(page.getByRole("button", { name: "确认账单，去付款", exact: true }).last()).toBeVisible();
+  await expect(page.getByRole("button", { name: "手写签署", exact: true }).last()).toBeVisible();
   await confirm(page, "确认账单，去付款"); await confirm(page, "确认模拟支付");
   await send(page, "查我的缴费记录"); await expect(page.getByTestId("bill-card").last()).toContainText("已缴费");
   await send(page, "我想绑定房屋"); await expect(page.locator(".heat-message.assistant").last()).toContainText("已经绑定"); await expect(page.locator(".heat-binding")).toHaveCount(0);
@@ -163,4 +168,88 @@ test("请求时可保留草稿；改需求停用旧确认；阅读历史时提�
   await page.locator(".heat-timeline").evaluate(node => { node.scrollTop = 0; node.dispatchEvent(new Event("scroll")); }); releaseFinal(); await ready(page);
   await expect(page.getByRole("button", { name: "查看新消息 ↓", exact: true })).toBeVisible(); expect(await page.locator(".heat-timeline").evaluate(node => node.scrollTop)).toBeLessThan(100);
   await page.getByRole("button", { name: "查看新消息 ↓", exact: true }).click(); await expect(page.locator(".heat-new-message")).toHaveCount(0);
+});
+
+
+test("演示异常要求待支付订单；抽屉内部点击保留，外部点击关闭；失败不新建订单", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/works/demos/heating"); await ready(page);
+  await settings(page);
+  await page.getByRole("dialog").getByText("模拟异常", { exact: true }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(page.getByRole("button", { name: "演示支付失败", exact: true })).toBeDisabled();
+  await expect(page.getByRole("dialog")).toContainText("当前没有待支付订单");
+  await page.mouse.click(2, 100); await expect(page.getByRole("dialog")).toHaveCount(0);
+  await send(page, "我想交暖气费");
+  await settings(page); await page.getByRole("dialog").getByText("模拟异常", { exact: true }).click();
+  await expect(page.getByRole("button", { name: "演示支付失败", exact: true })).toBeDisabled();
+  await page.mouse.click(2, 100); await expect(page.getByRole("dialog")).toHaveCount(0);
+  await confirm(page, "确认账单，去付款");
+  const order = (await snapshot(page)).records.orders[0];
+  await settings(page); await page.getByRole("dialog").getByText("模拟异常", { exact: true }).click();
+  await page.route("**/heating/chat", route => route.fulfill({ status: 503, contentType: "application/json", body: '{"error":"agent_unavailable"}' }));
+  await page.getByRole("button", { name: "演示支付失败", exact: true }).click(); await ready(page);
+  await expect(page.locator(".heat-error")).toBeVisible(); expect((await snapshot(page)).records.orders[0].status).toBe("pending");
+  await page.unroute("**/heating/chat");
+  await page.getByRole("button", { name: "重试刚才的需求", exact: true }).click(); await ready(page);
+  await expect(page.locator(".heat-error")).toHaveCount(0);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.locator(".heat-proposal").last()).toContainText("确认模拟支付失败");
+  const selected = (await snapshot(page)).conversation.proposal;
+  expect(selected.operation.name).toBe("simulate_payment"); expect(selected.operation.input.orderId).toBe(order.id); expect(selected.operation.input.outcome).toBe("failure");
+  expect((await snapshot(page)).records.orders[0].status).toBe("pending");
+  await confirm(page, "确认模拟支付失败");
+  const result = await snapshot(page); expect(result.records.orders).toHaveLength(1); expect(result.records.orders[0].status).toBe("failed"); expect(result.records.invoices).toHaveLength(0);
+  await expect(page.getByTestId("bill-card").last()).toContainText("模拟支付失败");
+  await page.setViewportSize({ width: 1440, height: 1000 }); await settings(page);
+  await page.mouse.click(20, 100); await expect(page.getByRole("dialog")).toHaveCount(0);
+});
+
+test("协议卡片、触屏签署、空白与清除、接口失败重试、原位继续付款及刷新", async ({ page, context }) => {
+  await page.setViewportSize({ width: 390, height: 844 }); await page.goto("/works/demos/heating"); await ready(page);
+  await send(page, "我想交今年的暖气费。");
+  const proposal = (await snapshot(page)).conversation.proposal;
+  expect(await repeatConfirm(page, proposal.id)).toBe(403);
+  await expect(page.getByRole("button", { name: "确认账单，去付款", exact: true })).toHaveCount(0);
+  await page.getByTestId("agreement-card").last().scrollIntoViewIfNeeded();
+  await page.screenshot({ path: "test-results/heating/agreement-card.png" });
+  await page.getByRole("button", { name: "查看完整协议", exact: true }).last().click();
+  await expect(page.getByRole("dialog")).toContainText("11月15日");
+  await page.getByRole("button", { name: "关闭", exact: true }).click();
+  expect((await snapshot(page)).records.agreements[0].signedAt).toBeUndefined();
+  await page.getByRole("button", { name: "手写签署", exact: true }).click();
+  const signature = page.getByRole("img", { name: "演示手写签名板" });
+  await expect(page.getByRole("button", { name: "确认模拟签署", exact: true })).toBeDisabled();
+  const touch = await context.newCDPSession(page);
+  async function draw() {
+    const bounds = (await signature.boundingBox())!;
+    const point = (x: number, y: number) => ({ x: bounds.x + bounds.width * x, y: bounds.y + bounds.height * y });
+    await touch.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [point(0.1,0.5)] });
+    for (const [x,y] of [[0.3,0.2],[0.5,0.8],[0.7,0.2],[0.85,0.5]]) await touch.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [point(x,y)] });
+    await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  }
+  await draw(); await expect(page.getByRole("button", { name: "确认模拟签署", exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: "清除重签", exact: true }).click();
+  await expect(page.getByRole("button", { name: "确认模拟签署", exact: true })).toBeDisabled(); await draw();
+  await page.screenshot({ path: "test-results/heating/agreement-signature.png" });
+  let sent: object | undefined;
+  await page.route("**/heating/sign-agreement", route => { sent = route.request().postDataJSON(); return route.fulfill({ status: 503, contentType: "application/json", body: '{"error":"heating_unavailable"}' }); });
+  await page.getByRole("button", { name: "确认模拟签署", exact: true }).click(); await ready(page);
+  await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
+  await expect(signature.locator("polyline")).toHaveCount(1);
+  expect((await snapshot(page)).records.orders).toHaveLength(0);
+  expect((await snapshot(page)).records.agreements[0].signedAt).toBeUndefined();
+  await page.unroute("**/heating/sign-agreement");
+  await page.getByRole("button", { name: "确认模拟签署", exact: true }).click(); await ready(page);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect((await snapshot(page)).records.agreements[0].signedAt).toBeTruthy(); expect((await snapshot(page)).records.orders).toHaveLength(0);
+  await expect(page.getByRole("button", { name: "确认账单，去付款", exact: true }).last()).toBeEnabled();
+  await page.locator(".heat-proposal").last().scrollIntoViewIfNeeded(); await page.screenshot({ path: "test-results/heating/agreement-signed-payment.png" });
+  expect(Object.keys(sent!).sort()).toEqual(["demoState", "idempotencyKey", "proposalId", "signature", "version"].sort());
+  await confirm(page, "确认账单，去付款"); await confirm(page, "确认模拟支付");
+  expect((await snapshot(page)).records.invoices).toHaveLength(1);
+  await page.reload(); await ready(page); expect((await snapshot(page)).records.agreements[0].signedAt).toBeUndefined();
+  await page.setViewportSize({ width: 320, height: 568 }); await send(page, "我想交暖气费"); await page.getByRole("button", { name: "手写签署", exact: true }).click();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await expect(signature).toBeInViewport(); await page.getByRole("button", { name: "关闭", exact: true }).click();
 });

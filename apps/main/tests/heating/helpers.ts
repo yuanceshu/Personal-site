@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { agreementSchema } from "@/lib/works/heating/agreement";
 import { RequestHeatingStore } from "@/lib/works/heating/store";
 import { HeatingService } from "@/lib/works/heating/service";
 import { applicationSchema, billSchema, eventSchema, houseSchema, invoiceSchema, orderSchema, type Actor, type Operation } from "@/lib/works/heating/schema";
@@ -13,7 +14,14 @@ export async function fixture() {
 }
 export const recordsSchema = z.object({ houses: z.array(houseSchema), bills: z.array(billSchema), orders: z.array(orderSchema), applications: z.array(applicationSchema.loose()), invoices: z.array(invoiceSchema), events: z.array(eventSchema) }).loose();
 export async function records(service: HeatingService, actor: Actor) { return recordsSchema.parse(await service.execute(actor, { name: "query_records", input: {} })); }
+export const demoSignature: [number, number][][] = [[[0.1, 0.5], [0.3, 0.2], [0.5, 0.7], [0.8, 0.4]]];
+export async function signBill(service: HeatingService, actor: Actor, billId: string) {
+  const card = await service.prepareConfirmation(actor, { name: "create_payment", input: { billId, idempotencyKey: "signature-preview" } });
+  const agreement = agreementSchema.parse((card.summary as { agreement: unknown }).agreement);
+  return service.signAgreement(actor, billId, agreement.version, agreement.contentHash, demoSignature);
+}
 export async function confirm(service: HeatingService, actor: Actor, operation: Operation) {
+  if (operation.name === "create_payment") { await service.preview(actor, operation); await signBill(service, actor, operation.input.billId); }
   const card = await service.prepareConfirmation(actor, operation);
   return service.execute(actor, { ...operation, input: { ...operation.input, confirmationId: card.confirmationId } });
 }

@@ -15,10 +15,12 @@ export function publicProposal(proposal?: Proposal) {
   delete input.confirmationId;
   return { id: proposal.id, operation: { name: proposal.operation.name, input }, summary: proposal.summary, expiresAt: proposal.expiresAt, requiresExplicitConfirmation: true, demo: true };
 }
+export const paymentSimulationSchema = z.object({ orderId: idSchema, outcome: z.enum(["success", "failure", "cancel"]) }).strict();
+export type PaymentSimulation = z.infer<typeof paymentSimulationSchema>;
 const messageSchema = z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(12000) }).strict();
 const conversationSchema = z.object({
   history: z.array(messageSchema).max(20), proposal: proposalSchema.optional(),
-  lease: z.object({ id: z.string().uuid(), until: z.number() }).strict().optional(),
+  lease: z.object({ id: z.string().uuid(), until: z.number(), paymentSimulation: paymentSimulationSchema.optional() }).strict().optional(),
   receipts: z.array(z.object({ id: z.string(), fingerprint: z.string(), result: z.unknown() }).strict()).max(20),
 }).strict();
 type Conversation = z.infer<typeof conversationSchema>;
@@ -52,7 +54,7 @@ export class HeatingConversation {
   private checkLease(state: Conversation, turnId: string) {
     if (state.lease?.id !== turnId || state.lease.until <= this.clock()) throw new HeatingError("conversation_changed", 409);
   }
-  async begin(requestId: string, input: unknown, mode: "chat" | "confirm" = "chat") {
+  async begin(requestId: string, input: unknown, mode: "chat" | "confirm" = "chat", paymentSimulation?: PaymentSimulation) {
     const fingerprint = digest(input);
     return this.update(state => {
       const receipt = state.receipts.find(r => r.id === requestId);
@@ -62,7 +64,7 @@ export class HeatingConversation {
       }
       if (state.lease && state.lease.until > this.clock()) throw new HeatingError("conversation_busy", 409);
       const turnId = randomUUID();
-      state.lease = { id: turnId, until: this.clock() + 100_000 };
+      state.lease = { id: turnId, until: this.clock() + 100_000, ...(paymentSimulation ? { paymentSimulation } : {}) };
       const proposal = state.proposal;
       if (mode === "chat") delete state.proposal;
       return { cached: undefined, turnId, history: state.history, proposal };
@@ -104,6 +106,8 @@ export class HeatingConversation {
     // Check the fence before making a confirmation; only one proposal per turn is accepted.
     const previous = await this.update(state => {
       this.checkLease(state, turnId);
+      const selected = state.lease?.paymentSimulation;
+      if (selected && (operation.name !== "simulate_payment" || operation.input.orderId !== selected.orderId || operation.input.outcome !== selected.outcome)) throw new HeatingError("payment_selection_mismatch", 409);
       return state.proposal;
     });
     if (previous && digest({ name: previous.operation.name, input: { ...previous.operation.input, confirmationId: undefined } }) === digest(operation) && previous.expiresAt > this.clock()) return publicProposal(previous);

@@ -10,7 +10,7 @@ export function assertApplicationTransition(from: ApplicationStatus, to: Applica
 }
 export function assertConsistent(state: HeatingState) {
   const fail = () => { throw new HeatingError("inconsistent_state", 503); };
-  for (const records of [state.houses, state.bills, state.orders, state.applications, state.materials, state.invoices, state.events]) {
+  for (const records of [state.houses, state.bills, state.orders, state.applications, state.materials, state.invoices, state.events, state.agreements]) {
     if (new Set(records.map(r => r.id)).size !== records.length) fail();
   }
   for (const binding of state.bindings) if (!state.houses.some(h => h.id === binding.houseId && h.ownerId === binding.userId)) fail();
@@ -35,5 +35,7 @@ export function assertConsistent(state: HeatingState) {
     if ((order.status === "paid") !== (state.invoices.filter(i => i.orderId === order.id).length === 1)) fail();
   }
   for (const material of state.materials) if (!state.applications.some(a => a.id === material.applicationId && a.userId === material.userId)) fail();
+  if (new Set(state.agreements.map(a => `${a.userId}:${a.billId}`)).size !== state.agreements.length) fail();
+  for (const agreement of state.agreements) if (!state.bills.some(b => b.id === agreement.billId && b.userId === agreement.userId && b.houseId === agreement.houseId && b.year === agreement.year && b.kind === agreement.kind && b.amountCents === agreement.amountCents)) fail();
   for (const invoice of state.invoices) if (!state.orders.some(o => o.id === invoice.orderId && o.userId === invoice.userId && o.billId === invoice.billId && o.amountCents === invoice.amountCents && o.status === "paid")) fail();
 }

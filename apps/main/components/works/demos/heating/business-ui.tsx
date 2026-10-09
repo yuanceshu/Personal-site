@@ -14,10 +14,18 @@ export function AssistantAvatar({ welcome = false }: { welcome?: boolean }) {
 }
 export function Badge({ status }: { status: string }) { return <span className={`heat-badge ${["paid", "fee_paid", "approved"].includes(status) ? "good" : status === "needs_more_materials" || status === "failed" ? "attention" : ""}`}>{statusLabels[status] ?? status}</span>; }
 
-export function Modal({ title, children, close, drawer = false }: { title: string; children: ReactNode; close: () => void; drawer?: boolean }) {
+export function Modal({ title, children, close, drawer = false, className = "" }: { title: string; children: ReactNode; close: () => void; drawer?: boolean; className?: string }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const backdropPress = useRef(false);
   useEffect(() => { const dialog = ref.current; dialog?.showModal(); return () => dialog?.close(); }, []);
-  return <dialog className={`heat-dialog${drawer ? " heat-drawer" : ""}`} ref={ref} aria-labelledby="heat-dialog-title" onCancel={event => { event.preventDefault(); close(); }}><h2 id="heat-dialog-title">{title}</h2>{children}<button className="heat-button quiet" onClick={close}>关闭</button></dialog>;
+  return <dialog className={`heat-dialog${drawer ? " heat-drawer" : ""} ${className}`} ref={ref} aria-labelledby="heat-dialog-title" onPointerDown={event => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    backdropPress.current = drawer && event.target === event.currentTarget && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom);
+  }} onClick={event => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    if (backdropPress.current && event.target === event.currentTarget && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) close();
+    backdropPress.current = false;
+  }} onCancel={event => { event.preventDefault(); close(); }}><h2 id="heat-dialog-title">{title}</h2>{children}<button className="heat-button quiet" onClick={close}>关闭</button></dialog>;
 }
 export function ProposalCard({ proposal, records, busy, confirm, cancel, active = true, completed = false }: { proposal: ProposalView; records: Records | null; busy: boolean; confirm: () => void; cancel: () => void; active?: boolean; completed?: boolean }) {
   const { name, input } = proposal.operation;
@@ -30,7 +38,7 @@ export function ProposalCard({ proposal, records, busy, confirm, cancel, active 
   const cents = bill?.amountCents ?? summaryBill?.amountCents ?? summaryOrder?.amountCents;
   const compact = Boolean(bill && ["create_payment", "simulate_payment"].includes(name));
   const outcome = input.outcome === "success" ? "模拟支付成功" : input.outcome === "failure" ? "模拟支付失败" : "模拟取消支付";
-  return <section className={`heat-proposal${compact ? " compact" : ""}`} aria-label="等待您确认"><div className="heat-eyebrow">{completed ? "您已确认" : active ? "请您核对" : "此前的办理步骤"}</div><h3>{compact ? name === "create_payment" ? "核对以上账单后继续" : "最后一步：确认模拟支付" : operationLabels[name]}</h3>{house && !compact && <p>{house.address}</p>}{name === "bind_house" && <p>供暖户号：{String(input.account)}<br/>姓名：{String(input.name)}<br/>演示电话：{String(input.phone)}</p>}{cents !== undefined && !compact && <p className="heat-confirm-amount">¥ {amount(cents)}</p>}{name === "simulate_payment" && input.outcome !== "success" && <p>{outcome}，不会扣取真实资金。</p>}{["submit_application", "resubmit_application"].includes(name) && <p>确认后提交材料登记记录，进入模拟审核。</p>}{name === "create_draft" && <p>先准备两类材料，核对齐全后再提交审核。</p>}{name === "create_disconnection_bill" && <p>审核已经通过，请核对本次断暖费用。</p>}<p className="heat-muted">{completed ? "确认已处理，请查看下方返回结果。" : active ? "仅用于演示，不会扣取真实资金。您确认后才会办理。" : "这项确认已失效，您可以重新告诉助手想办理什么。"}</p><div className="heat-actions"><button className="heat-button primary" disabled={busy || !active} onClick={confirm}>{busy ? "正在处理…" : (name === "simulate_payment" && input.outcome !== "success" ? `确认${outcome}` : operationLabels[name])}</button><button className="heat-button quiet" disabled={busy || !active} onClick={cancel}>暂不办理</button></div></section>;
+  return <section className={`heat-proposal${compact ? " compact" : ""}`} aria-label="等待您确认"><div className="heat-eyebrow">{completed ? "您已确认" : active ? "请您核对" : "此前的办理步骤"}</div><h3>{compact ? name === "create_payment" ? "核对以上账单后继续" : (input.outcome === "success" ? "最后一步：确认模拟支付" : `确认${outcome}`) : operationLabels[name]}</h3>{house && !compact && <p>{house.address}</p>}{name === "bind_house" && <p>供暖户号：{String(input.account)}<br/>姓名：{String(input.name)}<br/>演示电话：{String(input.phone)}</p>}{cents !== undefined && !compact && <p className="heat-confirm-amount">¥ {amount(cents)}</p>}{name === "simulate_payment" && input.outcome !== "success" && <p>{outcome}，不会扣取真实资金。</p>}{["submit_application", "resubmit_application"].includes(name) && <p>确认后提交材料登记记录，进入模拟审核。</p>}{name === "create_draft" && <p>先准备两类材料，核对齐全后再提交审核。</p>}{name === "create_disconnection_bill" && <p>审核已经通过，请核对本次断暖费用。</p>}<p className="heat-muted">{completed ? "确认已处理，请查看下方返回结果。" : active ? "仅用于演示，不会扣取真实资金。您确认后才会办理。" : "这项确认已失效，您可以重新告诉助手想办理什么。"}</p><div className="heat-actions"><button className="heat-button primary" disabled={busy || !active} onClick={confirm}>{busy ? "正在处理…" : (name === "simulate_payment" && input.outcome !== "success" ? `确认${outcome}` : operationLabels[name])}</button><button className="heat-button quiet" disabled={busy || !active} onClick={cancel}>暂不办理</button></div></section>;
 }
 
 export function ApplicationCard({ app, records, busy, send, submitMaterial }: { app: ApplicationView; records: Records; busy: boolean; send: (text: string) => void; submitMaterial: (id: string, type: MaterialType) => void }) {

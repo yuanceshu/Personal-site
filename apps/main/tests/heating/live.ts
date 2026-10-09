@@ -8,6 +8,7 @@ import { resolve } from "node:path";
 import { once } from "node:events";
 import { toolPOST } from "@/lib/works/heating/api";
 import { agentActionPOST } from "@/lib/works/heating/agent/api";
+import { demoSignature } from "./helpers";
 import { apiClient } from "./api-client";
 
 async function main() {
@@ -46,6 +47,7 @@ async function main() {
   };
   const confirm = async (result: any, expected: string): Promise<void> => {
     assert.equal(result.proposal?.operation.name, expected);
+    if (expected === "create_payment") assert.equal((await client.call("sign-agreement", { proposalId: result.proposal.id, version: result.proposal.summary.agreement.version, signature: demoSignature, idempotencyKey: crypto.randomUUID() })).status, 200);
     assert.equal((await client.call("confirm", { proposalId: result.proposal.id, confirmed: true })).status, 200);
   };
   const switchUser = async (userId: string) => { assert.equal((await client.call("session", { userId })).status, 200); };

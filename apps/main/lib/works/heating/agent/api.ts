@@ -1,13 +1,15 @@
+import { createHash } from "node:crypto";
 import { z } from "zod";
+import { agreementSchema, signAgreementInputSchema } from "../agreement";
 import { boundary, browserContext, environment, jsonBody } from "../api";
 import { HeatingError } from "../errors";
-import { idSchema } from "../schema";
+import { billSchema, idSchema, orderSchema } from "../schema";
 import { delegateActor, equalSecret, namespace, readDelegation, requireBrowserWrite } from "../security";
-import { HeatingConversation, publicProposal } from "./conversation";
+import { HeatingConversation, paymentSimulationSchema, publicProposal } from "./conversation";
 import { agentConnection } from "./connection";
 import { encodePage, acceptPage } from "../page-state";
 
-export const chatInputSchema = z.object({ message: z.string().trim().min(1).max(2000), requestId: z.string().uuid() }).strict();
+export const chatInputSchema = z.object({ message: z.string().trim().min(1).max(2000), requestId: z.string().uuid(), paymentSimulation: paymentSimulationSchema.optional() }).strict();
 export const focusSchema = z.object({
   houseIds: z.array(idSchema).max(8).default([]), billIds: z.array(idSchema).max(8).default([]),
   applicationIds: z.array(idSchema).max(8).default([]), invoiceIds: z.array(idSchema).max(8).default([]),
@@ -82,6 +84,29 @@ export function confirmPOST(request: Request) {
   });
 }
 
+export function signAgreementPOST(request: Request) {
+  return boundary(request, async () => {
+    requireBrowserWrite(request);
+    const input = signAgreementInputSchema.parse(await jsonBody(request));
+    const { actor, service, repository } = await conversationContext(request);
+    // Hash the bounded request for idempotency; strokes never enter history, receipts or state.
+    const receiptInput = { proposalId: input.proposalId, version: input.version, signatureHash: createHash("sha256").update(JSON.stringify(input.signature)).digest("hex") };
+    const requestId = `sign:${input.idempotencyKey}`;
+    const run = await repository.begin(requestId, receiptInput, "confirm");
+    try {
+      const pending = run.turnId ? await repository.pending(run.turnId) : run.proposal;
+      if (!pending || pending.id !== input.proposalId || pending.result !== undefined || pending.expiresAt <= Date.now() || pending.operation.name !== "create_payment") throw new HeatingError("proposal_expired", 409);
+      if (!run.turnId) return Response.json({ result: run.cached }, { headers: { "Cache-Control": "no-store" } });
+      const summary = z.object({ agreement: agreementSchema }).passthrough().parse(pending.summary);
+      await service.preview(actor, pending.operation);
+      const agreement = await service.signAgreement(actor, pending.operation.input.billId, input.version, summary.agreement.contentHash, input.signature);
+      const result = { agreement, identityVersion: actor.identityVersion, generation: actor.generation, demo: true };
+      await repository.finish(run.turnId, requestId, receiptInput, result, [{ role: "assistant", content: JSON.stringify({ answer: "本账单的演示协议已签署，尚未付款。请继续核对账单并确认。" }) }]);
+      return Response.json({ result }, { headers: { "Cache-Control": "no-store" } });
+    } finally { if (run.turnId) await repository.release(run.turnId); }
+  });
+}
+
 function limitedHistory(history: { role: "user" | "assistant"; content: string }[]) {
   const result: typeof history = [];
   let bytes = 0;
@@ -105,8 +130,16 @@ export function chatPOST(request: Request) {
     const input = chatInputSchema.parse(await jsonBody(request));
     const { actor, service, repository } = await conversationContext(request);
     const connection = agentConnection(origin);
-    const run = await repository.begin(input.requestId, input);
+    const run = await repository.begin(input.requestId, input, "chat", input.paymentSimulation);
     if (!run.turnId) { await service.execute(actor, { name: "query_records", input: {} }); return new Response(sse("final", { ...run.cached as object, replayed: true, demoState: encodePage() }), { headers: streamHeaders }); }
+    // Check fresh requests after receipt replay. Rejected requests return no updated
+    // page capsule, so the browser retains its previous state and confirmation card.
+    if (input.paymentSimulation) {
+      const records = z.object({ orders: z.array(orderSchema), bills: z.array(billSchema) }).passthrough().parse(await service.execute(actor, { name: "query_records", input: {} }));
+      const order = records.orders.find(order => order.id === input.paymentSimulation?.orderId);
+      if (!order) throw new HeatingError("record_not_found", 404);
+      if (order.status !== "pending" || !records.bills.some(bill => bill.id === order.billId && bill.status === "payment_pending")) throw new HeatingError("payment_not_pending", 409);
+    }
     const turnId = run.turnId;
     const delegation = delegateActor(actor, Date.now(), turnId);
     let cancelled = false;
@@ -120,7 +153,7 @@ export function chatPOST(request: Request) {
           const upstream = await fetch(connection.endpoint, {
             method: "POST", cache: "no-store", redirect: "error",
             headers: { ...connection.headers, "X-Heating-Context": delegation },
-            body: JSON.stringify({ message: input.message, history: limitedHistory(run.history), pending: limitedPending(run.proposal), demoState: encodePage() }),
+            body: JSON.stringify({ message: input.paymentSimulation ? `${input.message}\n本次明确选择的订单是 ${input.paymentSimulation.orderId}，模拟结果为 ${input.paymentSimulation.outcome}。只准备该订单该结果的 simulate_payment 确认提案，不创建订单、不替换结果。` : input.message, history: limitedHistory(run.history), pending: limitedPending(run.proposal), demoState: encodePage() }),
             signal: AbortSignal.any([request.signal, abort.signal, AbortSignal.timeout(65_000)]),
           });
           if (!upstream.ok || !upstream.body) throw new HeatingError("agent_unavailable", 502);
@@ -152,6 +185,7 @@ export function chatPOST(request: Request) {
           const records = await service.execute(actor, { name: "query_records", input: {} });
           final.focus = validateFocus(final.focus, records);
           const proposal = await repository.pending(turnId);
+          if (input.paymentSimulation && (!proposal || proposal.operation.name !== "simulate_payment" || proposal.operation.input.orderId !== input.paymentSimulation.orderId || proposal.operation.input.outcome !== input.paymentSimulation.outcome)) throw new HeatingError("agent_invalid_response", 502);
           const result = { ...final, proposal: publicProposal(proposal), demo: true, identityVersion: actor.identityVersion, generation: actor.generation };
           await repository.finish(turnId, input.requestId, input, result, [
             { role: "user", content: input.message },

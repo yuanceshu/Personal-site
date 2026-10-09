@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { z } from "zod";
+import { agreementContent, signatureSchema, type Signature } from "./agreement";
 import { HeatingError } from "./errors";
 import { createSeed, SANDBOX_TTL_SECONDS } from "./seed";
 import { assertApplicationTransition, assertConsistent } from "./state-machine";
@@ -50,6 +51,30 @@ export class HeatingService implements HeatingBusinessAdapter {
   }
   private sessionView(state: HeatingState, sandboxId: string) {
     return { actor: this.actor(state, sandboxId), identities: state.users, profile: state.users.find(u => u.id === state.activeUserId), demo: true, expiresAt: state.expiresAt, materialStorage: "仅保存元数据和模拟占位，不保存原始文件" };
+  }
+  private agreementView(state: HeatingState, actor: Actor, bill: Bill) {
+    const house = this.house(state, actor, bill.houseId);
+    const content = agreementContent(bill, house);
+    const contentHash = fingerprint(content);
+    const signed = state.agreements.find(a => a.userId === actor.userId && a.billId === bill.id && a.contentHash === contentHash && a.version === content.version);
+    return { ...content, contentHash, ...(signed ? { signedAt: signed.signedAt, source: signed.source } : {}) };
+  }
+  private requireAgreement(state: HeatingState, actor: Actor, bill: Bill) {
+    if (!this.agreementView(state, actor, bill).signedAt) throw new HeatingError("agreement_required", 403);
+  }
+  async signAgreement(actor: Actor, billId: string, version: string, contentHash: string, signature: Signature) {
+    signatureSchema.parse(signature); // Validate then discard strokes: never retain or send to the model.
+    return this.transaction(actor.sandboxId, actor, (state, now) => {
+      const bill = this.owned(state.bills, actor, billId);
+      const agreement = this.agreementView(state, actor, bill);
+      if (agreement.version !== version || agreement.contentHash !== contentHash) throw new HeatingError("agreement_changed", 409);
+      if (bill.status === "paid") throw new HeatingError("bill_already_paid", 409);
+      if (!agreement.signedAt) {
+        state.agreements = state.agreements.filter(a => !(a.userId === actor.userId && a.billId === billId));
+        state.agreements.push({ id: newId("agreement"), userId: actor.userId, billId, houseId: bill.houseId, year: bill.year, kind: bill.kind, amountCents: bill.amountCents, version, contentHash, signedAt: nowISO(now), source: "handwritten_demo" });
+      }
+      return this.agreementView(state, actor, bill);
+    });
   }
   async switchIdentity(actor: Actor, userId: unknown) {
     const nextUser = userIdSchema.parse(userId);
@@ -143,7 +168,9 @@ export class HeatingService implements HeatingBusinessAdapter {
       case "create_payment": {
         const bill = this.owned(state.bills, actor, operation.input.billId);
         this.house(state, actor, bill.houseId);
-        return { bill, house: state.houses.find(h => h.id === bill.houseId), policy: state.policy.id };
+        const { signedAt: _at, source: _source, ...agreement } = this.agreementView(state, actor, bill);
+        void _at; void _source;
+        return { bill, house: state.houses.find(h => h.id === bill.houseId), policy: state.policy.id, agreement };
       }
       case "simulate_payment": {
         const order = this.owned(state.orders, actor, operation.input.orderId);
@@ -190,21 +217,26 @@ export class HeatingService implements HeatingBusinessAdapter {
     const operation = operationSchema.parse(raw);
     return this.transaction(actor.sandboxId, actor, (state, now) => {
       const copy = structuredClone(state);
-      const result = this.run(copy, actor, operation, now);
+      const result = this.run(copy, actor, operation, now, true);
       assertConsistent(copy);
       return result;
     });
   }
-  private run(state: HeatingState, actor: Actor, operation: Operation, now: number): unknown {
+  private run(state: HeatingState, actor: Actor, operation: Operation, now: number, preview = false): unknown {
     switch (operation.name) {
       case "list_houses": return state.bindings.filter(b => b.userId === actor.userId).map(b => this.house(state, actor, b.houseId));
       case "query_policy": {
-        const matches = state.policy.knowledge.filter(k => k.keywords.some(word => operation.input.question.includes(word)));
-        return { policyId: state.policy.id, label: state.policy.label, requiredMaterials: state.policy.requiredMaterials, rules: { unitPriceCents: state.policy.unitPriceCents, disconnectionBasisPoints: state.policy.disconnectionBasisPoints }, answers: matches.length ? matches : [{ topic: "未收录", answer: "演示资料未包含，请勿将演示规则作为当地正式政策。" }] };
+        const question = operation.input.question.replace(/\s+/g, "");
+        const matches = state.policy.knowledge.filter(k => k.keywords.some(word => question.includes(word)));
+        const wantsDirectory = /^(?:你好[，,！!。]?|请问|我想|想|我要|要|帮我|请|了解一下|了解|咨询一下|咨询|问一下|问问|问|一下|看看|看|关于|供暖|暖气|的|演示|模拟|政策|规则|规定|知识|目录|有哪些|有什么|哪些|什么|可以|能|回答|问题|内容|[，,。？！?!：:])*$/u.test(question);
+        const answers = wantsDirectory
+          ? [{ topic: "政策咨询目录", answer: `您想了解哪方面？可以直接说，也可以告诉我序号：\n${state.policy.knowledge.map((item, index) => `${index + 1}. ${item.topic}`).join("\n")}\n以上为本 Demo 的模拟规则，不代表当地正式政策。` }]
+          : matches.length ? matches : [{ topic: "未收录", answer: "演示资料未包含这项规定。您可以问“有哪些政策”查看可咨询的内容，请勿将演示规则作为当地正式政策。" }];
+        return { policyId: state.policy.id, label: state.policy.label, requiredMaterials: state.policy.requiredMaterials, rules: { unitPriceCents: state.policy.unitPriceCents, disconnectionBasisPoints: state.policy.disconnectionBasisPoints }, answers };
       }
       case "query_records": {
         state.applications.filter(a => a.userId === actor.userId).forEach(a => this.advanceReview(state, actor, a, now));
-        return { profile: state.users.find(u => u.id === actor.userId), houses: state.bindings.filter(b => b.userId === actor.userId).map(b => this.house(state, actor, b.houseId)), bills: state.bills.filter(b => b.userId === actor.userId && state.bindings.some(binding => binding.userId === actor.userId && binding.houseId === b.houseId)), orders: state.orders.filter(o => o.userId === actor.userId), applications: state.applications.filter(a => a.userId === actor.userId).map(a => this.applicationView(state, a)), invoices: state.invoices.filter(i => i.userId === actor.userId), events: state.events.filter(e => e.userId === actor.userId), demo: true };
+        return { profile: state.users.find(u => u.id === actor.userId), houses: state.bindings.filter(b => b.userId === actor.userId).map(b => this.house(state, actor, b.houseId)), bills: state.bills.filter(b => b.userId === actor.userId && state.bindings.some(binding => binding.userId === actor.userId && binding.houseId === b.houseId)), agreements: state.bills.filter(b => b.userId === actor.userId && state.bindings.some(binding => binding.userId === actor.userId && binding.houseId === b.houseId)).map(b => this.agreementView(state, actor, b)), orders: state.orders.filter(o => o.userId === actor.userId), applications: state.applications.filter(a => a.userId === actor.userId).map(a => this.applicationView(state, a)), invoices: state.invoices.filter(i => i.userId === actor.userId), events: state.events.filter(e => e.userId === actor.userId), demo: true };
       }
       case "query_bill": {
         const house = this.house(state, actor, operation.input.houseId);
@@ -262,6 +294,7 @@ export class HeatingService implements HeatingBusinessAdapter {
           const application = this.owned(state.applications, actor, bill.applicationId!);
           if (application.status !== "fee_pending") throw new HeatingError("approval_required");
         }
+        if (!preview) this.requireAgreement(state, actor, bill);
         const existing = state.orders.find(o => o.billId === bill.id && o.status === "pending");
         if (existing) return existing;
         const order = { id: newId("order"), userId: actor.userId, billId: bill.id, amountCents: bill.amountCents, status: "pending" as const, createdAt: nowISO(now) };
@@ -273,6 +306,7 @@ export class HeatingService implements HeatingBusinessAdapter {
       case "simulate_payment": {
         const order = this.owned(state.orders, actor, operation.input.orderId);
         const bill = this.owned(state.bills, actor, order.billId);
+        if (!preview) this.requireAgreement(state, actor, bill);
         if (order.status === "paid") return { order, bill, invoice: state.invoices.find(i => i.orderId === order.id), simulatedSms: "模拟通知记录，无真实短信发送" };
         if (order.status !== "pending" || bill.status !== "payment_pending" || bill.amountCents !== order.amountCents) throw new HeatingError("payment_not_pending");
         const next = operation.input.outcome === "success" ? "paid" : operation.input.outcome === "failure" ? "failed" : "cancelled";

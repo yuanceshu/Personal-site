@@ -3,6 +3,7 @@ import test from "node:test";
 import { randomUUID } from "node:crypto";
 import { toolPOST } from "@/lib/works/heating/api";
 import { agentActionPOST, agentResultSchema, focusSchema, validateFocus } from "@/lib/works/heating/agent/api";
+import { demoSignature } from "./helpers";
 import { apiClient } from "./api-client";
 
 process.env.HEATING_SESSION_SECRET = "agent-page-state-test-secret-at-least-32";
@@ -40,6 +41,8 @@ test("无状态 Chat→Agno→连续 Tool→提案→明确确认→支付，历
     assert.equal(JSON.stringify(order.cards).includes("demoState"), false);
     const count = calls; assert.equal((await client.chat("我想交今年的暖气费。", id)).final.replayed, true); assert.equal(calls, count);
     assert.equal((await client.call("confirm", { proposalId: order.proposal.id, confirmed: false })).status, 400);
+    assert.equal((await client.call("confirm", { proposalId: order.proposal.id, confirmed: true })).status, 403);
+    assert.equal((await client.call("sign-agreement", { proposalId: order.proposal.id, version: order.proposal.summary.agreement.version, signature: demoSignature, idempotencyKey: randomUUID() })).status, 200);
     const confirmed = await client.call("confirm", { proposalId: order.proposal.id, confirmed: true }); assert.equal(confirmed.status, 200);
     assert.equal((await client.call("confirm", { proposalId: order.proposal.id, confirmed: true })).status, 200);
     mode = "pay"; const payment = (await client.chat("继续刚才的模拟支付")).final; assert.ok(seenHistory.some(item => item.content.includes("暖气费")));
@@ -75,4 +78,21 @@ test("展示协议缺省兼容、引用边界及跨住户引用拒绝", () => {
   }
   assert.equal(focusSchema.safeParse({ billIds: Array(9).fill("bill-A") }).success, false);
   assert.equal(agentResultSchema.safeParse({ ...parsed, replyMode: "pay_success" }).success, false);
+});
+
+
+test("模拟支付目标由服务端校验，缺失、越权、已付款订单不能发给模型", async () => {
+  const client = apiClient(); await client.call("session");
+  const rawFetch = globalThis.fetch;
+  let calls = 0; globalThis.fetch = async () => { calls++; throw new Error("unexpected model call"); };
+  try {
+    const request = (orderId: string) => client.call("chat", { message: "演示失败", requestId: randomUUID(), paymentSimulation: { orderId, outcome: "failure" } });
+    assert.equal((await request("missing-order")).status, 404);
+    const order = (await client.execute("create_payment", { billId: "bill-house-A" })).result;
+    await client.call("session", { userId: "B" }); assert.equal((await request(order.id)).status, 404);
+    await client.call("session", { userId: "A" });
+    await client.execute("simulate_payment", { orderId: order.id, outcome: "success" });
+    assert.equal((await request(order.id)).status, 409);
+    assert.equal(calls, 0); assert.equal((await client.records()).orders.length, 1); assert.equal((await client.records()).invoices.length, 1);
+  } finally { globalThis.fetch = rawFetch; }
 });
