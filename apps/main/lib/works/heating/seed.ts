@@ -7,7 +7,7 @@ export const demoPolicy = {
   unitPriceCents: 2500, disconnectionBasisPoints: 3500, requiredMaterials: ["ownership", "construction"] as const,
   reviewIntervalMs: 10_000,
   knowledge: [
-    { topic: "断暖材料", keywords: ["材料", "条件", "断暖", "停暖", "报停"], answer: "演示要求房屋产权证明或合同、断暖施工照片；仅使用虚构演示文件。两级模拟审核通过后再缴断暖费用，缴费后才显示演示办结。" },
+    { topic: "断暖材料", keywords: ["材料", "条件", "断暖", "停暖", "报停"], answer: "演示要求房屋产权证明或合同、断暖施工照片；点击“模拟提交”登记预设材料，无需选择或上传真实文件。两级模拟审核通过后再缴断暖费用，缴费后才显示演示办结。" },
     { topic: "收费规则", keywords: ["费", "面积", "比例", "单价"], answer: "本演示按种子计费面积和每平方米25元计算正常供暖费；断暖费按正常供暖费的35%计算。金额均由服务端计算；这些不是地方正式政策。" },
     { topic: "供暖期间", keywords: ["供暖期", "时间", "期间"], answer: "虚构演示年度为2026—2027，演示供暖期为11月15日至次年3月15日，不代表当地正式安排。" },
     { topic: "审核流程", keywords: ["审核", "进度", "补件"], answer: "演示有两级审核，查询时按固定时间推进本页状态。退回补件须更新同一工单并再次确认提审；AI不能审批。" },
@@ -35,7 +35,7 @@ export function createSeed(now: Date = new Date()): HeatingState {
     state.applications.push({ id: appId, userId, houseId: `house-${userId}`, year: "2026-2027", status: userId === "C" ? "review_level_1" : "needs_more_materials", createdAt: at, submittedAt: at, ...(userId === "C" ? { nextReviewAt: new Date(now.getTime() + demoPolicy.reviewIntervalMs).toISOString() } : {}), reviewScenario: userId === "C" ? "approve" : "supplement_once", returnedOnce: userId === "D", requiredReplacements: userId === "D" ? ["construction"] : [], returnedMaterialIds: userId === "D" ? ["material-D-construction"] : [] });
     for (const type of demoPolicy.requiredMaterials) state.materials.push({ id: `material-${userId}-${type}`, userId, applicationId: appId, type, fileName: type === "ownership" ? "预设演示产权.png" : "预设演示施工.png", mime: "image/png", size: 68, sha256: "0".repeat(64), storageMode: "demo_placeholder", uploadedAt: at });
     const steps = userId === "C" ? ["draft", "submitted", "review_level_1"] : ["draft", "submitted", "review_level_1", "needs_more_materials"];
-    steps.forEach((to, index) => state.events.push({ id: `event-${userId}-${index}`, userId, entityId: appId, entityType: "application", from: steps[index - 1] ?? "none", to, reason: to === "needs_more_materials" ? "预设模拟退回：请补传断暖施工照片；不是图像审核结论" : "预设演示场景", at }));
+    steps.forEach((to, index) => state.events.push({ id: `event-${userId}-${index}`, userId, entityId: appId, entityType: "application", from: steps[index - 1] ?? "none", to, reason: to === "needs_more_materials" ? "预设模拟退回：请模拟提交断暖施工照片补件；不是图像审核结论" : "预设演示场景", at }));
   }
   const paidBill = state.bills.find(b => b.userId === "E")!;
   state.orders.push({ id: "order-E", userId: "E", billId: paidBill.id, amountCents: paidBill.amountCents, status: "paid", createdAt: at, settledAt: at });

@@ -113,6 +113,6 @@ POST /works/heating/chat 复用本服务 Agno/OpenAIChat 与 MiniMax，隔离在
 
 Agent只查询与生成待确认提案，原TS规则继续执行用户confirm操作。respond选择追问/展示；答复以Tool证据为准，模型自由陈述丢弃。材料内容不发送模型。MiniMax-M3在本模块单独关闭thinking，其他Demo配置不变。工具失败或模型失败不编造成功，页面保留最后有效状态。
 
-聊天式H5使用final中的replyMode与focus（houseIds、billIds、applicationIds、invoiceIds）按本轮需求展示卡片。模型引用先限定在可信Tool与当前住户记录内，定向Tool可以补齐实际引用，主站仍独立复核所有引用范围。初始query_records不直接展示全部记录，回复不输出内部接口名或编号。加载更新后的供暖模块即可复用原配置，不需要新服务或数据库。
+聊天式H5使用final中的replyMode与focus（houseIds、billIds、applicationIds、invoiceIds）按本轮需求展示卡片。模型引用先限定在可信Tool与当前住户记录内，定向Tool可以补齐实际引用，主站仍独立复核所有引用范围。初始query_records不直接展示全部记录，回复不输出内部接口名或编号。加载更新后的供暖模块即可复用原配置，不需要新服务或数据库。供暖respond工具现在还声明本轮intent，服务据此与可信房屋记录补齐选房展示；仅输出文字而未完成工具链时，在48秒总时限内条件续办一次，仍未完成则明确标记degraded，保留已核实结果和待确认提案，并提示继续查询或重试；已确认的操作无需重复确认。提案工具因材料缺失等确定性业务校验而停止时，直接展示工具拒绝原因，不作为模型未完成再次调用。未完成诊断只记录原因类别、耗时和工具数量，不记录提示词、业务数据或上游错误正文。材料引导改为点击“模拟提交”登记预设元数据，模型仍须查询实际记录；主站与既有实验服务应同步加载本轮供暖代码。
 
 供暖回调12秒、模型流程48秒；原Python Function75秒配置不变。受保护主站Preview可通过代理X-Heating-Callback-Bypass在服务端回调，保护凭据不进模型或浏览器。配置、页面生命周期与验收见 ../../apps/main/README.md。测试：uv run pytest、uv lock --check；主站真实模型联调继续用原运行方式，已经改为状态包承接，不使用SQLite。

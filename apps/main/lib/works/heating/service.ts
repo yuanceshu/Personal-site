@@ -3,7 +3,7 @@ import { z } from "zod";
 import { HeatingError } from "./errors";
 import { createSeed, SANDBOX_TTL_SECONDS } from "./seed";
 import { assertApplicationTransition, assertConsistent } from "./state-machine";
-import { confirmationNames, idSchema, materialTypeSchema, operationSchema, stateSchema, userIdSchema, type Actor, type Application, type ApplicationStatus, type Bill, type HeatingBusinessAdapter, type HeatingState, type Operation } from "./schema";
+import { confirmationNames, idSchema, materialTypeSchema, simulatedMaterialInputSchema, operationSchema, stateSchema, userIdSchema, type Actor, type Application, type ApplicationStatus, type Bill, type HeatingBusinessAdapter, type HeatingState, type Operation, type MaterialType } from "./schema";
 import type { HeatingStore } from "./store";
 
 const nowISO = (now: number) => new Date(now).toISOString();
@@ -101,7 +101,7 @@ export class HeatingService implements HeatingBusinessAdapter {
       else if (application.status === "review_level_1") next = application.reviewScenario === "supplement_once" && !application.returnedOnce ? "needs_more_materials" : "review_level_2";
       else if (application.status === "review_level_2") next = "approved";
       else throw new HeatingError("invalid_review_state", 503);
-      this.applicationTransition(state, actor, application, next, next === "needs_more_materials" ? "预设模拟退回：请补传断暖施工照片；不是图像审核结论" : "按演示时间规则推进两级审核", at);
+      this.applicationTransition(state, actor, application, next, next === "needs_more_materials" ? "预设模拟退回：请模拟提交断暖施工照片补件；不是图像审核结论" : "按演示时间规则推进两级审核", at);
       if (next === "needs_more_materials") {
         application.returnedOnce = true;
         application.requiredReplacements = ["construction"];
@@ -112,7 +112,7 @@ export class HeatingService implements HeatingBusinessAdapter {
     }
   }
   private applicationView(state: HeatingState, application: Application) {
-    return { ...application, materials: state.materials.filter(m => m.applicationId === application.id), events: state.events.filter(e => e.entityId === application.id), nextStep: application.status === "approved" ? "审核已通过，需创建并缴纳断暖费用，尚未办结" : application.status === "fee_paid" ? "演示断暖业务已办结" : application.status === "needs_more_materials" ? "补传指定材料后确认重新提审" : "按当前节点继续办理（演示环境）" };
+    return { ...application, materials: state.materials.filter(m => m.applicationId === application.id), events: state.events.filter(e => e.entityId === application.id), nextStep: application.status === "approved" ? "审核已通过，需创建并缴纳断暖费用，尚未办结" : application.status === "fee_paid" ? "演示断暖业务已办结" : application.status === "needs_more_materials" ? "模拟提交指定补件后确认重新提审" : "按当前节点继续办理（演示环境）" };
   }
   private checkMaterials(state: HeatingState, application: Application) {
     const materials = state.materials.filter(m => m.applicationId === application.id && m.userId === application.userId);
@@ -317,16 +317,41 @@ export class HeatingService implements HeatingBusinessAdapter {
     const hash = createHash("sha256").update(bytes).digest("hex");
     // Only a display name is persisted; bytes are used for validation/hash and discarded.
     const fileName = file.name.split(/[\\/]/).pop()?.replace(/[\u0000-\u001f\u007f]/g, "").trim().slice(0, 160) || "演示材料";
+    return this.transaction(actor.sandboxId, actor, (state, now) => this.registerMaterial(state, actor, id, materialType, { fileName, mime: file.type as "image/png" | "image/jpeg" | "application/pdf", size: file.size, sha256: hash }, now));
+  }
+  private registerMaterial(state: HeatingState, actor: Actor, id: string, materialType: MaterialType, metadata: Pick<HeatingState["materials"][number], "fileName" | "mime" | "size" | "sha256">, now: number) {
+    const application = this.owned(state.applications, actor, id);
+    if (!["draft", "needs_more_materials"].includes(application.status)) throw new HeatingError("materials_locked");
+    const existing = state.materials.find(m => m.applicationId === id && m.type === materialType && m.sha256 === metadata.sha256 && !application.returnedMaterialIds.includes(m.id));
+    if (existing) { existing.fileName = metadata.fileName; return existing; }
+    if (state.materials.filter(m => m.applicationId === id).length >= 20) throw new HeatingError("too_many_materials", 413);
+    const material = { id: newId("material"), userId: actor.userId, applicationId: id, type: materialType, ...metadata, storageMode: "demo_placeholder" as const, uploadedAt: nowISO(now) };
+    state.materials.push(material);
+    this.event(state, actor, "application", application.id, application.status, application.status, `登记${materialType}演示材料元数据与模拟占位（无原始文件存储）`, now);
+    return material;
+  }
+  async simulateMaterial(actor: Actor, input: unknown) {
+    const parsed = simulatedMaterialInputSchema.parse(input);
     return this.transaction(actor.sandboxId, actor, (state, now) => {
-      const application = this.owned(state.applications, actor, id);
-      if (!["draft", "needs_more_materials"].includes(application.status)) throw new HeatingError("materials_locked");
-      const existing = state.materials.find(m => m.applicationId === id && m.type === materialType && m.sha256 === hash && !application.returnedMaterialIds.includes(m.id));
-      if (existing) { existing.fileName = fileName; return existing; }
-      if (state.materials.filter(m => m.applicationId === id).length >= 20) throw new HeatingError("too_many_materials", 413);
-      const material = { id: newId("material"), userId: actor.userId, applicationId: id, type: materialType, fileName, mime: file.type as "image/png" | "image/jpeg" | "application/pdf", size: file.size, sha256: hash, storageMode: "demo_placeholder" as const, uploadedAt: nowISO(now) };
-      state.materials.push(material);
-      this.event(state, actor, "application", application.id, application.status, application.status, `记录用户上传的${materialType}材料元数据与模拟占位（原文件不留存）`, now);
-      return material;
+      const application = this.owned(state.applications, actor, parsed.applicationId);
+      const receiptKey = `${actor.userId}:${actor.identityVersion}:simulate_material:${parsed.idempotencyKey}`;
+      const signature = fingerprint(parsed);
+      const receipt = state.receipts.find(r => r.key === receiptKey);
+      if (receipt) {
+        if (receipt.fingerprint !== signature) throw new HeatingError("idempotency_conflict");
+        return receipt.result;
+      }
+      if (state.receipts.length >= 2000) throw new HeatingError("sandbox_capacity", 413);
+      const returned = state.materials.filter(m => m.applicationId === application.id && m.type === parsed.type && application.returnedMaterialIds.includes(m.id)).map(m => m.id);
+      const label = parsed.type === "ownership" ? "产权证明" : "断暖施工照片";
+      // Metadata describes a synthetic placeholder, never an uploaded or reviewed file.
+      const result = this.registerMaterial(state, actor, application.id, parsed.type, {
+        fileName: `${label}（演示${returned.length ? "补件" : "材料"}）.${parsed.type === "ownership" ? "pdf" : "png"}`,
+        mime: parsed.type === "ownership" ? "application/pdf" : "image/png", size: 1,
+        sha256: fingerprint({ simulation: true, applicationId: application.id, type: parsed.type, returned }),
+      }, now);
+      state.receipts.push({ key: receiptKey, fingerprint: signature, result });
+      return result;
     });
   }
   async material(actor: Actor, materialId: unknown) {

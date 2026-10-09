@@ -8,9 +8,8 @@ import { materialSchema, type MaterialType, type UserId } from "@/lib/works/heat
 import { confirmedFocus, replyFocus, type ChatEntry } from "@/lib/works/heating/chat-view";
 import { AssistantAvatar, BusinessCards, HeatMark, Modal, ProposalCard } from "./business-ui";
 
-type PendingUpload = { applicationId: string; type: MaterialType; file: File; previewUrl: string | null; identityVersion: number; generation: string };
 const API = "/api/experiments/heating/";
-const quick = ["我想交暖气费", "今年没人住，想断暖", "查申请进度", "问供暖政策"];
+const quick = ["我想交暖气费", "今年没人住，想断暖", "我想绑定房屋", "查房屋面积和供暖费", "查申请进度", "问供暖政策"];
 
 const apiHeaders = (session?: Session | null) => ({ "X-Heating-Demo": "1", ...(session ? { "X-Heating-Identity-Version": String(session.actor.identityVersion), "X-Heating-Generation": session.actor.generation } : {}) });
 async function jsonRequest<T>(path: string, schema: z.ZodType<T>, session?: Session | null, body?: unknown) {
@@ -37,11 +36,11 @@ export function HeatingDemo() {
   const [status, setStatus] = useState("正在初始化本页演示…");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [retryableReply, setRetryableReply] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [newMessages, setNewMessages] = useState(false);
   const [restartOpen, setRestartOpen] = useState(false);
   const [invoice, setInvoice] = useState<z.infer<typeof invoiceDetailSchema> | null>(null);
-  const [pendingUpload, setPendingUpload] = useState<PendingUpload | null>(null);
   const [lastMessage, setLastMessage] = useState("");
   const sessionRef = useRef<Session | null>(null), lock = useRef(false), alive = useRef(true), abortRef = useRef<AbortController | null>(null);
   const lifecycle = useRef(0);
@@ -54,7 +53,7 @@ export function HeatingDemo() {
     if (!alive.current) return;
     setError(errorLabel(problem));
     if (problem instanceof ClientError && ["identity_changed", "session_expired", "invalid_session"].includes(problem.code)) {
-      sessionRef.current = null; setSession(null); setRecords(null); setMessages([]); setProposal(null); setInvoice(null); setPendingUpload(null);
+      sessionRef.current = null; setSession(null); setRecords(null); setMessages([]); setProposal(null); setInvoice(null);
     }
   }
   async function snapshot(current: Session) {
@@ -88,7 +87,7 @@ export function HeatingDemo() {
       if (!event.persisted) return;
       lifecycle.current++;
       lock.current = false; sessionRef.current = null;
-      setSession(null); setRecords(null); setMessages([]); setProposal(null); setInvoice(null); setPendingUpload(null); setInput(""); setServerBusy(false); setLastMessage(""); setSettingsOpen(false); setRestartOpen(false); setNewMessages(false); setError(""); setNotice("");
+      setSession(null); setRecords(null); setMessages([]); setProposal(null); setInvoice(null); setInput(""); setServerBusy(false); setLastMessage(""); setSettingsOpen(false); setRestartOpen(false); setNewMessages(false); setError(""); setNotice("");
       void initialize();
     };
     window.addEventListener("pagehide", hide); window.addEventListener("pageshow", show);
@@ -117,10 +116,6 @@ export function HeatingDemo() {
     return () => { window.cancelAnimationFrame(frame); viewport?.removeEventListener("resize", resize); };
   }, []);
   useEffect(() => {
-    const url = pendingUpload?.previewUrl;
-    return () => { if (url) URL.revokeObjectURL(url); };
-  }, [pendingUpload]);
-  useEffect(() => {
     if (!proposal) return;
     const timer = window.setTimeout(() => {
       setProposal(current => current?.id === proposal.id ? null : current);
@@ -146,7 +141,7 @@ export function HeatingDemo() {
     const current = sessionRef.current;
     if (!current || lock.current || (serverBusy && !allowServerBusy)) return;
     const epoch = lifecycle.current;
-    lock.current = true; setBusy(true); setError(""); setNotice(""); setStatus(label);
+    lock.current = true; setBusy(true); setError(""); setNotice(""); setRetryableReply(false); setStatus(label);
     try { await action(current); }
     catch (problem) {
       if (epoch !== lifecycle.current) return;
@@ -170,6 +165,7 @@ export function HeatingDemo() {
       if (!view || !isCurrent(current)) return;
       setMessages(previous => [...previous, { id: crypto.randomUUID(), role: "assistant", content: result.answer, records: view.records, focus: replyFocus(result, view.records), mode: result.replyMode, proposal: result.proposal }].slice(-60) as ChatEntry[]); setProposal(result.proposal);
       if (result.degraded) setNotice("AI 本轮响应未完整完成，已保留工具核实的结果。可继续说明需求或重试。");
+      setRetryableReply(result.degraded);
     }, "正在理解您的需求…");
   }
   async function confirm() {
@@ -182,42 +178,25 @@ export function HeatingDemo() {
       if (!isCurrent(current)) return;
       const view = await snapshot(current); if (!view || !isCurrent(current)) return;
       setProposal(null);
-      setMessages(previous => [...previous.map(message => message.proposal?.id === pending.id ? { ...message, outcome: "confirmed" } : message), { id: crypto.randomUUID(), role: "assistant", content: pending.operation.name === "simulate_payment" ? "支付结果已返回，请查看下方状态。" : pending.operation.name === "create_draft" ? "申请已开始。下面两类材料都需要提供，您可以按任意顺序选择文件。" : "您确认的操作已完成，请查看办理结果。", records: view.records, focus: confirmedFocus(before, view.records, pending), mode: "results" }].slice(-60) as ChatEntry[]);
+      setMessages(previous => [...previous.map(message => message.proposal?.id === pending.id ? { ...message, outcome: "confirmed" } : message), { id: crypto.randomUUID(), role: "assistant", content: pending.operation.name === "simulate_payment" ? "支付结果已返回，请查看下方状态。" : pending.operation.name === "create_draft" ? "申请已开始。下面两类材料都需要登记，点击“模拟提交”即可使用预设演示材料。" : "您确认的操作已完成，请查看办理结果。", records: view.records, focus: confirmedFocus(before, view.records, pending), mode: "results" }].slice(-60) as ChatEntry[]);
       continuePayment = pending.operation.name === "create_payment";
     }, "正在办理您确认的操作…");
     // The explicit go-to-payment click authorizes preparing the next proposal, never executing payment.
     if (continuePayment && sessionRef.current) await send("账单已确认，请继续刚才订单的模拟支付成功办理，先让我确认。", false);
   }
-  function selectMaterial(applicationId: string, type: MaterialType, file: File) {
-    const current = sessionRef.current;
-    if (!current || lock.current || serverBusy) return;
-    if (file.size > 4 * 1024 * 1024) { setError("文件太大，请选择不超过 4MB 的演示文件。"); return; }
-    setError("");
-    setPendingUpload({ applicationId, type, file, previewUrl: file.type.startsWith("image/") ? URL.createObjectURL(file) : null, identityVersion: current.actor.identityVersion, generation: current.actor.generation });
-  }
-  async function confirmMaterial() {
-    const selected = pendingUpload;
-    if (!selected) return;
+  async function simulateMaterial(applicationId: string, type: MaterialType) {
     await run(async current => {
-      checkIdentity(selected, current);
-      const form = new FormData(); form.set("applicationId", selected.applicationId); form.set("type", selected.type); form.set("file", selected.file); form.set("demoState", current.demoState);
-      const response = await fetch(API + "upload", { method: "POST", credentials: "omit", headers: apiHeaders(current), body: form, signal: AbortSignal.timeout(20000) });
-      if (response.status === 413) throw new ClientError("input_too_large");
-      const result = await response.json();
-      if (!response.ok) throw new ClientError(result.error ?? "invalid_upload");
-      materialSchema.parse(result.result);
+      const result = await jsonRequest("simulate-material", materialSchema, current, { applicationId, type, idempotencyKey: crypto.randomUUID() });
       if (!isCurrent(current)) return;
-      current.demoState = z.string().min(1).max(256000).parse(result.demoState);
-      setPendingUpload(null);
       const view = await snapshot(current); if (!view || !isCurrent(current)) return;
-      setMessages(previous => [...previous, { id: crypto.randomUUID(), role: "assistant", content: `已登记${selected.type === "ownership" ? "产权证明或合同" : "断暖施工照片"}：${selected.file.name}。原文件未保存，不会发送给 AI。`, records: view.records, focus: { houseIds: [], billIds: [], applicationIds: [selected.applicationId], invoiceIds: [] }, mode: "materials" }].slice(-60) as ChatEntry[]);
-    }, "正在校验演示材料并登记元数据…");
+      setMessages(previous => [...previous, { id: crypto.randomUUID(), role: "assistant", content: `已登记预设演示材料：${result.fileName}。没有选择、上传或保存真实文件。`, records: view.records, focus: { houseIds: [], billIds: [], applicationIds: [applicationId], invoiceIds: [] }, mode: "materials" }].slice(-60) as ChatEntry[]);
+    }, "正在登记预设演示材料…");
   }
   async function switchUser(userId: UserId) {
     await run(async current => {
       const next = await jsonRequest("session", sessionSchema, current, { userId });
       if (!isCurrent(current)) return;
-      sessionRef.current = next; setSession(next); setRecords(null); setMessages([]); setProposal(null); setInvoice(null); setPendingUpload(null); setLastMessage(""); setInput("");
+      sessionRef.current = next; setSession(next); setRecords(null); setMessages([]); setProposal(null); setInvoice(null); setLastMessage(""); setInput("");
       await snapshot(next); if (!isCurrent(next)) return;
       setSettingsOpen(false); setNotice(`已切换至${next.profile.name}。您可以直接说想办理什么。`);
     }, "正在切换演示住户…");
@@ -229,7 +208,7 @@ export function HeatingDemo() {
     try {
       const next = await jsonRequest("restart", sessionSchema, null, { confirmed: true });
       if (!alive.current || epoch !== lifecycle.current) return;
-      sessionRef.current = next; setSession(next); setRecords(null); setMessages([]); setProposal(null); setInvoice(null); setPendingUpload(null); setLastMessage(""); setInput(""); setServerBusy(false); setLastMessage(""); setSettingsOpen(false); setRestartOpen(false); setNewMessages(false); setError(""); setNotice("");
+      sessionRef.current = next; setSession(next); setRecords(null); setMessages([]); setProposal(null); setInvoice(null); setLastMessage(""); setInput(""); setServerBusy(false); setLastMessage(""); setSettingsOpen(false); setRestartOpen(false); setNewMessages(false); setError(""); setNotice("");
       await snapshot(next); if (!isCurrent(next)) return; setNotice("已恢复初始演示数据。您可以重新开始办理。");
     } catch (problem) { if (epoch === lifecycle.current) handleError(problem); }
     finally { if (epoch === lifecycle.current) { lock.current = false; if (alive.current) setBusy(false); } }
@@ -253,7 +232,7 @@ export function HeatingDemo() {
             return <article className={`heat-message ${message.role}`} key={message.id}>
               {message.role === "assistant" && <AssistantAvatar/>}
               <div className="heat-message-body"><span className="heat-message-name">{message.role === "assistant" ? "和煦助手" : "您"}</span><p className="heat-bubble">{message.content}</p>
-                {evidence && message.focus && (active ? <BusinessCards records={evidence} focus={message.focus} mode={message.mode} busy={disabled} send={text => void send(text)} upload={selectMaterial} invoice={id => void viewInvoice(id)} hideBillActions={Boolean(proposal)}/> : (message.mode === "choose_house" || message.mode === "binding_details" || Object.values(message.focus).some(ids => ids.length)) && <details className="heat-past-evidence"><summary>查看当时的业务信息</summary><BusinessCards records={evidence} focus={message.focus} mode={message.mode} busy send={text => void send(text)} upload={selectMaterial} invoice={id => void viewInvoice(id)}/></details>)}
+                {evidence && message.focus && (active ? <BusinessCards records={evidence} focus={message.focus} mode={message.mode} busy={disabled} send={text => void send(text)} submitMaterial={(id, type) => void simulateMaterial(id, type)} invoice={id => void viewInvoice(id)} hideBillActions={Boolean(proposal)}/> : (message.mode === "choose_house" || message.mode === "binding_details" || Object.values(message.focus).some(ids => ids.length)) && <details className="heat-past-evidence"><summary>查看当时的业务信息</summary><BusinessCards records={evidence} focus={message.focus} mode={message.mode} busy send={text => void send(text)} submitMaterial={(id, type) => void simulateMaterial(id, type)} invoice={id => void viewInvoice(id)}/></details>)}
                 {message.proposal && (proposal?.id === message.proposal.id && !message.outcome ? <ProposalCard proposal={message.proposal} records={evidence ?? null} busy={disabled} confirm={() => void confirm()} cancel={() => void send("这一步暂不办理，请取消当前待确认操作。")}/> : <details className="heat-past-evidence"><summary>{message.outcome === "confirmed" ? "已确认的办理步骤" : "已失效的确认"}</summary><ProposalCard proposal={message.proposal} records={evidence ?? null} busy={disabled} active={false} completed={message.outcome === "confirmed"} confirm={() => {}} cancel={() => {}}/></details>)}
               </div>
             </article>;
@@ -261,19 +240,14 @@ export function HeatingDemo() {
           {serverBusy && !busy && <p className="heat-notice" role="status">正在等待上一轮办理结果，请稍候。</p>}
           {busy && <div className="heat-wait" role="status"><span className="heat-spinner"/>{status}</div>}
           {error && <div className="heat-error" role="alert"><strong>这一步还未完成</strong><p>{error}</p><div className="heat-actions"><button className="heat-button quiet" disabled={busy} onClick={() => void refresh()}>重新连接</button>{lastMessage && session && <button className="heat-button quiet" disabled={disabled} onClick={() => void send(lastMessage)}>重试刚才的需求</button>}{!session && <button className="heat-button quiet" disabled={busy} onClick={() => setRestartOpen(true)}>重新开始演示</button>}</div></div>}
-          {notice && <p className="heat-notice" role="status">{notice}</p>}
+          {notice && <div className="heat-notice" role="status"><p>{notice}</p>{retryableReply && lastMessage && <button className="heat-button quiet" disabled={disabled} onClick={() => void send(lastMessage)}>重试刚才的需求</button>}</div>}
           <div ref={bottom}/>
         </div>
         {newMessages && <button className="heat-new-message" onClick={jumpToNew}>查看新消息 ↓</button>}
         <form className="heat-composer" onSubmit={submit}><label htmlFor="heat-input" className="heat-sr-only">说说您想办理什么</label><div><textarea ref={textarea} id="heat-input" placeholder="说说您想办理什么" value={input} maxLength={2000} rows={1} disabled={!session} onChange={event => { setInput(event.target.value); event.currentTarget.style.height = "49px"; event.currentTarget.style.height = `${Math.min(110, event.currentTarget.scrollHeight)}px`; }} onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); if (!disabled) void send(input.trim()); } }}/><button className="heat-send" disabled={disabled || !input.trim()} type="submit">发送 <span aria-hidden="true">↑</span></button></div><p>售前演示 · 不会真实扣款 · 刷新即重置</p></form>
       </section>
     </div>
-    {settingsOpen && <Modal drawer title="演示设置" close={() => setSettingsOpen(false)}><p className="heat-muted">模拟住户、房屋和材料，不填写真实个人资料。</p><label htmlFor="heat-user">切换演示住户</label><select id="heat-user" value={session?.actor.userId ?? ""} disabled={disabled} onChange={event => void switchUser(event.target.value as UserId)}><option value="" disabled>正在初始化</option>{(session?.identities ?? []).map(user => <option key={user.id} value={user.id}>{user.name} · {user.scenario}</option>)}</select><button className="heat-button quiet full" disabled={busy} onClick={() => { setSettingsOpen(false); setRestartOpen(true); }}>恢复初始演示数据</button><details><summary>模拟异常</summary><p className="heat-muted">先发起缴费并确认账单，再选择下方支付结果。</p><button className="heat-button quiet full" disabled={disabled} onClick={() => { setSettingsOpen(false); void send("我想将刚才的待支付订单模拟支付失败，请先让我确认。"); }}>演示支付失败</button><button className="heat-button quiet full" disabled={disabled} onClick={() => { setSettingsOpen(false); void send("我要取消刚才待支付订单的模拟支付，请先让我确认。"); }}>取消这次支付</button></details><details><summary>关于本次演示</summary><p>所有业务均为虚构模拟，不会扣款。材料仅登记元数据，不保存原文件，不发送给模型。</p><p>同一页面内保留业务状态，刷新、关闭或重新打开即恢复初始数据。不同页面独立运行。</p><p>审核按演示时间自动推进。需补件场景可更换演示文件后继续提审。</p></details><DemoCollectionLink className="heat-back"/></Modal>}
-    {pendingUpload && <Modal title="确认登记演示材料" close={() => { if (!busy) setPendingUpload(null); }}><p>材料类型：{pendingUpload.type === "ownership" ? "产权证明或合同" : "断暖施工照片"}</p><p className="heat-file-name">文件名：{pendingUpload.file.name}</p>{pendingUpload.previewUrl && <div className="heat-local-preview">{
-      // Local blob preview only; it is never sent to the model or persisted.
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={pendingUpload.previewUrl} alt="所选材料的本地预览"/>
-    }</div>}<p>图片仅在当前页面本地预览。确认后，业务服务临时校验文件，只保存文件名、材料类型与模拟提交记录；原文件不留存，不发送给 AI。</p>{busy && <p role="status">{status}</p>}{error && <p className="heat-error" role="alert">{error}</p>}<button className="heat-button primary full" disabled={disabled} onClick={() => void confirmMaterial()}>确认登记演示材料</button></Modal>}
+    {settingsOpen && <Modal drawer title="演示设置" close={() => setSettingsOpen(false)}><p className="heat-muted">模拟住户、房屋和材料，不填写真实个人资料。</p><label htmlFor="heat-user">切换演示住户</label><select id="heat-user" value={session?.actor.userId ?? ""} disabled={disabled} onChange={event => void switchUser(event.target.value as UserId)}><option value="" disabled>正在初始化</option>{(session?.identities ?? []).map(user => <option key={user.id} value={user.id}>{user.name} · {user.scenario}</option>)}</select><button className="heat-button quiet full" disabled={busy} onClick={() => { setSettingsOpen(false); setRestartOpen(true); }}>恢复初始演示数据</button><details><summary>模拟异常</summary><p className="heat-muted">先发起缴费并确认账单，再选择下方支付结果。</p><button className="heat-button quiet full" disabled={disabled} onClick={() => { setSettingsOpen(false); void send("我想将刚才的待支付订单模拟支付失败，请先让我确认。"); }}>演示支付失败</button><button className="heat-button quiet full" disabled={disabled} onClick={() => { setSettingsOpen(false); void send("我要取消刚才待支付订单的模拟支付，请先让我确认。"); }}>取消这次支付</button></details><details><summary>关于本次演示</summary><p>所有业务均为虚构模拟，不会扣款。材料仅登记元数据，不保存原文件，不发送给模型。</p><p>同一页面内保留业务状态，刷新、关闭或重新打开即恢复初始数据。不同页面独立运行。</p><p>审核按演示时间自动推进。需补件场景可再次模拟提交指定材料后继续提审。</p></details><DemoCollectionLink className="heat-back"/></Modal>}
     {restartOpen && <Modal title="恢复初始演示场景？" close={() => setRestartOpen(false)}><p>这会为您建立新的个人演示会话，回到初始的六种住户场景。</p><p>当前页面会离开旧会话。当前页面数据将被丢弃；其他页面、访客和 Demo 不受影响。</p><button className="heat-button primary full" disabled={busy} onClick={() => void restart()}>确认恢复初始场景</button></Modal>}
     {invoice && <Modal title="模拟电子发票" close={() => setInvoice(null)}><div className="heat-invoice"><span>和煦供暖 · 演示票据</span><p className="heat-money"><span>¥</span> {amount(invoice.amountCents)}</p><dl><dt>票据编号</dt><dd>{invoice.id}</dd><dt>订单编号</dt><dd>{invoice.orderId}</dd><dt>账单编号</dt><dd>{invoice.billId}</dd><dt>出具时间</dt><dd>{new Date(invoice.issuedAt).toLocaleString("zh-CN", { hour12: false })}</dd></dl><p>{invoice.notice}</p></div></Modal>}
   </main>;

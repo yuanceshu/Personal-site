@@ -144,6 +144,8 @@ export function chatPOST(request: Request) {
                 else if (kind === "final") { if (final) throw new HeatingError("agent_invalid_response", 502); const { demoState, ...evidence } = data; acceptPage(demoState); final = agentResultSchema.parse(evidence); }
                 else if (kind === "error") throw new HeatingError("agent_failed", 502);
               }
+              // Preserve validated evidence even if the upstream connection stalls after final.
+              if (final) break;
             }
             if (buffer.trim() || !final) throw new HeatingError("agent_invalid_response", 502);
           } finally { await reader.cancel().catch(() => undefined); reader.releaseLock(); }

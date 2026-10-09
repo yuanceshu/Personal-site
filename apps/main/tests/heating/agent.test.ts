@@ -12,7 +12,7 @@ process.env.EXPERIMENT_AGENT_URL = "https://agent.example";
 test("无状态 Chat→Agno→连续 Tool→提案→明确确认→支付，历史承接、重放、模型失败", async () => {
   const originalFetch = globalThis.fetch;
   const client = apiClient(); await client.call("session");
-  let mode = "order", calls = 0, seenHistory: { content: string }[] = [];
+  let mode = "late-order", calls = 0, lateReads = 0, seenHistory: { content: string }[] = [];
   globalThis.fetch = async (_url, options) => {
     calls++; assert.equal(options?.redirect, "error");
     const h = new Headers(options?.headers), input = JSON.parse(options!.body as string);
@@ -24,13 +24,19 @@ test("无状态 Chat→Agno→连续 Tool→提案→明确确认→支付，历
     };
     const records = await invoke("query_records", {});
     if (mode === "fail") throw Error("private model error");
-    if (mode === "order") await invoke("create_payment", { billId: "bill-house-A" }, true);
+    if (mode === "late-order") await invoke("create_payment", { billId: "bill-house-A" }, true);
     if (mode === "pay") await invoke("simulate_payment", { orderId: records.orders[0].id, outcome: "success" }, true);
-    return new Response(`event: status\ndata: {"label":"核对中"}\n\nevent: final\ndata: ${JSON.stringify({ answer: "以工具结果为准，提案还需明确确认。", cards: [{ name: "query_records", input: {}, result: records }], usedTools: ["query_records"], degraded: false, demoState, ...(mode === "foreign-focus" ? { replyMode: "results", focus: { billIds: ["bill-house-E"] } } : mode === "focused-query" ? { replyMode: "results", focus: { billIds: ["bill-house-A"] } } : {}) })}\n\n`);
+    const events = `event: status\ndata: {"label":"核对中"}\n\nevent: final\ndata: ${JSON.stringify({ answer: "以工具结果为准，提案还需明确确认。", cards: [{ name: "query_records", input: {}, result: records }], usedTools: ["query_records"], degraded: mode === "degraded", demoState, ...(mode === "foreign-focus" ? { replyMode: "results", focus: { billIds: ["bill-house-E"] } } : ["focused-query", "degraded"].includes(mode) ? { replyMode: "results", focus: { billIds: ["bill-house-A"] } } : {}) })}\n\n`;
+    if (mode === "late-order") return new Response(new ReadableStream({ pull(controller) {
+      if (++lateReads === 1) controller.enqueue(new TextEncoder().encode(events));
+      else controller.error(new Error("transport failed after verified final"));
+    } }, { highWaterMark: 0 }));
+    return new Response(events);
   };
   try {
     const id = randomUUID(); const order = (await client.chat("我想交今年的暖气费。", id)).final;
     assert.ok(order.proposal); assert.equal((await client.records()).orders.length, 0);
+    assert.equal(lateReads, 1);
     assert.equal(JSON.stringify(order.cards).includes("demoState"), false);
     const count = calls; assert.equal((await client.chat("我想交今年的暖气费。", id)).final.replayed, true); assert.equal(calls, count);
     assert.equal((await client.call("confirm", { proposalId: order.proposal.id, confirmed: false })).status, 400);
@@ -38,7 +44,13 @@ test("无状态 Chat→Agno→连续 Tool→提案→明确确认→支付，历
     assert.equal((await client.call("confirm", { proposalId: order.proposal.id, confirmed: true })).status, 200);
     mode = "pay"; const payment = (await client.chat("继续刚才的模拟支付")).final; assert.ok(seenHistory.some(item => item.content.includes("暖气费")));
     assert.equal((await client.call("confirm", { proposalId: payment.proposal.id, confirmed: true })).status, 200);
+    assert.equal((await client.call("confirm", { proposalId: payment.proposal.id, confirmed: true })).status, 200);
     assert.equal((await client.records()).invoices.length, 1);
+    mode = "degraded"; const degradedId = randomUUID(); const degraded = (await client.chat("查询已付款账单但模型异常", degradedId)).final;
+    assert.equal(degraded.degraded, true); assert.deepEqual(degraded.focus.billIds, ["bill-house-A"]);
+    const beforeRetry = calls; assert.equal((await client.chat("查询已付款账单但模型异常", degradedId)).final.replayed, true); assert.equal(calls, beforeRetry);
+    assert.equal((await client.records()).orders.length, 1); assert.equal((await client.records()).invoices.length, 1);
+    assert.equal((await client.records()).bills[0].status, "paid");
     mode = "focused-query"; const focused = (await client.chat("查询刚才账单")).final;
     assert.deepEqual(focused.focus.billIds, ["bill-house-A"]);
     mode = "foreign-focus"; const foreign = await client.chat("不能展示其他住户账单");

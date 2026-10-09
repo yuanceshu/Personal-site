@@ -47,7 +47,12 @@ const upstream = createServer(async (request, response) => {
       focus.billIds = [bill.id]; await call("create_payment", { billId: bill.id }, true);
     };
     try {
-      if (message.includes("DEMO-H002")) await call("bind_house", { account: "DEMO-H002", name: "演示住户B", phone: "DEMO-PHONE-B" }, true);
+      if (message === "演示工具成功后模型未完成") {
+        await call("query_bill", { houseId: records.houses[0].id, year: "2026-2027" });
+        focus.billIds = [records.bills[0].id]; degraded = true;
+        answer = "助手本轮回复未完整完成，已保留工具核实的结果。已确认的操作无需再次确认。";
+      }
+      else if (message.includes("DEMO-H002")) await call("bind_house", { account: "DEMO-H002", name: "演示住户B", phone: "DEMO-PHONE-B" }, true);
       else if (!records.houses.length) { replyMode = "binding_details"; answer = "先使用下方的虚构资料绑定房屋，我会继续帮您办理。"; }
       else if (message.includes("模拟支付成功") || message.includes("模拟支付失败") || message.includes("取消刚才待支付订单")) {
         const order = records.orders.find((o: { status: string }) => o.status === "pending");
@@ -56,7 +61,19 @@ const upstream = createServer(async (request, response) => {
       } else if (message.includes("重新提审")) { focus.applicationIds = [app.id]; await call("resubmit_application", { applicationId: app.id }, true); }
       else if (message.includes("帮我提交")) { focus.applicationIds = [app.id]; await call("submit_application", { applicationId: app.id }, true); }
       else if (message.includes("审核通过了")) { focus.applicationIds = [app.id]; await call("create_disconnection_bill", { applicationId: app.id }, true); }
-      else if (message.includes("申请断暖") || message.includes("想办断暖") || message.includes("想断暖")) await call("create_draft", { houseId: selectedHouse ?? records.houses[0].id, year: "2026-2027" }, true);
+      else if (message.includes("申请断暖") || message.includes("想办断暖") || message.includes("想断暖") || (message.includes("我选择") && priorUser.includes("断暖"))) {
+        if (records.houses.length > 1 && !selectedHouse) { replyMode = "choose_house"; answer = "请选择您要办理断暖的房屋。"; focus.houseIds = records.houses.map((h: { id: string }) => h.id); }
+        else await call("create_draft", { houseId: selectedHouse ?? records.houses[0].id, year: "2026-2027" }, true);
+      }
+      else if (message.includes("绑定房屋")) { answer = "您已经绑定房屋，可直接办理。"; focus.houseIds = records.houses.map((h: { id: string }) => h.id); }
+      else if (message.includes("缴费记录")) { focus.billIds = records.bills.filter((b: { status: string }) => b.status === "paid").map((b: { id: string }) => b.id); answer = "您的缴费记录已经核实。"; }
+      else if (message.includes("房屋面积和供暖费")) {
+        for (const house of records.houses) {
+          const bill = records.bills.find((item: { houseId: string; year: string; kind: string }) => item.houseId === house.id && item.year === "2026-2027" && item.kind === "heating");
+          if (bill) { await call("query_bill", { houseId: house.id, year: bill.year }); focus.billIds.push(bill.id); }
+        }
+        answer = "已核对名下房屋面积和本年度供暖费用。";
+      }
       else if (message.includes("我要缴纳") || message.includes("我想交") || (message.includes("我选择") && priorUser.includes("交"))) await payment();
       else if (message.includes("进度") || message.includes("审核到哪") || message.includes("退回") || message.includes("补了照片")) {
         if (app) { await call("query_application", { applicationId: app.id }); focus.applicationIds = [app.id]; answer = "申请进度已经核实，请查看当前状态和下一步。"; }

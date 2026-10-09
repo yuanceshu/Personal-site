@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { sessionPOST, actionPOST, confirmationPOST, uploadPOST, resetPOST, toolPOST } from "@/lib/works/heating/api";
+import { sessionPOST, actionPOST, confirmationPOST, uploadPOST, simulateMaterialPOST, resetPOST, toolPOST } from "@/lib/works/heating/api";
 import { chatPOST, confirmPOST, agentActionPOST } from "@/lib/works/heating/agent/api";
 import { snapshotPOST, restartPOST } from "@/lib/works/heating/page-api";
 import type { Actor } from "@/lib/works/heating/schema";
-export const handlers = { session: sessionPOST, action: actionPOST, confirmation: confirmationPOST, upload: uploadPOST, reset: resetPOST, tool: toolPOST, chat: chatPOST, confirm: confirmPOST, "agent-action": agentActionPOST, snapshot: snapshotPOST, restart: restartPOST };
+export const handlers = { session: sessionPOST, action: actionPOST, confirmation: confirmationPOST, upload: uploadPOST, "simulate-material": simulateMaterialPOST, reset: resetPOST, tool: toolPOST, chat: chatPOST, confirm: confirmPOST, "agent-action": agentActionPOST, snapshot: snapshotPOST, restart: restartPOST };
 export function apiClient(origin = "http://localhost") {
   let demoState: string | undefined, actor: Actor | undefined;
   const headers = () => ({ origin, "x-heating-demo": "1", "content-type": "application/json", ...(actor ? { "x-heating-identity-version": String(actor.identityVersion), "x-heating-generation": actor.generation } : {}) });

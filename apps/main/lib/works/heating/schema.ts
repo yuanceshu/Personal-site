@@ -11,6 +11,7 @@ export const applicationStatusSchema = z.enum([
   "resubmitted", "approved", "fee_pending", "fee_paid",
 ]);
 export const materialTypeSchema = z.enum(["ownership", "construction"]);
+export const simulatedMaterialInputSchema = z.object({ applicationId: idSchema, type: materialTypeSchema, idempotencyKey: z.string().uuid() }).strict();
 export const userSchema = z.object({ id: userIdSchema, name: z.string(), phone: z.string().regex(/^DEMO-PHONE-[A-F]$/), scenario: z.string() }).strict();
 export const houseSchema = z.object({ id: idSchema, ownerId: userIdSchema, account: z.string().regex(/^DEMO-H\d{3}$/), address: z.string(), areaHundredths: z.number().int().positive() }).strict();
 export const billSchema = z.object({ id: idSchema, userId: userIdSchema, houseId: idSchema, year: yearSchema, kind: z.enum(["heating", "disconnection"]), amountCents: cents, unitPriceCents: cents, status: billStatusSchema, applicationId: idSchema.optional() }).strict();

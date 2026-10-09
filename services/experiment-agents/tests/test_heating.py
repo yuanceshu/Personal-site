@@ -214,8 +214,153 @@ def test_reply_focus_boundaries_and_current_material_copy():
         Focus(billIds=["bill-A"] * 9)
     proxy = workflow.HeatingProxy("tool", "action", "token", "context")
     answer = workflow.grounded_answer(proxy, "materials", False)
-    assert "文件名" in answer and "本地预览" in answer
+    assert "模拟提交" in answer and "无需选择或上传真实文件" in answer
     assert "上传接口" not in answer
+
+
+def test_untargeted_business_intent_shows_house_choices_without_keyword_matching():
+    proxy = workflow.HeatingProxy("tool", "action", "token", "context")
+    proxy.calls = [workflow.Card(name="query_records", input={}, result={"houses": [{"id": "house-F"}, {"id": "house-F2"}]})]
+    for intent in ("payment", "disconnection", "bill_query"):
+        proxy.reply_intent = intent
+        assert workflow.normalize_reply(proxy, "results") == ("choose_house", False)
+    proxy.reply_intent = "records"
+    assert workflow.normalize_reply(proxy, "results") == ("results", False)
+    proxy.reply_intent = "payment"
+    assert workflow.normalize_reply(proxy, "clarify") == ("choose_house", False)
+    proxy.reply_focus = Focus(houseIds=["house-F2"])
+    assert workflow.normalize_reply(proxy, "results") == ("results", False)
+    assert workflow.normalize_reply(proxy, "clarify") == ("results", True)
+    proxy.calls.append(workflow.Card(name="query_bill", input={"houseId": "house-F2"}, result={"bills": []}))
+    assert workflow.normalize_reply(proxy, "results") == ("results", False)
+
+
+def test_text_only_completion_is_retried_then_reported_as_incomplete(monkeypatch):
+    count = 0
+    async def execute(self, name, args, proposal=False):
+        self.calls.append(workflow.Card(name=name, input=args, result={"houses": []}))
+        return "{}"
+    monkeypatch.setattr(workflow.HeatingProxy, "execute", execute)
+    class Agent:
+        async def arun(self, *args, **kwargs):
+            nonlocal count
+            count += 1
+            yield SimpleNamespace(event=RunEvent.run_completed, content="付款成功（不可相信的模型文本）")
+    monkeypatch.setattr(workflow, "build_agent", lambda *args: Agent())
+    async def run():
+        return [event async for event in workflow.stream_chat(ChatRequest(message="缴费"), SETTINGS, "tool", "action", "context")]
+    final = json.loads(asyncio.run(run())[-1].split("data: ")[1])
+    assert count == 2
+    assert final["degraded"] is True
+    assert "助手本轮回复未完整完成" in final["answer"]
+    assert "您想缴费" not in final["answer"] and "付款成功" not in final["answer"]
+
+
+def test_already_bound_identity_cannot_be_sent_to_unbound_form():
+    proxy = workflow.HeatingProxy("tool", "action", "token", "context")
+    proxy.reply_intent = "binding"
+    proxy.calls = [workflow.Card(name="query_records", input={}, result={"houses": [{"id": "house-A", "address": "演示房屋"}]})]
+    assert workflow.normalize_reply(proxy, "binding_details") == ("results", False)
+    assert "已经绑定" in workflow.grounded_answer(proxy, "results", False)
+
+
+def test_incomplete_run_continues_same_proxy_then_returns_house_choices(monkeypatch):
+    runs = 0
+    async def execute(self, name, args, proposal=False):
+        self.demo_state = "evolved-page-state"
+        self.calls.append(workflow.Card(name=name, input=args, result={"houses": [{"id": "house-F"}, {"id": "house-F2"}]}))
+        return "{}"
+    monkeypatch.setattr(workflow.HeatingProxy, "execute", execute)
+    class Agent:
+        def __init__(self, proxy):
+            self.proxy = proxy
+        async def arun(self, *args, **kwargs):
+            nonlocal runs
+            runs += 1
+            assert self.proxy.demo_state == "evolved-page-state"
+            if runs == 2:
+                self.proxy.reply_mode = "results"
+                self.proxy.reply_intent = "disconnection"
+            yield SimpleNamespace(event=RunEvent.run_completed, content="未经核实的自由文本")
+    monkeypatch.setattr(workflow, "build_agent", lambda settings, proxy: Agent(proxy))
+    async def run():
+        return [event async for event in workflow.stream_chat(ChatRequest(message="今年房子没人住"), SETTINGS, "tool", "action", "context")]
+    final = json.loads(asyncio.run(run())[-1].split("data: ")[1])
+    assert runs == 2 and final["degraded"] is False
+    assert final["replyMode"] == "choose_house"
+    assert final["focus"]["houseIds"] == ["house-F", "house-F2"]
+    assert final["demoState"] == "evolved-page-state"
+    assert "未经核实" not in final["answer"]
+
+
+@pytest.mark.parametrize("outcome", ["materials_refused", "proposal_then_error", "reply_then_error", "bill_then_error"])
+def test_terminal_tool_outcome_survives_without_repeating_action(monkeypatch, outcome, caplog):
+    requests = []
+    original_client = httpx.AsyncClient
+    def handler(request):
+        data = json.loads(request.content)
+        requests.append(data["name"])
+        if data["name"] == "query_records":
+            return httpx.Response(200, json={"result": {"houses": [{"id": "house-F"}, {"id": "house-F2"}],
+                                                      "applications": [{"id": "application-D", "status": "draft"}]},
+                                            "demoState": "records-state"})
+        if outcome == "materials_refused":
+            return httpx.Response(422, json={"error": "materials_incomplete"})
+        if data["name"] == "query_bill":
+            return httpx.Response(200, json={"result": {"house": {"id": "house-F2", "address": "演示第二套"},
+                                                      "bills": [{"id": "bill-house-F2", "year": "2026-2027", "status": "unpaid", "amountCents": 190000}]},
+                                            "demoState": "bill-state"})
+        return httpx.Response(200, json={"result": {"requiresExplicitConfirmation": True, "id": "proposal-ready"},
+                                        "demoState": "proposal-state"})
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kw: original_client(transport=httpx.MockTransport(handler), **kw))
+    runs = 0
+    class Agent:
+        def __init__(self, proxy):
+            self.proxy = proxy
+        async def arun(self, *args, **kwargs):
+            nonlocal runs
+            runs += 1
+            if outcome == "reply_then_error":
+                self.proxy.reply_mode, self.proxy.reply_intent = "choose_house", "payment"
+            elif outcome == "bill_then_error":
+                await self.proxy.execute("query_bill", {"houseId": "house-F2", "year": "2026-2027"})
+            else:
+                await self.proxy.execute("submit_application", {"applicationId": "application-D"}, True)
+            if outcome == "materials_refused":
+                yield SimpleNamespace(event=RunEvent.run_completed, content="工具拒绝提交")
+            else:
+                yield SimpleNamespace(event=RunEvent.run_error, content="private-provider-message")
+    monkeypatch.setattr(workflow, "build_agent", lambda settings, proxy: Agent(proxy))
+    async def run():
+        return [event async for event in workflow.stream_chat(ChatRequest(message="继续办理"), SETTINGS, "https://site/tool", "https://site/action", "context")]
+    events = asyncio.run(run())
+    final = json.loads(events[-1].split("data: ")[1])
+    assert runs == 1 and requests.count("submit_application") <= 1
+    assert final["degraded"] is (outcome != "materials_refused")
+    if outcome == "materials_refused":
+        assert final["replyMode"] == "materials"
+        assert final["focus"]["applicationIds"] == ["application-D"]
+        assert "材料还不齐" in final["answer"]
+    elif outcome == "proposal_then_error":
+        assert final["demoState"] == "proposal-state"
+        assert "确认" in final["answer"]
+    elif outcome == "reply_then_error":
+        assert final["replyMode"] == "choose_house"
+        assert final["focus"]["houseIds"] == ["house-F", "house-F2"]
+    else:
+        assert final["focus"]["billIds"] == ["bill-house-F2"] and final["demoState"] == "bill-state"
+        assert "1900.00" in final["answer"] and "未缴费" in final["answer"]
+    assert "private-provider-message" not in final["answer"] and "private-provider-message" not in caplog.text
+
+
+def test_payment_record_query_distinguishes_unpaid_from_completed():
+    proxy = workflow.HeatingProxy("tool", "action", "token", "context")
+    proxy.reply_intent = "records"
+    bill = {"id": "bill-A", "status": "unpaid"}
+    proxy.calls = [workflow.Card(name="query_records", input={}, result={"bills": [bill]})]
+    assert "没有已完成" in workflow.grounded_answer(proxy, "results", False)
+    bill["status"] = "paid"
+    assert "1 笔已完成" in workflow.grounded_answer(proxy, "results", False)
 
 
 def test_mistyped_model_focus_cannot_discard_verified_invoice_or_expand_scope():

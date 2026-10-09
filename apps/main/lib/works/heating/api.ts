@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { HeatingError } from "./errors";
-import { agentToolNames, idSchema, operationSchema } from "./schema";
+import { agentToolNames, idSchema, operationSchema, simulatedMaterialInputSchema } from "./schema";
 import { HeatingService } from "./service";
 import { currentPage, withPage, pageSecret } from "./page-state";
 import { checkIdentityHeaders, equalSecret, readDelegatedActor, requireBrowserWrite } from "./security";
@@ -108,6 +108,13 @@ export function uploadPOST(request: Request) {
     const file = form.get("file");
     if (!(file instanceof File)) throw new HeatingError("file_required", 400);
     return response(await service.uploadMaterial(actor, form.get("applicationId"), form.get("type"), file));
+  });
+}
+export function simulateMaterialPOST(request: Request) {
+  return boundary(request, async () => {
+    requireBrowserWrite(request);
+    const { service, actor } = await browserContext(request);
+    return response(await service.simulateMaterial(actor, simulatedMaterialInputSchema.parse(await jsonBody(request))));
   });
 }
 export function materialPOST(request: Request) {

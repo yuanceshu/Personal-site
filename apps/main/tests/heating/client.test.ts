@@ -13,6 +13,20 @@ test("模型失败、缺失/重复 final 和畸形业务结构不能显示成功
   for (const event of ['event: error\ndata: {"error":"agent_failed"}\n\n', 'event: status\ndata: {"label":"等待"}\n\n', 'event: final\ndata: {"answer":"假成功"}\n\n', `event: final\ndata: ${JSON.stringify(final)}\n\nevent: final\ndata: ${JSON.stringify(final)}\n\n`]) await assert.rejects(consumeChat(stream([event]), () => {}));
 });
 
+test("有效 final 即终止；随后连接中断不丢失已核实状态", async () => {
+  let reads = 0, cancelled = false;
+  const response = new Response(new ReadableStream({
+    pull(controller) {
+      if (++reads === 1) controller.enqueue(new TextEncoder().encode(`event: final\ndata: ${JSON.stringify(final)}\n\n`));
+      else controller.error(new Error("connection closed after final"));
+    },
+    cancel() { cancelled = true; },
+  }, { highWaterMark: 0 }), { headers: { "Content-Type": "text/event-stream" } });
+  const result = await consumeChat(response, () => {});
+  assert.equal(result.demoState, final.demoState); assert.equal(result.answer, final.answer);
+  assert.equal(reads, 1); assert.equal(cancelled, true);
+});
+
 test("Next URL 标准化为 localhost 时仍验证实际 Host；拒绝跨源与伪造转发 Host", async () => {
   const { requireBrowserWrite } = await import("@/lib/works/heating/security");
   const request = (origin: string, host?: string, forwarded?: string) => new Request("http://localhost:3216/api/experiments/heating/chat", { headers: { origin, "x-heating-demo": "1", ...(host ? { host } : {}), ...(forwarded ? { "x-forwarded-host": forwarded } : {}) } });
