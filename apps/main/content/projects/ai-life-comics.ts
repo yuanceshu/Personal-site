@@ -180,6 +180,24 @@ export const comicStories: readonly ComicStory[] = [
       },
     ],
   },
+  {
+    id: "hygiene",
+    kicker: "07 · 卫生习惯",
+    title: "嘴巴门口的可怕乘客",
+    description: "这次想把不吃手、不啃玩具的卫生提醒，画成一个孩子能看懂的故事。我先和 AI 一起梳理了 12 格分镜，再用日系萌系水彩风格，把看不见的细菌画成故事里的‘脏脏怪’。",
+    note: "让提醒有一个具体的画面，是这篇漫画的创作尝试。",
+    versions: [
+      {
+        id: "hygiene-passengers",
+        title: "嘴巴门口的可怕乘客",
+        caption: "从开心玩耍到学会停一停，一页 12 格的卫生习惯故事。",
+        image: "/projects/ai-life-comics/hygiene/hygiene-passengers.webp",
+        width: 1055,
+        height: 1491,
+        alt: "12 格水彩漫画《嘴巴门口的可怕乘客》：朵朵和乐乐啃玩具、吃手，故事中的脏脏怪进入嘴巴，两人生病就医后学会不乱啃东西和洗手",
+      },
+    ],
+  },
 ] as const;
 
 export const comicVersionCount = comicStories.reduce((total, story) => total + story.versions.length, 0);

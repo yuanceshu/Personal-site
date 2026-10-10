@@ -19,6 +19,7 @@ const scenes = [
   ["04", "妈妈睡觉", "#sleep-comic"],
   ["05", "游戏输赢", "#cat-mouse-comic"],
   ["06", "羽毛球", "#badminton-comic"],
+  ["07", "卫生习惯", "#hygiene-comic"],
 ] as const;
 
 export default function AiLifeComicsPage() {
@@ -64,13 +65,13 @@ export default function AiLifeComicsPage() {
           </div>
 
           <dl className="comics-hero__folio" aria-label="画册信息">
-            <div><dt>生活片段</dt><dd>6 个</dd></div>
+            <div><dt>生活片段</dt><dd>{comicStories.length} 个</dd></div>
             <div><dt>漫画记录</dt><dd>{comicVersionCount} 幅</dd></div>
             <div><dt>画册主角</dt><dd>小麦子 · 四岁</dd></div>
           </dl>
         </section>
 
-        <nav className="comics-scene-nav" aria-label="六个生活场景">
+        <nav className="comics-scene-nav" aria-label="七个生活场景">
           <div className="comics-scene-nav__track page-shell">
             {scenes.map(([index, label, href]) => (
               <a href={href} key={href}>
@@ -82,7 +83,7 @@ export default function AiLifeComicsPage() {
         </nav>
 
         <section className="comics-gallery section-pad page-shell" id="gallery" aria-labelledby="gallery-title">
-          <div className="section-index">六件日常小事 · 十二页成长记录</div>
+          <div className="section-index">七件日常小事 · 十三页成长记录</div>
           <div className="editorial-grid">
             <div>
               <p className="eyebrow">翻开这本生活小画册</p>
@@ -91,7 +92,7 @@ export default function AiLifeComicsPage() {
               </h2>
             </div>
             <p className="prose-large">
-              有些是为了让胆怯慢慢轻下来，有些只是想把开心留得久一点。页里留着不同的版本，因为每一次重画，都是我们和生活慢慢商量的样子。
+              有些是为了让胆怯慢慢轻下来，有些只是想把开心留得久一点，也有些是把卫生习惯的提醒画得具体一点。页里留着不同的版本，因为每一次重画，都是我们和生活慢慢商量的样子。
             </p>
           </div>
 
