@@ -112,10 +112,15 @@ function Workspace({ role }: { role: RestaurantRole }) {
   const [busy, setBusy] = useState(false);
   const [liveAvailable, setLiveAvailable] = useState<boolean | null>(null);
   const [accepted, setAccepted] = useState<string[]>([]);
-  const [notice, setNotice] = useState("");
   const abort = useRef<AbortController | null>(null);
   const scroll = useRef<HTMLDivElement | null>(null);
   const followLatest = useRef(true);
+  const showingSample = messages.at(-1)?.sample === true;
+  const notice = !showingSample ? "" : liveAvailable === null
+    ? "当前展示的是预置样例，不是实时生成结果。正在检查实时服务；你可以先查看依据和确认草案。"
+    : liveAvailable
+      ? "当前展示的是预置样例，不是实时生成结果。你也可以输入新任务，切换到实时对话。"
+      : "实时服务不可用，正在回放预置任务。可查看依据、确认草案和切换角色；自由提问需实时服务。";
 
   useEffect(() => {
     if (followLatest.current && messages.length > 0 && scroll.current) scroll.current.scrollTop = scroll.current.scrollHeight;
@@ -131,7 +136,6 @@ function Workspace({ role }: { role: RestaurantRole }) {
         setLiveAvailable(live);
         if (!live) {
           followLatest.current = false;
-          setNotice("实时服务不可用，正在回放预置任务。可查看依据、确认草案和切换角色；自由提问需实时服务。");
           setMessages(sampleMessages(role));
         }
       });
@@ -141,7 +145,6 @@ function Workspace({ role }: { role: RestaurantRole }) {
   const showSample = () => {
     followLatest.current = false;
     if (scroll.current) scroll.current.scrollTop = 0;
-    setNotice(liveAvailable ? "当前展示的是预置样例，不是实时生成结果。你也可以输入新任务，切换到实时对话。" : "当前展示预置任务：可查看依据、确认草案和切换角色。实时服务不可用，自由提问与追问暂不可用。");
     setMessages(sampleMessages(role));
     setAccepted([]);
   };
@@ -152,7 +155,7 @@ function Workspace({ role }: { role: RestaurantRole }) {
     followLatest.current = true;
     const assistantId = crypto.randomUUID();
     const history = messages.filter(item => !item.sample && item.status !== "loading" && item.status !== "error").slice(-16).map(item => ({ role: item.role, content: item.text.slice(0, 1200) }));
-    setInput(""); setNotice(""); setBusy(true);
+    setInput(""); setBusy(true);
     setMessages(previous => [...previous, { id: crypto.randomUUID(), role: "user", text: question }, { id: assistantId, role: "assistant", text: "", steps: [], status: "loading" }]);
     const controller = new AbortController(); abort.current = controller;
     let finished = false;
@@ -205,7 +208,7 @@ function Workspace({ role }: { role: RestaurantRole }) {
     <div className="r-work-layout">
       <aside className="r-rail" aria-label="角色与演示信息"><div className="r-rail-label">WORKSPACES <span>01—03</span></div><nav className="r-role-nav" aria-label="切换角色">{(Object.keys(roles) as RestaurantRole[]).map(item => <Link key={item} href={paths[item]} aria-current={item === role ? "page" : undefined}><span>{roles[item].number}</span><span className="r-role-full">{roles[item].title}</span><span className="r-role-short">{roleLabels[item]}</span><b>↗</b></Link>)}</nav><div className="r-rail-bottom"><span className="r-status-dot" />虚构业务环境<p>Agent 查询的是隔离的演示资料。任何草案都需要你确认，且不会提交到真实门店。</p><small>本页已确认演示草案：{accepted.length}</small></div></aside>
       <section className="r-main-panel"><div className="r-intro"><p className="r-eyebrow">{config.kicker} / AGENT WORKSPACE</p><h1>{config.heading}</h1><p>{config.description}</p><div className="r-work-meta"><span><i />资料可追溯</span><span><i />操作待确认</span><span><i />会话仅在当前页面</span></div></div>
-        <div className="r-conversation"><div className="r-conversation-top"><span>当前任务</span><div><span className="r-live-badge">{liveAvailable === true ? messages.some(item => item.sample) ? "○ 预置样例 · 实时服务可用" : "● 实时 Agent" : liveAvailable === false ? "○ 样例模式" : "◌ 检查服务"}</span><button type="button" onClick={showSample} disabled={busy}>查看样例回放 ↗</button></div></div>
+        <div className="r-conversation"><div className="r-conversation-top"><span>当前任务</span><div><span className="r-live-badge">{liveAvailable === true ? showingSample ? "○ 预置样例 · 实时服务可用" : "● 实时 Agent" : liveAvailable === false ? "○ 样例模式" : "◌ 检查服务"}</span><button type="button" onClick={showSample} disabled={busy}>查看样例回放 ↗</button></div></div>
           {notice && <p className="r-sample-notice" role="status">{notice}</p>}
           <div className="r-chat-scroll" ref={scroll} onScroll={event => { const el = event.currentTarget; followLatest.current = el.scrollHeight - el.scrollTop - el.clientHeight < 64; }} role="log" aria-label="当前角色的任务记录" aria-live="polite">{messages.length === 0 ? <div className="r-empty"><span className="r-empty-mark">{config.number}</span><p className="r-eyebrow">A GOOD PLACE TO START</p><h2>给我一个具体问题。<br />我们从资料开始。</h2><p>试试下面的任务示例，看看 Agent 如何查资料、组织结果与准备下一步。</p><div className="r-prompt-list">{config.prompts.map((prompt, index) => <button key={prompt} type="button" onClick={() => send(prompt)} disabled={busy || liveAvailable !== true}><span>0{index + 1}</span>{prompt}<b>↗</b></button>)}</div></div> : messages.map(item => <div key={item.id} className={`r-message r-message-${item.role}`}><div className="r-message-head"><span>{item.role === "user" ? "你" : "食智 Agent"}</span>{item.sample && <small>预置样例</small>}</div>{item.status === "loading" ? <div className="r-processing"><span className="r-loader" />{item.steps?.length ? "正在整理查阅结果…" : "正在理解任务…"}{item.steps && <ol>{item.steps.map(step => <li key={step}>{step}</li>)}</ol>}</div> : <p className={item.status === "error" ? "r-error-text" : ""}>{item.text}</p>}
               {item.result && <div className="r-result"><div className="r-steps">{item.steps?.map(step => <span key={step}>✓ {step}</span>)}</div>{item.result.cards.length > 0 && <div className="r-result-cards">{item.result.cards.map(card => <div className="r-data-card" key={card.id}><small>{card.eyebrow}</small><h3>{card.title}</h3><dl>{card.items.map(row => <div key={`${row.label}-${row.value}`}><dt>{row.label}</dt><dd>{row.value}</dd></div>)}</dl></div>)}</div>}

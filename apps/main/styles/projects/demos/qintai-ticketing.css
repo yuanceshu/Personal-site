@@ -677,6 +677,11 @@
 .q-topbar-inner > .q-back { margin-left: auto; order: 2; }
 .q-nav { order: 1; margin-left: auto; }
 .q-brand { min-height: 44px; }
+
+@media (max-width: 800px) {
+  .q-segmented button { min-height: 44px; min-width: 44px; }
+  .q-empty a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; }
+}
 .q-nav a { display: flex; align-items: center; min-height: 44px; white-space: nowrap; }
 .q-topbar-side { order: 3; flex-wrap: wrap; width: 100%; margin-left: 0; }
 .q-topbar-side .q-ghost-button { min-height: 44px; white-space: nowrap; }

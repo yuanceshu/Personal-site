@@ -198,3 +198,78 @@ test("食智样例模式提供可执行任务，明确暂停自由提问", async
     await expect(page.locator(".r-source").first()).toBeVisible();
   }
 });
+
+test("桌面路线条件先于空结果，生成后能看到路线反馈", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const size of sizes.filter(size => size.width >= 1024)) {
+    await page.setViewportSize(size);
+    await page.goto(root + "linquan");
+    await page.getByRole("button", { name: "我的路线", exact: true }).filter({ visible: true }).click();
+    if (size.width === 1024) {
+      expect((await page.locator(".tour-form-card").boundingBox())!.y).toBeLessThan((await page.locator(".route-preview").boundingBox())!.y);
+      await inViewport(page, page.getByLabel("成人"));
+    }
+    await page.getByRole("slider", { name: "今天大约还有多久" }).fill("90");
+    await expect(page.getByRole("combobox", { name: "从哪里开始" })).toBeEnabled();
+    const interest = page.getByRole("button", { name: "自然观察", exact: true });
+    const wasPressed = await interest.getAttribute("aria-pressed");
+    await interest.click();
+    await expect(interest).toHaveAttribute("aria-pressed", wasPressed === "true" ? "false" : "true");
+    await page.getByRole("button", { name: "找到我的路线" }).click();
+    const result = page.getByRole("heading", { name: /今天这样走|时间有点紧/ });
+    await expect(result).toBeVisible();
+    await expect.poll(async () => (await result.boundingBox())!.y).toBeGreaterThanOrEqual(0);
+    await inViewport(page, result);
+    if (size.width === 1024) {
+      await page.route("**/api/experiments/linquan/tour", route => route.fulfill({ status: 503, json: { error: "路线查询暂时不可用，请稍后重试。" } }));
+      await page.getByRole("button", { name: "找到我的路线" }).click();
+      const error = page.locator(".route-preview .error-text");
+      await expect(error).toContainText("请稍后重试");
+      await expect.poll(async () => (await error.boundingBox())!.y).toBeGreaterThanOrEqual(0);
+      await inViewport(page, error);
+      await page.unroute("**/api/experiments/linquan/tour");
+    }
+  }
+});
+
+test("食智在检查服务时打开样例，检查完成后提示与可操作状态一致", async ({ page }) => {
+  for (const role of ["customer-service", "operations", "finance"]) {
+    for (const live of [true, false]) {
+      let finish!: () => void;
+      const ready = new Promise<void>(resolve => { finish = resolve; });
+      await page.route("**/api/experiments/restaurant-ai/chat", async route => {
+        await ready;
+        await route.fulfill({ json: { live } });
+      });
+      await page.goto(root + "restaurant-ai/" + role);
+      await page.getByRole("button", { name: /查看样例回放/ }).click();
+      const notice = page.locator(".r-sample-notice");
+      await expect(notice).toContainText("正在检查实时服务");
+      await expect(notice).not.toContainText("实时服务不可用");
+      const confirm = page.locator(".r-proposal button");
+      await confirm.click();
+      finish();
+      if (live) {
+        await expect(page.locator(".r-live-badge")).toContainText("实时服务可用");
+        await expect(notice).toContainText("切换到实时对话");
+        await expect(notice).not.toContainText("不可用");
+        await expect(page.locator("#restaurant-question")).toBeEnabled();
+      } else {
+        await expect(page.locator(".r-live-badge")).toContainText("样例模式");
+        await expect(notice).toContainText("实时服务不可用");
+        await expect(page.locator(".r-sample-footer")).toContainText("暂停自由提问");
+      }
+      await expect(confirm).toHaveText("已在本页确认 ✓");
+    }
+  }
+});
+
+test("财务当前范围分析入口明确进入对话，并承接当前范围", async ({ page }) => {
+  await page.route("**/api/experiments/finance-assistant/chat", route => route.fulfill({ json: { answer: "正在查看上周银联渠道的对账情况。", blocks: [], context: {} } }));
+  await page.goto(root + "finance-assistant");
+  await page.getByRole("navigation", { name: "主要导航" }).getByRole("button", { name: /^渠道对账/ }).click();
+  await page.getByRole("button", { name: "分析当前范围", exact: true }).click();
+  await expect(page.locator(".breadcrumbs")).toContainText("智能分析");
+  await expect(page.locator(".message.user")).toContainText("上周银联渠道");
+  await expect(page.locator(".message.assistant")).toContainText("正在查看上周银联渠道");
+});

@@ -273,7 +273,7 @@
   .medical-ai-demo .journey-steps { min-width: 610px; }
   .medical-ai-demo .conversation-panel { padding: 16px 14px; }
   .medical-ai-demo .conversation-scroll { min-height: 260px; }
-  .medical-ai-demo .bubble { max-width: 86%; font-size: 11px; }
+  .medical-ai-demo .bubble { max-width: 86%; font-size: 14px; }
   .medical-ai-demo .composer input { font-size: 11px; }
   .medical-ai-demo .workspace-grid .side-column { grid-template-columns: 1fr; }
   .medical-ai-demo .finding-list, .medical-ai-demo .queue-metrics { grid-template-columns: 1fr; }
