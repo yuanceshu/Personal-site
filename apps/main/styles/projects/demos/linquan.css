@@ -147,3 +147,8 @@
 @media (max-width: 760px) {
   .app .text-link { min-width: 44px; }
 }
+
+.app .people-fields .people-error { display: block; margin-top: 6px; color: #a3462e; font-size: 12px; line-height: 1.5; }
+.app .people-fields input[aria-invalid="true"] { border-color: #a3462e; }
+
+.app .route-stale { padding: 12px; border-radius: 8px; background: #f6f0df; color: #746035; font-size: 14px; line-height: 1.7; }

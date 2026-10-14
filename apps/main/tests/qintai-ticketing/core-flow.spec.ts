@@ -83,7 +83,7 @@ test("运营侧：改价先暂存，应用后才写穿价格", async ({ page }) 
   await expect(page.getByText("1 项等待你决定")).toBeVisible();
   await page.getByRole("button", { name: "应用", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("已应用");
-  await expect(page.getByText("Playwright 端到端改价")).toBeVisible();
+  await expect(page.locator(".q-ledger-summary").filter({ hasText: "Playwright 端到端改价" })).toBeVisible();
 
   // 回到演出与定价：价格已经写穿，且提案不再挂起。
   await page.getByRole("link", { name: /演出与定价/ }).click();

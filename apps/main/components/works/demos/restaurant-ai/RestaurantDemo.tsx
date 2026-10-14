@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { resultSchema, type ChatResult, type RestaurantRole } from "@/lib/works/restaurant-ai/schema";
 import { DemoCollectionLink } from "@/components/works/demos/navigation/demo-collection-link";
+
+import { useInputViewport } from "@/components/works/demos/navigation/use-input-viewport";
 
 type DemoModule = RestaurantRole | "home";
 type Message = {
@@ -14,7 +16,15 @@ type Message = {
   steps?: string[];
   status?: "loading" | "done" | "error";
   sample?: boolean;
+  retryQuestion?: string;
 };
+
+async function readServiceStatus(signal?: AbortSignal) {
+  try {
+    const response = await fetch("/api/experiments/restaurant-ai/chat", { cache: "no-store", signal });
+    return response.ok && (await response.json()).live === true;
+  } catch { return false; }
+}
 
 const paths: Record<RestaurantRole, string> = {
   customer: "/works/demos/restaurant-ai/customer-service",
@@ -111,53 +121,79 @@ function Workspace({ role }: { role: RestaurantRole }) {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [liveAvailable, setLiveAvailable] = useState<boolean | null>(null);
+  const [checkingService, setCheckingService] = useState(true);
   const [accepted, setAccepted] = useState<string[]>([]);
   const abort = useRef<AbortController | null>(null);
   const scroll = useRef<HTMLDivElement | null>(null);
   const followLatest = useRef(true);
-  const showingSample = messages.at(-1)?.sample === true;
+  const [showingSample, setShowingSample] = useState(false);
+  const [sampleEntries, setSampleEntries] = useState<Message[]>([]);
+  const [sampleAccepted, setSampleAccepted] = useState<string[]>([]);
+  const positions = useRef({ task: 0, sample: 0 });
+  const workspace = useRef<HTMLElement>(null);
+  useInputViewport(workspace);
+  const visibleMessages = showingSample ? sampleEntries : messages;
+  const visibleAccepted = showingSample ? sampleAccepted : accepted;
   const notice = !showingSample ? "" : liveAvailable === null
     ? "当前展示的是预置样例，不是实时生成结果。正在检查实时服务；你可以先查看依据和确认草案。"
     : liveAvailable
-      ? "当前展示的是预置样例，不是实时生成结果。你也可以输入新任务，切换到实时对话。"
+      ? "当前展示的是预置样例，不是实时生成结果。可以返回当前任务，或开始实时任务，切换到实时对话。"
       : "实时服务不可用，正在回放预置任务。可查看依据、确认草案和切换角色；自由提问需实时服务。";
 
   useEffect(() => {
-    if (followLatest.current && messages.length > 0 && scroll.current) scroll.current.scrollTop = scroll.current.scrollHeight;
-  }, [messages]);
+    if (!showingSample && followLatest.current && messages.length > 0 && scroll.current) scroll.current.scrollTop = scroll.current.scrollHeight;
+  }, [messages, showingSample]);
+  useLayoutEffect(() => {
+    if (scroll.current) scroll.current.scrollTop = positions.current[showingSample ? "sample" : "task"];
+  }, [showingSample]);
   useEffect(() => () => abort.current?.abort(), []);
   useEffect(() => {
     let current = true;
-    fetch("/api/experiments/restaurant-ai/chat", { cache: "no-store" })
-      .then(async response => response.ok && (await response.json()).live === true)
-      .catch(() => false)
+    const controller = new AbortController();
+    readServiceStatus(controller.signal)
       .then(live => {
         if (!current) return;
+        setCheckingService(false);
         setLiveAvailable(live);
         if (!live) {
           followLatest.current = false;
-          setMessages(sampleMessages(role));
+          setSampleEntries(previous => previous.length ? previous : sampleMessages(role));
+          setShowingSample(true);
         }
       });
-    return () => { current = false; };
+    return () => { current = false; controller.abort(); };
   }, [role]);
 
-  const showSample = () => {
-    followLatest.current = false;
-    if (scroll.current) scroll.current.scrollTop = 0;
-    setMessages(sampleMessages(role));
-    setAccepted([]);
+  const checkService = async (signal?: AbortSignal) => {
+    setCheckingService(true);
+    const live = await readServiceStatus(signal);
+    if (signal?.aborted) return false;
+    setLiveAvailable(live); setCheckingService(false);
+    return live;
   };
 
-  const send = async (raw = input) => {
+  const switchSample = (show: boolean) => {
+    if (scroll.current) positions.current[showingSample ? "sample" : "task"] = scroll.current.scrollTop;
+    followLatest.current = false;
+    if (show && !sampleEntries.length) setSampleEntries(sampleMessages(role));
+    setShowingSample(show);
+  };
+  const showSample = () => switchSample(true);
+
+  const send = async (raw = input, retry = false) => {
     const question = raw.trim();
-    if (!question || busy || liveAvailable !== true) return;
+    if (!question || busy || checkingService || showingSample || (!retry && liveAvailable !== true)) return;
+    const controller = new AbortController(); abort.current = controller;
+    if (retry) {
+      setBusy(true);
+      const live = await checkService(controller.signal);
+      if (!live) { if (!controller.signal.aborted) { setBusy(false); abort.current = null; } return; }
+    }
     followLatest.current = true;
     const assistantId = crypto.randomUUID();
     const history = messages.filter(item => !item.sample && item.status !== "loading" && item.status !== "error").slice(-16).map(item => ({ role: item.role, content: item.text.slice(0, 1200) }));
-    setInput(""); setBusy(true);
+    setInput(current => current.trim() === question ? "" : current); setBusy(true);
     setMessages(previous => [...previous, { id: crypto.randomUUID(), role: "user", text: question }, { id: assistantId, role: "assistant", text: "", steps: [], status: "loading" }]);
-    const controller = new AbortController(); abort.current = controller;
     let finished = false;
     try {
       const response = await fetch("/api/experiments/restaurant-ai/chat", {
@@ -199,24 +235,25 @@ function Workspace({ role }: { role: RestaurantRole }) {
     } catch (error) {
       if (controller.signal.aborted) return;
       const message = error instanceof Error ? error.message : "Agent 暂时无法响应。";
-      setMessages(previous => previous.map(item => item.id === assistantId ? { ...item, text: message, status: "error" } : item));
+      setLiveAvailable(false);
+      setMessages(previous => previous.map(item => item.id === assistantId ? { ...item, text: message, status: "error", retryQuestion: question } : item));
     } finally { setBusy(false); abort.current = null; }
   };
 
-  return <main className={`r-app r-workspace r-${role}`}>
+  return <main ref={workspace} className={`r-app r-workspace r-${role}`}>
     <Header active={role} />
     <div className="r-work-layout">
-      <aside className="r-rail" aria-label="角色与演示信息"><div className="r-rail-label">WORKSPACES <span>01—03</span></div><nav className="r-role-nav" aria-label="切换角色">{(Object.keys(roles) as RestaurantRole[]).map(item => <Link key={item} href={paths[item]} aria-current={item === role ? "page" : undefined}><span>{roles[item].number}</span><span className="r-role-full">{roles[item].title}</span><span className="r-role-short">{roleLabels[item]}</span><b>↗</b></Link>)}</nav><div className="r-rail-bottom"><span className="r-status-dot" />虚构业务环境<p>Agent 查询的是隔离的演示资料。任何草案都需要你确认，且不会提交到真实门店。</p><small>本页已确认演示草案：{accepted.length}</small></div></aside>
+      <aside className="r-rail" aria-label="角色与演示信息"><div className="r-rail-label">WORKSPACES <span>01—03</span></div><nav className="r-role-nav" aria-label="切换角色">{(Object.keys(roles) as RestaurantRole[]).map(item => <Link key={item} href={paths[item]} aria-current={item === role ? "page" : undefined}><span>{roles[item].number}</span><span className="r-role-full">{roles[item].title}</span><span className="r-role-short">{roleLabels[item]}</span><b>↗</b></Link>)}</nav><div className="r-rail-bottom"><span className="r-status-dot" />虚构业务环境<p>Agent 查询的是隔离的演示资料。任何草案都需要你确认，且不会提交到真实门店。</p><small>{showingSample ? "样例已确认草案" : "本页已确认演示草案"}：{visibleAccepted.length}</small></div></aside>
       <section className="r-main-panel"><div className="r-intro"><p className="r-eyebrow">{config.kicker} / AGENT WORKSPACE</p><h1>{config.heading}</h1><p>{config.description}</p><div className="r-work-meta"><span><i />资料可追溯</span><span><i />操作待确认</span><span><i />会话仅在当前页面</span></div></div>
-        <div className="r-conversation"><div className="r-conversation-top"><span>当前任务</span><div><span className="r-live-badge">{liveAvailable === true ? showingSample ? "○ 预置样例 · 实时服务可用" : "● 实时 Agent" : liveAvailable === false ? "○ 样例模式" : "◌ 检查服务"}</span><button type="button" onClick={showSample} disabled={busy}>查看样例回放 ↗</button></div></div>
+        <div className="r-conversation"><div className="r-conversation-top"><span>{showingSample ? "样例回放" : "当前任务"}</span><div><span className={`r-live-badge ${checkingService ? "is-checking" : liveAvailable === false ? "is-unavailable" : showingSample ? "is-sample" : ""}`}>{checkingService ? "◌ 检查服务" : liveAvailable === true ? showingSample ? "○ 预置样例 · 实时服务可用" : "● 实时 Agent" : liveAvailable === false ? showingSample ? "○ 样例模式 · 实时服务不可用" : "○ 实时服务暂不可用" : "◌ 检查服务"}</span>{showingSample ? (messages.length > 0 || liveAvailable === true) && <button type="button" onClick={() => switchSample(false)}>{messages.length ? "返回当前任务" : "开始实时任务"} ↗</button> : <button type="button" onClick={showSample} disabled={busy}>查看样例回放 ↗</button>}{liveAvailable === false && <button type="button" disabled={checkingService || busy} onClick={() => void checkService()}>{checkingService ? "检查中…" : "重新检查服务"}</button>}</div></div>
           {notice && <p className="r-sample-notice" role="status">{notice}</p>}
-          <div className="r-chat-scroll" ref={scroll} onScroll={event => { const el = event.currentTarget; followLatest.current = el.scrollHeight - el.scrollTop - el.clientHeight < 64; }} role="log" aria-label="当前角色的任务记录" aria-live="polite">{messages.length === 0 ? <div className="r-empty"><span className="r-empty-mark">{config.number}</span><p className="r-eyebrow">A GOOD PLACE TO START</p><h2>给我一个具体问题。<br />我们从资料开始。</h2><p>试试下面的任务示例，看看 Agent 如何查资料、组织结果与准备下一步。</p><div className="r-prompt-list">{config.prompts.map((prompt, index) => <button key={prompt} type="button" onClick={() => send(prompt)} disabled={busy || liveAvailable !== true}><span>0{index + 1}</span>{prompt}<b>↗</b></button>)}</div></div> : messages.map(item => <div key={item.id} className={`r-message r-message-${item.role}`}><div className="r-message-head"><span>{item.role === "user" ? "你" : "食智 Agent"}</span>{item.sample && <small>预置样例</small>}</div>{item.status === "loading" ? <div className="r-processing"><span className="r-loader" />{item.steps?.length ? "正在整理查阅结果…" : "正在理解任务…"}{item.steps && <ol>{item.steps.map(step => <li key={step}>{step}</li>)}</ol>}</div> : <p className={item.status === "error" ? "r-error-text" : ""}>{item.text}</p>}
-              {item.result && <div className="r-result"><div className="r-steps">{item.steps?.map(step => <span key={step}>✓ {step}</span>)}</div>{item.result.cards.length > 0 && <div className="r-result-cards">{item.result.cards.map(card => <div className="r-data-card" key={card.id}><small>{card.eyebrow}</small><h3>{card.title}</h3><dl>{card.items.map(row => <div key={`${row.label}-${row.value}`}><dt>{row.label}</dt><dd>{row.value}</dd></div>)}</dl></div>)}</div>}
-                {item.result.proposal && <div className="r-proposal"><div><small>AWAITING YOUR DECISION / 演示操作</small><h3>{item.result.proposal.title}</h3><p>{item.result.proposal.detail}</p></div><button type="button" disabled={accepted.includes(item.result.proposal.id)} onClick={() => setAccepted(previous => [...previous, item.result!.proposal!.id])}>{accepted.includes(item.result.proposal.id) ? "已在本页确认 ✓" : item.result.proposal.action_label}</button></div>}
+          <div className="r-chat-scroll" ref={scroll} onScroll={event => { const el = event.currentTarget; positions.current[showingSample ? "sample" : "task"] = el.scrollTop; if (!showingSample) followLatest.current = el.scrollHeight - el.scrollTop - el.clientHeight < 64; }} role="log" aria-label="当前角色的任务记录" aria-live="polite">{visibleMessages.length === 0 ? <div className="r-empty"><span className="r-empty-mark">{config.number}</span><p className="r-eyebrow">A GOOD PLACE TO START</p><h2>给我一个具体问题。<br />我们从资料开始。</h2><p>试试下面的任务示例，看看 Agent 如何查资料、组织结果与准备下一步。</p><div className="r-prompt-list">{config.prompts.map((prompt, index) => <button key={prompt} type="button" onClick={() => send(prompt)} disabled={busy || liveAvailable !== true}><span>0{index + 1}</span>{prompt}<b>↗</b></button>)}</div></div> : visibleMessages.map(item => <div key={item.id} className={`r-message r-message-${item.role}`}><div className="r-message-head"><span>{item.role === "user" ? "你" : "食智 Agent"}</span>{item.sample && <small>预置样例</small>}</div>{item.status === "loading" ? <div className="r-processing"><span className="r-loader" />{item.steps?.length ? "正在整理查阅结果…" : "正在理解任务…"}{item.steps && <ol>{item.steps.map(step => <li key={step}>{step}</li>)}</ol>}</div> : <p className={item.status === "error" ? "r-error-text" : ""}>{item.text}</p>}
+              {item.status === "error" && item.retryQuestion && !showingSample && <button type="button" className="r-retry" disabled={busy || checkingService} onClick={() => void send(item.retryQuestion, true)}>重新尝试这条问题 ↗</button>}{item.result && <div className="r-result"><div className="r-steps">{item.steps?.map(step => <span key={step}>✓ {step}</span>)}</div>{item.result.cards.length > 0 && <div className="r-result-cards">{item.result.cards.map(card => <div className="r-data-card" key={card.id}><small>{card.eyebrow}</small><h3>{card.title}</h3><dl>{card.items.map(row => <div key={`${row.label}-${row.value}`}><dt>{row.label}</dt><dd>{row.value}</dd></div>)}</dl></div>)}</div>}
+                {item.result.proposal && <div className="r-proposal"><div><small>AWAITING YOUR DECISION / 演示操作</small><h3>{item.result.proposal.title}</h3><p>{item.result.proposal.detail}</p></div><button type="button" disabled={visibleAccepted.includes(item.result.proposal.id)} onClick={() => (showingSample ? setSampleAccepted : setAccepted)(previous => [...previous, item.result!.proposal!.id])}>{visibleAccepted.includes(item.result.proposal.id) ? "已在本页确认 ✓" : item.result.proposal.action_label}</button></div>}
                 <details className="r-sources"><summary>查看依据 <span>{item.result.sources.length} 项资料 ↗</span></summary>{item.result.sources.length ? item.result.sources.map(source => <div className="r-source" key={source.id}><small>{source.category}</small><h4>{source.title}</h4><p>{source.excerpt}</p></div>) : <p>当前演示资料不足，未引用来源。</p>}</details>
-                {liveAvailable === true && item.result.followups.length > 0 && <div className="r-followups">{item.result.followups.map(followup => <button key={followup} type="button" disabled={busy || liveAvailable !== true} onClick={() => send(followup)}>{followup} ↗</button>)}</div>}
+                {!showingSample && liveAvailable === true && item.result.followups.length > 0 && <div className="r-followups">{item.result.followups.map(followup => <button key={followup} type="button" disabled={busy || liveAvailable !== true} onClick={() => send(followup)}>{followup} ↗</button>)}</div>}
               </div>}</div>)}</div>
-          {liveAvailable === false ? <div className="r-sample-footer"><strong>预置任务回放</strong><p>当前暂停自由提问。可以阅读回答与依据，并确认上方演示草案。</p></div> : <form className="r-composer" onSubmit={event => { event.preventDefault(); send(); }}><label htmlFor="restaurant-question">继续对话</label><div><textarea id="restaurant-question" value={input} onChange={event => setInput(event.target.value)} onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send(); } }} placeholder="描述任务或提出问题…" disabled={liveAvailable !== true} rows={2} maxLength={1200} /><button type="submit" disabled={busy || liveAvailable !== true || !input.trim()}>发送 ↗</button></div><small>实时回答以虚构演示资料为依据；请勿输入真实顾客或财务信息。</small></form>}
+          {showingSample || liveAvailable === false ? <div className="r-sample-footer"><strong>{showingSample ? "预置任务回放" : "实时服务暂不可用"}</strong><p>{!showingSample ? "当前任务记录与草稿仍保留。可重新检查服务，或查看样例回放；恢复连接后继续提问。" : liveAvailable === true ? "样例仅供回放；请通过上方入口返回实时任务。" : "当前暂停自由提问。可以阅读回答与依据，并确认上方演示草案。"}</p></div> : <form className="r-composer" onSubmit={event => { event.preventDefault(); send(); }}><label htmlFor="restaurant-question">继续对话</label><div><textarea id="restaurant-question" value={input} onChange={event => setInput(event.target.value)} onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send(); } }} placeholder="描述任务或提出问题…" disabled={liveAvailable !== true} rows={2} maxLength={1200} /><button type="submit" disabled={busy || liveAvailable !== true || !input.trim()}>发送 ↗</button></div><small>实时回答以虚构演示资料为依据；请勿输入真实顾客或财务信息。</small></form>}
         </div>
       </section>
       <aside className="r-context"><div className="r-context-header"><small>CONTEXT / {config.number}</small><span>演示资料</span></div><div className="r-context-feature"><span>YUEWEI<br />悦味</span><p>一张桌位、一份库存、一笔差额，都需要能追到来源。</p></div><div className="r-context-section"><small>当前角色</small><h2>{config.title}</h2><p>{config.short}</p></div><div className="r-context-section"><small>工作方式</small><ol><li>理解任务</li><li>查阅对应资料与数据</li><li>形成答案与草案</li><li>等待你确认</li></ol></div><div className="r-context-footer">DEMO DATA ONLY<br />不连接真实业务系统</div></aside>

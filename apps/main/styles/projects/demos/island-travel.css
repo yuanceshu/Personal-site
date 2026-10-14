@@ -49,3 +49,10 @@
 }
 
 html:has(.concierge-dialog[open]) { overflow: hidden; }
+
+@media (min-width: 801px) {
+  .island-app .planning-grid > .concierge { position: sticky; top: 20px; height: calc(100dvh - 40px); display: flex; flex-direction: column; min-height: 0; }
+  .island-app .planning-grid > .concierge > :not(.chat-log) { flex-shrink: 0; }
+  .island-app .planning-grid > .concierge .chat-log { flex: 1; min-height: 72px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+  .island-app .planning-grid > .concierge textarea { resize: none; }
+}

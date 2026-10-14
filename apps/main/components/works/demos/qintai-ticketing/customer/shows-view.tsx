@@ -3,7 +3,7 @@
 /** 观众侧演出检索：一次查询 + 场馆/价格/张数筛选，结果就是交给助手的候选集。 */
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo } from "react";
 import { useCustomerContext, useQintai } from "@/components/works/demos/qintai-ticketing/provider";
 import {
   Empty,
@@ -43,14 +43,18 @@ function sortProducts(rows: Product[], sort: SearchFilters["sort"]): Product[] {
 }
 
 export function CustomerShows() {
-  const { storefront, session, askNow, revision } = useQintai();
-  const [query, setQuery] = useState("");
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
-  const [venue, setVenue] = useState(VENUES[0]);
-  const [priceCap, setPriceCap] = useState("");
-  const [minQuantity, setMinQuantity] = useState("");
-  const [sort, setSort] = useState<NonNullable<SearchFilters["sort"]>>("relevance");
+  const { storefront, session, askNow, revision, showsBrowse, setShowsBrowse, showsScroll } = useQintai();
+  const { query, filtersOpen, expandedGroups, venue, priceCap, minQuantity, sort } = showsBrowse;
+  const updateBrowse = (patch: Partial<typeof showsBrowse>) => setShowsBrowse(current => ({ ...current, ...patch }));
+  const activeFilters = [venue !== VENUES[0] && venue, priceCap && `¥${priceCap} 以内`, minQuantity && `至少 ${minQuantity} 张`, sort !== "relevance" && SORTS.find(option => option.value === sort)?.label].filter(Boolean);
+  const clearFilters = () => updateBrowse({ venue: VENUES[0], priceCap: "", minQuantity: "", sort: "relevance" });
+  useLayoutEffect(() => {
+    const saved = showsScroll.current;
+    const frame = requestAnimationFrame(() => window.scrollTo({ top: saved, behavior: "instant" }));
+    const remember = () => { showsScroll.current = window.scrollY; };
+    window.addEventListener("scroll", remember, { passive: true });
+    return () => { cancelAnimationFrame(frame); window.removeEventListener("scroll", remember); };
+  }, [showsScroll]);
 
   const filters = useMemo<SearchFilters | null>(() => {
     const attributes: Record<string, string> = {};
@@ -106,37 +110,38 @@ export function CustomerShows() {
             type="search"
             value={query}
             placeholder="例如：如梦之梦、琴台音乐厅、惠民票"
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => updateBrowse({ query: event.target.value })}
           />
         </label>
-        <button type="button" className="q-mobile-filter-toggle q-ghost-button" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(!filtersOpen)}>{filtersOpen ? "收起筛选" : "筛选与排序"} ↓</button>
+        <button type="button" className="q-mobile-filter-toggle q-ghost-button" aria-expanded={filtersOpen} onClick={() => updateBrowse({ filtersOpen: !filtersOpen })}>{filtersOpen ? "收起筛选" : "筛选与排序"} ↓</button>
         <label>
           <span>场馆</span>
-          <select value={venue} onChange={(event) => setVenue(event.target.value)}>
+          <select value={venue} onChange={(event) => updateBrowse({ venue: event.target.value })}>
             {VENUES.map((name) => <option key={name} value={name}>{name}</option>)}
           </select>
         </label>
         <label>
           <span>含费用上限</span>
-          <select value={priceCap} onChange={(event) => setPriceCap(event.target.value)}>
+          <select value={priceCap} onChange={(event) => updateBrowse({ priceCap: event.target.value })}>
             {PRICE_CAPS.map((option) => <option key={option.label} value={option.value}>{option.label}</option>)}
           </select>
         </label>
         <label>
           <span>连座张数</span>
-          <select value={minQuantity} onChange={(event) => setMinQuantity(event.target.value)}>
+          <select value={minQuantity} onChange={(event) => updateBrowse({ minQuantity: event.target.value })}>
             {QUANTITIES.map((option) => <option key={option.label} value={option.value}>{option.label}</option>)}
           </select>
         </label>
         <label>
           <span>排序</span>
-          <select value={sort} onChange={(event) => setSort(event.target.value as NonNullable<SearchFilters["sort"]>)}>
+          <select value={sort} onChange={(event) => updateBrowse({ sort: event.target.value as typeof sort })}>
             {SORTS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
         </label>
         <button
           type="button"
           className="q-ghost-button"
+          disabled={rows.length === 0}
           onClick={() =>
             askNow(
               "customer",
@@ -147,6 +152,7 @@ export function CustomerShows() {
           让助手比较这批候选 <em>AI</em>
         </button>
       </form>
+      {activeFilters.length > 0 && <div className="q-filter-summary" aria-label="当前筛选条件"><span>{activeFilters.join(" · ")}</span><button type="button" className="q-text-button" onClick={clearFilters}>清除筛选</button></div>}
 
       <div className="q-section-heading q-section-heading--tight">
         <div>
@@ -157,11 +163,11 @@ export function CustomerShows() {
       </div>
 
       {rows.length === 0 ? (
-        <Empty>没有符合条件的票档。可以换一个说法，或取消价格与张数限制。</Empty>
+        <Empty>没有符合条件的票档。可以换一个说法，或清除搜索与筛选重新浏览。<button type="button" className="q-outline-button q-empty-reset" onClick={() => { clearFilters(); updateBrowse({ query: "" }); }}>清除搜索与筛选</button></Empty>
       ) : (
         <ul className="q-result-list">
           {groups.map(([key, products]) => <li className="q-show-group" key={key}>
-            <button type="button" className="q-show-group-toggle" aria-expanded={expandedGroups.includes(key)} onClick={() => setExpandedGroups(previous => previous.includes(key) ? previous.filter(item => item !== key) : [...previous, key])}>
+            <button type="button" className="q-show-group-toggle" aria-expanded={expandedGroups.includes(key)} onClick={() => setShowsBrowse(current => ({ ...current, expandedGroups: current.expandedGroups.includes(key) ? current.expandedGroups.filter(item => item !== key) : [...current.expandedGroups, key] }))}>
               <strong>{products[0].attributes.event_name ?? products[0].title}</strong>
               <span>{chineseDate(products[0].attributes.event_date)} · {products[0].attributes.venue}</span>
               <b>{money(Math.min(...products.map(product => product.price)))} 起 · {products.length} 个票档 {expandedGroups.includes(key) ? "收起 ↑" : "展开 ↓"}</b>

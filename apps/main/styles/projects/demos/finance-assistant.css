@@ -84,3 +84,37 @@
 .finance-app .anomaly-item strong { white-space: normal; overflow: visible; line-height: 1.65; }
 .finance-app .trace-grid > span:nth-child(-n+3) b { white-space: nowrap; }
 .finance-app .messages .table-scroll { max-height: none; }
+
+.finance-app .composer textarea:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+.finance-app .composer-input:focus-within { border-color: var(--teal); box-shadow: 0 0 0 2px #29897926; }
+.finance-app button:disabled { cursor: not-allowed; opacity: .5; }
+.finance-app .query-busy-note { font-size: 11px; color: #356e63; white-space: nowrap; }
+.finance-app .details-toolbar select { font-size: 14px; min-height: 44px; }
+.finance-app .recon-detail.is-matched .detail-amount b { color: #376e60; }
+.finance-app .reconciliation-clear { margin: 0 0 12px; color: #376e60; font-size: 14px; }
+.finance-app .matched-records > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: #536b61; font-size: 14px; }
+.finance-app [data-compact-input] .analysis-view { min-height: 0; height: calc(var(--input-viewport-height, 100dvh) - 70px); padding-block: 8px; }
+.finance-app [data-compact-input] .analysis-view .subpage-heading, .finance-app [data-compact-input] .chat-footnote, .finance-app [data-compact-input] .follow-up-prompts { display: none; }
+.finance-app [data-compact-input] .analysis-layout { min-height: 0; }
+.finance-app [data-compact-input] .chat-heading { padding-bottom: 6px; }
+.finance-app [data-compact-input] .context-strip { max-height: 32px; overflow: auto; flex-shrink: 1; }
+.finance-app [data-compact-input] .messages { min-height: 72px; padding-block: 8px; }
+.finance-app [data-compact-input] .composer-input { padding: 6px 8px; }
+@media (max-width: 800px) {
+  .finance-app [data-compact-input] .analysis-view { height: calc(var(--input-viewport-height, 100dvh) - 190px); }
+  .finance-app [data-compact-input] .chat-panel { padding: 8px 12px; }
+}
+.finance-app [data-compact-input] .analysis-layout { display: flex; flex-direction: column; }
+.finance-app [data-compact-input] .analysis-layout > .chat-panel { flex: 1; }
+.finance-app [data-compact-input] .analysis-rail { display: none; }
+.finance-app .recon-stats .clear-stat { background: #f0f7f3; }
+.finance-app .recon-stats .clear-stat strong { color: #376e60; }
+.finance-app [data-compact-input] .chat-empty > h3, .finance-app [data-compact-input] .chat-empty > p { display: none; }
+.finance-app [data-compact-input] .analysis-view .subpage-heading { display: block; position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; margin: 0; }
+.finance-app [data-compact-input] .prompt-grid { gap: 4px; }
+.finance-app [data-compact-input] .prompt-grid button { min-height: 44px; padding: 6px; }
+
+@media (max-width: 800px) {
+  .finance-app .analysis-layout { display: flex; flex-direction: column; }
+  .finance-app .analysis-layout > .chat-panel { flex: 1; min-height: 0; }
+}

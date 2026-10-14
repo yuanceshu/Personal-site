@@ -1400,6 +1400,7 @@ export class TicketMerchant {
     session: MerchantSessionContext,
     items: PriceUpdateItem[],
     note: string | null = null,
+    actorKind: ActorKind = "agent",
   ): StagedChange {
     const changeItems: ChangeItem[] = [];
     let marginImpact = 0;
@@ -1443,7 +1444,7 @@ export class TicketMerchant {
       summary: note ?? `对 ${items.length} 个票档改价`,
       items: changeItems,
       actor: session.operator,
-      actor_kind: "agent",
+      actor_kind: actorKind,
       currency,
       margin_impact: Math.round(marginImpact * 100) / 100,
       margin_before_pct: margins.length === 1 ? margins[0][0] : null,
@@ -1462,6 +1463,7 @@ export class TicketMerchant {
     session: MerchantSessionContext,
     items: InventoryActionItem[],
     note: string | null = null,
+    actorKind: ActorKind = "agent",
   ): StagedChange {
     const changeItems: ChangeItem[] = [];
     const notes: string[] = [];
@@ -1511,13 +1513,13 @@ export class TicketMerchant {
       summary: note ?? `释放 ${items.length} 个票档的保留座位`,
       items: changeItems,
       actor: session.operator,
-      actor_kind: "agent",
+      actor_kind: actorKind,
       guardrail_notes: notes.length > 0 ? notes : null,
     });
   }
 
   /** 有日期的价格步骤，向下（早鸟）或向上（清仓）；应用时记为一个窗口，常设价不动。 */
-  stagePromotion(session: MerchantSessionContext, promotion: PromotionDraft): StagedChange {
+  stagePromotion(session: MerchantSessionContext, promotion: PromotionDraft, actorKind: ActorKind = "agent"): StagedChange {
     let windowDays: number;
     try {
       windowDays = Math.max(
@@ -1570,7 +1572,7 @@ export class TicketMerchant {
         `${promotion.starts} 至 ${promotion.ends}）`,
       items,
       actor: session.operator,
-      actor_kind: "agent",
+      actor_kind: actorKind,
       currency,
       margin_impact: Math.round(marginImpact * 100) / 100,
       margin_before_pct: margins.length === 1 ? margins[0][0] : null,

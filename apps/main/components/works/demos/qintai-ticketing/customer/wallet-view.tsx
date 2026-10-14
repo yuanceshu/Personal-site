@@ -42,7 +42,7 @@ export function CustomerWallet() {
   const now = useTicker(1000);
   const [recipient, setRecipient] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
-  const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
+  const [notice, setNotice] = useState<{ scope: "hold" | "transfer" | "create"; key: string; index: number; ok: boolean; text: string } | null>(null);
 
   const { wallet, orders, transfers, holds, waitlist } = useMemo(() => {
     const account = storefront.getAccountContext(session);
@@ -73,27 +73,34 @@ export function CustomerWallet() {
     return [...byEvent.entries()];
   }, [wallet]);
 
-  const guard = (work: () => void, okText: string) => {
+  const guard = (scope: "hold" | "transfer" | "create", key: string, index: number, work: () => void, okText: string) => {
     try {
       commit(work);
-      setNotice({ ok: true, text: okText });
+      setNotice({ scope, key, index, ok: true, text: okText });
     } catch (error) {
-      setNotice({ ok: false, text: explainOperation(error) });
+      setNotice({ scope, key, index, ok: false, text: explainOperation(error) });
     }
   };
+
+  const holdRows: Array<(typeof holds)[number] | null> = [...holds];
+  if (notice?.scope === "hold" && !holds.some(hold => hold.hold_id === notice.key)) holdRows.splice(Math.min(notice.index, holdRows.length), 0, null);
+  const transferRows: Array<(typeof transfers)[number] | null> = [...transfers];
+  if (notice?.scope === "transfer" && !transfers.some(transfer => transfer.transfer_id === notice.key)) transferRows.splice(Math.min(notice.index, transferRows.length), 0, null);
+  const feedback = <p className={notice?.ok ? "q-inline-ok" : "q-inline-error"} role={notice?.ok ? "status" : "alert"}>{notice?.text}</p>;
 
   return (
     <div className="q-view q-view--wallet">
       <section className="q-section">
         <div className="q-section-heading">
           <div><p className="q-overline">本次观演</p><h2>锁座中 {count(holds.length)} 档</h2></div>
-          <span>锁座 8 分钟内不扣款；超时后座位回到模拟库存</span>
+          <span>本 Demo 体验到锁座，不提供结算；到期自动释放。</span>
         </div>
-        {holds.length === 0 ? (
+        {holdRows.length === 0 ? (
           <Empty>现在没有锁定的座位。<Link href="/works/demos/qintai-ticketing/shows">去找一场演出 →</Link></Empty>
         ) : (
           <ul className="q-hold-list">
-            {holds.map((hold) => {
+            {holdRows.map((hold, index) => {
+              if (!hold) return <li className="q-action-result" key={notice!.key}>{feedback}{!holds.length && <Link className="q-text-button" href="/works/demos/qintai-ticketing/shows">去找一场演出 →</Link>}</li>;
               const product = storefront.getLiveProduct(hold.product_id);
               const seconds = Math.max(0, Math.round((hold.expires_at - now) / 1000));
               return (
@@ -111,11 +118,11 @@ export function CustomerWallet() {
                   <span className="q-hold-amount">
                     {product ? money(product.price * hold.quantity) : "—"}
                   </span>
-                  <span className="q-hold-actions">
+                  {notice?.scope === "hold" && notice.key === hold.hold_id && feedback}<span className="q-hold-actions">
                     <button
                       type="button"
                       className="q-text-button"
-                      onClick={() => guard(() => storefront.removeFromCart(session, hold.product_id), "已释放这批座位。")}
+                      onClick={() => guard("hold", hold.hold_id, index, () => storefront.removeFromCart(session, hold.product_id), "已释放这批座位。")}
                     >
                       释放
                     </button>
@@ -215,12 +222,13 @@ export function CustomerWallet() {
               onChange={(event) => setRecipient(event.target.value)}
             />
           </label>
+          {notice?.scope === "create" && feedback}
           <button
             type="button"
             className="q-primary-button"
             disabled={selected.length === 0 || recipient.trim().length === 0}
             onClick={() =>
-              guard(() => {
+              guard("create", "create", 0, () => {
                 storefront.engine.initiateTransfer(session.user_id, selected, recipient.trim());
                 setSelected([]);
                 setRecipient("");
@@ -230,25 +238,25 @@ export function CustomerWallet() {
             对已选的 {selected.length} 张发起转赠
           </button>
         </div>
-        {transfers.length > 0 ? (
+        {transferRows.length > 0 ? (
           <ul className="q-transfer-list">
-            {transfers.map((transfer) => (
+            {transferRows.map((transfer, index) => transfer ? (
               <li key={transfer.transfer_id}>
                 <span className="q-mono">{transfer.transfer_id}</span>
                 <span>{transfer.ticket_ids.join("、")}</span>
                 <span>接收人 {transfer.recipient}</span>
                 <Pill tone="warn">处理中</Pill>
-                <button
+                {notice?.scope === "transfer" && notice.key === transfer.transfer_id && feedback}<button
                   type="button"
                   className="q-text-button"
                   onClick={() =>
-                    guard(() => storefront.engine.cancelTransfer(session.user_id, transfer.transfer_id), "转赠已撤回。")
+                    guard("transfer", transfer.transfer_id, index, () => storefront.engine.cancelTransfer(session.user_id, transfer.transfer_id), "转赠已撤回。")
                   }
                 >
                   撤回
                 </button>
               </li>
-            ))}
+            ) : <li className="q-action-result" key={notice!.key}>{feedback}</li>)}
           </ul>
         ) : null}
       </section>
@@ -272,10 +280,6 @@ export function CustomerWallet() {
           ))}
         </ul>
       </section>
-
-      {notice ? (
-        <p className={notice.ok ? "q-inline-ok" : "q-inline-error"} role="status">{notice.text}</p>
-      ) : null}
 
       <p className="q-disclaimer">
         条码每 60 秒换一次，由票号与当前时间窗做哈希得到；转赠是可逆转的，撤回后票立刻回到票夹。

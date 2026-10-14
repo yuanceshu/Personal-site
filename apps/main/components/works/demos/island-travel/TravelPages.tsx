@@ -18,7 +18,7 @@ function Concierge({ compact = false, open = false, onClose, onViewResults }: { 
   const followLatest = useRef(true);
   const send = (value?: string) => { followLatest.current = true; void t.send(value); };
   useEffect(() => { if (!compact) return; if (open) dialog.current?.showModal(); else dialog.current?.close(); }, [compact, open]);
-  useEffect(() => { if (compact && open && followLatest.current && log.current) log.current.scrollTop = log.current.scrollHeight; }, [compact, open, t.messages, t.busy]);
+  useEffect(() => { if ((!compact || open) && followLatest.current && log.current) log.current.scrollTop = log.current.scrollHeight; }, [compact, open, t.messages, t.busy]);
   const content = <>
     <div className="concierge-header"><IslandMark /><div><p className="overline">AT YOUR SERVICE</p><h2>和岛见聊聊</h2></div><button className="quiet-button" onClick={() => { followLatest.current = true; t.newJourney(); input.current?.focus(); }}>新行程</button>{compact && <button type="button" className="quiet-button concierge-close" autoFocus onClick={onClose} aria-label="收起岛见礼宾">✕</button>}{compact && <DemoCollectionLink className="collection-back concierge-back" />}</div>
     <p className="mode-caption">{t.mode === "live" ? "真实 AI 理解 · 模拟行程" : "演示模式 · 规则理解，不调用 AI"}</p>
@@ -60,7 +60,7 @@ export function PlanningPage() {
     <QueryForm />
     <div className="planning-grid">
       <section className="departures" aria-labelledby="results-title"><div className="route-title"><div><span className="route-small">YOUR DEPARTURES</span><h2 id="results-title">{t.queried ? `${t.conditions.origin || "出发地"} → ${t.conditions.destination || "目的地"}` : "下一站，等你决定。"}</h2></div><p className="route-context">{dateLabel(t.conditions.date)}<br />{t.conditions.time_preference || "不限时段"} · {t.conditions.quantity ?? 1} 人</p></div>
-        <p className="results-status" role="status">{t.queried ? `${t.trips.length} 趟可售演示班次` : "填写上方行程，或与右侧 AI 礼宾聊聊。"}</p>
+        <p className="results-status" role="status">{t.queried ? `${t.trips.length} 趟可售演示班次` : "填写上方行程，也可以打开岛见礼宾聊聊。"}</p>
         <TripList trips={t.trips} onSelect={trip => t.selectTrip(trip)} />
         {!t.trips.length && <div className="travel-empty compact"><IslandMark /><h3>{t.queried ? missingCondition(t.conditions) ? "还差一点出发的信息。" : "给计划，留一点调整的余地。" : "每一程，都从一个念头开始。"}</h3><p>{t.queried ? "请补全出发地、目的地和日期，或试试其他日期、时段与人数。" : "支持海口至三亚、琼海、文昌、儋州，以及三亚、琼海至海口。"}</p></div>}
         <div className="table-note"><span>虚构班次 · 余票按本次体验计算</span><span>单程 / 不可真实乘车</span></div>

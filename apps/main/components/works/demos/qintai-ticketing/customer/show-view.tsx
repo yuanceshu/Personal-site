@@ -184,6 +184,7 @@ export function CustomerShowDetail({ productId }: { productId: string }) {
               ) : null}
             </header>
             <div className="q-panel-body">
+              <p className="q-lock-boundary">本 Demo 体验到锁座，不提供结算；到期自动释放。</p>
               {hold ? (
                 <div className="q-hold-actions">
                   <label>

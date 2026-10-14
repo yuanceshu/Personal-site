@@ -32,7 +32,9 @@ export function MerchantEvents() {
   const [open, setOpen] = useState<{ listingId: string; kind: DraftKind } | null>(null);
   const [value, setValue] = useState("");
   const [note, setNote] = useState("");
-  const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
+  const [notice, setNotice] = useState<{ listingId: string; ok: boolean; text: string } | null>(null);
+  const [expandedEvents, setExpandedEvents] = useState<string[]>([]);
+  const alertIds = new Set(merchant.computeAlerts().map(alert => alert.listing_id));
 
   const rows = useMemo(
     () => merchant.eventPacingRows(merchant.eventIds()) as Array<Record<string, unknown>>,
@@ -49,19 +51,20 @@ export function MerchantEvents() {
   const stage = (listingId: string, kind: DraftKind) => {
     const parsed = Number(value);
     if (!Number.isFinite(parsed)) {
-      setNotice({ ok: false, text: "请填写一个数字。" });
+      setNotice({ listingId, ok: false, text: "请填写一个数字。" });
       return;
     }
     try {
       const change = commit(() => {
         if (kind === "price") {
-          return merchant.stagePriceUpdate(merchantSession, [{ listing_id: listingId, new_price: parsed }], note || null);
+          return merchant.stagePriceUpdate(merchantSession, [{ listing_id: listingId, new_price: parsed }], note || null, "operator");
         }
         if (kind === "restock") {
           return merchant.stageInventoryAction(
             merchantSession,
             [{ listing_id: listingId, action: "restock", quantity: Math.trunc(parsed) }],
             note || null,
+            "operator",
           );
         }
         const pricing = merchant.getPricingContext(listingId);
@@ -72,14 +75,11 @@ export function MerchantEvents() {
           starts: todayIso(Date.now()),
           ends: pricing?.event_date ?? todayIso(Date.now() + 7 * 86_400_000),
           nights: null,
-        });
+        }, "operator");
       });
-      setNotice({ ok: true, text: `${ACTION_LABEL[kind]}已暂存为 ${change.change_id}，等待审批。` });
-      setOpen(null);
-      setValue("");
-      setNote("");
+      setNotice({ listingId, ok: true, text: `${ACTION_LABEL[kind]}已暂存为 ${change.change_id}，等待审批。` });
     } catch (error) {
-      setNotice({ ok: false, text: explainOperation(error) });
+      setNotice({ listingId, ok: false, text: explainOperation(error) });
     }
   };
 
@@ -99,21 +99,17 @@ export function MerchantEvents() {
         </p>
       </header>
 
-      {notice ? (
-        <p className={notice.ok ? "q-inline-ok" : "q-inline-error"} role="status">
-          {notice.text}
-          {notice.ok ? <Link href="/works/demos/qintai-ticketing/merchant/holds"> 去待审批列表 →</Link> : null}
-        </p>
-      ) : null}
-
       {rows.length === 0 ? (
         <Empty>没有可运营的场次。</Empty>
       ) : (
         rows.map((event) => {
           const tiers = (event.tiers as Array<Record<string, unknown>>) ?? [];
+          const eventId = String(event.event_id);
+          const expanded = expandedEvents.includes(eventId);
+          const remaining = tiers.reduce((sum, tier) => sum + Number(tier.remaining ?? 0), 0);
+          const attention = tiers.filter(tier => alertIds.has(String(tier.product_id))).length;
           return (
-            <Panel
-              key={String(event.event_id)}
+            <div key={eventId} className={`q-event-panel ${expanded ? "is-expanded" : ""}`}><Panel
               title={String(event.event_name)}
               subtitle={[
                 event.venue,
@@ -123,9 +119,9 @@ export function MerchantEvents() {
                 `基线：${String(event.baseline_kind ?? "—")}`,
               ].join(" · ")}
               action={
-                <button
+                <><span className="q-event-mobile-summary">余 {count(remaining)} 张 · 需关注 {attention} 个票档</span><button type="button" className="q-event-toggle q-outline-button" aria-expanded={expanded} aria-controls={`event-${eventId}`} onClick={() => setExpandedEvents(previous => expanded ? previous.filter(id => id !== eventId) : [...previous, eventId])}>{expanded ? "收起票档 ↑" : "查看票档与操作 ↓"}</button><button
                   type="button"
-                  className="q-ghost-button"
+                  className="q-ghost-button q-event-ai"
                   onClick={() =>
                     askNow(
                       "merchant",
@@ -134,10 +130,10 @@ export function MerchantEvents() {
                   }
                 >
                   让助手分析这一场 <em>AI</em>
-                </button>
+                </button></>
               }
             >
-              <ul className="q-tier-rows">
+              <div id={`event-${eventId}`}><ul className="q-tier-rows">
                 {tiers.map((tier) => {
                   const listingId = String(tier.product_id);
                   const pace = tier.pace_vs_baseline_pts as number | null;
@@ -225,15 +221,16 @@ export function MerchantEvents() {
                                 min={open.kind === "restock" ? 1 : 0}
                                 step={open.kind === "promotion" ? 5 : 10}
                                 value={value}
-                                onChange={(inputEvent) => setValue(inputEvent.target.value)}
+                                onChange={(inputEvent) => { setValue(inputEvent.target.value); setNotice(null); }}
                               />
                             </label>
                             <label>
                               <span>说明（会写进台账摘要）</span>
-                              <input type="text" value={note} maxLength={120} onChange={(inputEvent) => setNote(inputEvent.target.value)} />
+                              <input type="text" value={note} maxLength={120} onChange={(inputEvent) => { setNote(inputEvent.target.value); setNotice(null); }} />
                             </label>
+                            {notice?.listingId === listingId && <p className={notice.ok ? "q-inline-ok" : "q-inline-error"} role={notice.ok ? "status" : "alert"}>{notice.text}{notice.ok && <Link href="/works/demos/qintai-ticketing/merchant/holds"> 去待审批列表 →</Link>}</p>}
                             <div className="q-draft-actions">
-                              <button type="button" className="q-primary-button q-primary-button--small" onClick={() => stage(listingId, open.kind)}>
+                              <button type="button" className="q-primary-button q-primary-button--small" disabled={!value.trim() || (notice?.listingId === listingId && notice.ok)} onClick={() => stage(listingId, open.kind)}>
                                 暂存为待审批
                               </button>
                               <button type="button" className="q-text-button" onClick={() => setOpen(null)}>取消</button>
@@ -258,8 +255,8 @@ export function MerchantEvents() {
                   曲线为「{String(tiers[0]?.tier ?? "")}」这一档的累计售票占容量比例；虚线是同类场馆手册给出的同期基线。
                   补货只从运营与制作保留中释放，赠票与作废票继续不售；在售中暂停票档在琴台票务 Demo 里被拒绝。
                 </p>
-              </div>
-            </Panel>
+              </div></div>
+            </Panel></div>
           );
         })
       )}

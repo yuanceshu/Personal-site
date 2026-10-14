@@ -22,7 +22,7 @@ function readMessages(value: unknown): DisplayMessage[] {
   return value.filter((item): item is DisplayMessage => item && (item.role === 'user' || item.role === 'assistant') && typeof item.content === 'string').slice(-20).map(item => ({ ...item, blocks: Array.isArray(item.blocks) ? item.blocks.filter(block => block && typeof block.type === 'string') : [] }));
 }
 
-const ChatPanel = forwardRef<ChatHandle>(function ChatPanel(_, ref) {
+const ChatPanel = forwardRef<ChatHandle, { onBusyChange: (busy: boolean) => void }>(function ChatPanel({ onBusyChange }, ref) {
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [context, setContext] = useState<FinanceConversationContext>({});
   const [input, setInput] = useState('');
@@ -58,6 +58,7 @@ const ChatPanel = forwardRef<ChatHandle>(function ChatPanel(_, ref) {
     const message = value.trim();
     if (!message || busy.current || !restored) return;
     busy.current = true;
+    onBusyChange(true);
     followLatest.current = true;
     setInput('');
     const nextMessages: DisplayMessage[] = [...messages, { role: 'user', content: message }];
@@ -78,7 +79,7 @@ const ChatPanel = forwardRef<ChatHandle>(function ChatPanel(_, ref) {
     } catch (error) {
       setMessages([...nextMessages, { role: 'assistant', content: '', error: controller.signal.aborted ? '本次查询超时，请稍后重试或缩小查询范围。' : error instanceof Error ? error.message : '请求失败，请稍后重试。' }]);
     } finally {
-      window.clearTimeout(timeout); busy.current = false; setLoading(false); abort.current = null;
+      window.clearTimeout(timeout); busy.current = false; onBusyChange(false); setLoading(false); abort.current = null;
 
     }
   }

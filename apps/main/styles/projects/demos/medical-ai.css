@@ -326,3 +326,10 @@
   .medical-ai-demo .hero-status { display: none; }
   .medical-ai-demo .hero-copy p { font-size: 12px; line-height: 1.6; }
 }
+
+.medical-ai-demo .message-result-link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--teal); font-size: 12px; }
+.medical-ai-demo .history-result-note { color: var(--muted); font-size: 13px; line-height: 1.7; }
+.medical-ai-demo .history-result-note button { margin-left: 12px; min-height: 44px; }
+.medical-ai-demo .demo-step { flex-wrap: wrap; }
+.medical-ai-demo .demo-step .stage-feedback { min-height: 3.4em; font-size: 13px; line-height: 1.7; }
+.medical-ai-demo .demo-step .stage-error { color: var(--red); }

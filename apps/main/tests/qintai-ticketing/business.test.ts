@@ -503,3 +503,20 @@ test("经营快照的口径与阈值来自同一套常量", () => {
   assert.ok(today);
   assert.ok(today.upcoming.length > 0);
 });
+
+test("人工暂存与助手草案准确记录来源，审批规则保持一致", () => {
+  const { merchant, storefront } = boot();
+  const price = storefront.products[LOWER].price;
+  const manualPrice = merchant.stagePriceUpdate(MERCHANT_SESSION, [{ listing_id: LOWER, new_price: price * 1.05 }], null, "operator");
+  const manualStock = merchant.stageInventoryAction(MERCHANT_SESSION, [{ listing_id: LOWER, action: "restock", quantity: 1 }], null, "operator");
+  const promotion = { name: "演示活动", listing_ids: [LOWER], discount_pct: 5, starts: "2026-09-29", ends: "2026-09-30", nights: null };
+  const manualPromotion = merchant.stagePromotion(MERCHANT_SESSION, promotion, "operator");
+  const agentPrice = merchant.stagePriceUpdate(MERCHANT_SESSION, [{ listing_id: LOWER, new_price: price * 1.05 }]);
+  const agentStock = merchant.stageInventoryAction(MERCHANT_SESSION, [{ listing_id: LOWER, action: "restock", quantity: 1 }]);
+  const agentPromotion = merchant.stagePromotion(MERCHANT_SESSION, promotion);
+  for (const change of [manualPrice, manualStock, manualPromotion]) assert.equal(change.created_by_kind, "operator");
+  for (const change of [agentPrice, agentStock, agentPromotion]) assert.equal(change.created_by_kind, "agent");
+  assert.equal(storefront.products[LOWER].price, price);
+  merchant.applyChange(MERCHANT_SESSION, manualPrice.change_id);
+  assert.equal(storefront.products[LOWER].price, price * 1.05);
+});

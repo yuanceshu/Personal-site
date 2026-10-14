@@ -104,7 +104,17 @@ interface World {
   merchant: TicketMerchant;
 }
 
+type ShowsBrowse = {
+  query: string; venue: string; priceCap: string; minQuantity: string;
+  sort: "relevance" | "price_asc" | "price_desc";
+  filtersOpen: boolean; expandedGroups: string[];
+};
+const INITIAL_BROWSE: ShowsBrowse = { query: "", venue: "全部场馆", priceCap: "", minQuantity: "", sort: "relevance", filtersOpen: false, expandedGroups: [] };
+
 interface QintaiValue {
+  showsBrowse: ShowsBrowse;
+  setShowsBrowse: React.Dispatch<React.SetStateAction<ShowsBrowse>>;
+  showsScroll: { current: number };
   storeName: string;
   dataset: Dataset;
   storefront: TicketStorefront;
@@ -173,6 +183,8 @@ export function explainOperation(error: unknown): string {
 }
 
 export function QintaiProvider({ children }: { children: React.ReactNode }) {
+  const [showsBrowse, setShowsBrowse] = useState<ShowsBrowse>(INITIAL_BROWSE);
+  const showsScroll = useRef(0);
   const [world, setWorld] = useState<World | null>(null);
   const [ids, setIds] = useState<{ sessionId: string; userId: string } | null>(null);
   const [revision, setRevision] = useState(0);
@@ -567,6 +579,7 @@ export function QintaiProvider({ children }: { children: React.ReactNode }) {
     writeStoredSession(storedRef.current);
     setWorld({ dataset, engine: nextEngine, storefront, merchant: nextMerchant });
     setAccepted([]);
+    setShowsBrowse(INITIAL_BROWSE); showsScroll.current = 0;
     setChat({
       customer: { entries: [], pending: false, status: null },
       merchant: { entries: [], pending: false, status: null },
@@ -585,6 +598,7 @@ export function QintaiProvider({ children }: { children: React.ReactNode }) {
   }
 
   const value: QintaiValue = {
+    showsBrowse, setShowsBrowse, showsScroll,
     storeName: STORE_NAME,
     dataset: world.dataset,
     storefront: world.storefront,
